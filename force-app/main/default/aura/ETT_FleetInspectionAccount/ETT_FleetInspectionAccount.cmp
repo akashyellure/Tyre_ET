@@ -1,0 +1,549 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,lightning:isUrlAddressable,force:hasRecordId"
+                access="global" controller="ETT_FleetInspectionController">
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        
+        .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important;
+        max-height:unset !important;
+        }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}"/>
+    <aura:attribute name="isBus" type="Boolean" default="false" />    
+    <aura:attribute name="isSpinner" type="Boolean" default="false" />    
+    <aura:attribute name="isTruck" type="Boolean" default="false" /> 
+    <aura:attribute name="isConditionBad" type="Boolean" default="false" /> 
+    <aura:attribute name="todaysDate" type="String" />
+    <aura:attribute name="defaultDateValue" type="String" />
+    <aura:attribute name="isTrailor" type="Boolean" default="false" /> 
+    <aura:attribute name="isVehicalLoaded" type="Boolean" default="false" />     
+    <aura:attribute name="NumberOfTyres" type="Integer" /> 
+    <aura:attribute name="PartyType" type="Map"/> 
+    <aura:attribute name="FleetInspectionLineItemObj" type="Fleet_Inspection_Line_Item__c"
+                    default="{'sobjectType': 'Fleet_Inspection_Line_Item__c',
+                             'ETT_Brand__c': '',
+                             }" /> 
+    <aura:attribute name="selectedValues" type="List" default="" description="Selected value in Multi Select" />
+    <aura:attribute name="selectedMultiValues" type="String" default="" description="Selected value in Multi Select" />
+    <aura:attribute name="TyreStatusPicklst" type="Map"/> 
+    <aura:attribute name="FleetAction" type="Map"/> 
+    <aura:attribute name="FleetCondition" type="Map"/>
+    <aura:attribute name="FleetBadReason" type="Map"/>
+    <aura:attribute name="VehicleConfiguration" type="Map"/>
+    <aura:attribute name="accept" type="List" default="['.png', '.jpg', '.jpeg','.pdf,.doc']"/>
+    
+    <aura:attribute name="FleetInspectionObj" type="ETT_Fleet_Inspection__c" 
+                    default="{'sobjectType': 'ETT_Fleet_Inspection__c',
+                             'Name': '',
+                             'ETT_Account__c':'',
+                             'ETT_Vehicle_Number__c': '',
+                             'ETT_Internal_Number__c':'',
+                             'ETT_Vehicle_Configuration__c':'',
+                             'ETT_Type__c':'',
+                             'ETT_Location__c':'',
+                             'ETT_Date__c':'',
+                             'ETT_Odo_Meter__c': '',
+                             'ETT_Minimum_Pull_Point__c':'',
+                             'ETT_Party_Type__c':''
+                             }" />
+    <aura:attribute name="FleetInspectionLineItemList" type="Fleet_Inspection_Line_Item__c[]"/>
+     <aura:attribute name="itemSelectedTyreSizeName" type="String"/>
+     <aura:attribute name="itemSelectedTyreSizeID" type="String"/>
+     <aura:attribute name="itemSelectedTyreBrandID" type="String"/>
+     <aura:attribute name="itemSelectedTyrePatternID" type="String"/>
+   <aura:attribute name="indexofTyre" type="Integer"/>
+      <aura:attribute name="recordLoadError" type="String"/>
+    
+    <aura:attribute name="fileToBeUploaded" type="Object[]"/>
+    <aura:attribute name="fileUploadWrapper" type="ETT_FileUploadWrapper[]"/>
+    
+    <aura:attribute name="fleetInspectionWrapper" type="ETT_FleetInspectionWrapper[]"/>
+    
+    <aura:attribute name="newAccount" type="Account" default="{ 'sobjectType': 'Account',
+                                                              'Name': '',
+                                                              'Party_Type__c': '',
+                                                              'ETT_Location__c': ''
+                                                               }"/>
+       
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />    
+    <aura:handler name="change" value="{!v.itemSelectedTyreSizeName}" action="{!c.itemsChange}"/>
+     <aura:handler name="change" value="{!v.itemSelectedTyreSizeID}" action="{!c.itemsChange2}"/>
+    <aura:handler name="change" value="{!v.itemSelectedTyreBrandID}" action="{!c.itemsChange2}"/>
+    <aura:handler name="change" value="{!v.itemSelectedTyrePatternID}" action="{!c.itemsChange2}"/>
+   
+ <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Fleet Inspection</h4>
+    </div>            
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">
+            
+            <aura:if isTrue="{!v.isSpinner}">
+                <lightning:spinner alternativeText="Loading" size="large" />
+            </aura:if>
+            
+            <table class="slds-table slds-table--bordered slds-table--striped" border="1"> 
+                <tr> 
+                    <th>Fleet Name:</th>
+                    <td>{!v.newAccount.Name}</td>
+                    
+                    <th>Party Type:</th>
+                    <td><lightning:select aura:id="stgFleetPartyType" value="{!v.newAccount.ETT_Party_Type__c}"  name="FleetPartyTypePicklist">
+                        <option value="">--None--</option>
+                        <aura:iteration items="{!v.PartyType}" var="ind" indexVar="key">
+                            <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==v.newAccount.Party_Type__c}"/>
+                        </aura:iteration>
+                        </lightning:select>
+                    </td>
+                    
+                    <th>Location:</th>
+                    <td><lightning:input onblur = "{!c.convertCase}" type="text" aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetLocation"
+                                         value="{!v.FleetInspectionObj.ETT_Location__c}"
+                                         required="true"/></td>
+                </tr>
+                
+                
+                <tr> 
+                    
+                    <th>Vehicle Config:</th>
+                    <td><lightning:select   aura:id="stagingFleetInspectionForm" value="{!v.FleetInspectionObj.ETT_Vehicle_Configuration__c}"  name="FleetVehicleConfigurationPicklist">
+                        <option value="">--None--</option>
+                        <aura:iteration items="{!v.VehicleConfiguration}" var="ind" indexVar="key">
+                            <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==v.FleetInspectionObj.ETT_Vehicle_Configuration__c}" />
+                        </aura:iteration>
+                        </lightning:select>
+                    </td>
+                    
+                    
+                    <th>Internal No:</th>
+                    <td><lightning:input  onblur = "{!c.GetVehicleNumber}" aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetInternalNum"
+                                         value="{!v.FleetInspectionObj.ETT_Internal_Number__c}"
+                                         required="false"/></td>
+                    
+                    <th>Vehicle No:</th>
+                    <td><lightning:input onblur = "{!c.convertCase}" aura:id="stgFleetVehicleNum"
+                                         name="stgFleetVehicleNum"
+                                         value="{!v.FleetInspectionObj.ETT_Vehicle_Number__c}"
+                                         required="true"/></td>
+                   
+                    
+                </tr> 
+                
+                
+                
+                
+                <tr> 
+                    
+                    <th>No. of Vehicle:</th>
+                    <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetOdoMeter"
+                                         value="{!v.FleetInspectionObj.ETT_No_of_Vehicles__c}"
+                                         required="false"/></td>
+                    <th> Date:</th>
+                    <td><lightning:input  type="date" aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetDate"
+                                         min="{!v.todaysDate}"
+                                         default = "{!v.defaultDateValue}"
+                                         value="{!v.FleetInspectionObj.ETT_Date__c}"
+                                         required="false"/></td>
+                     <th>Type:</th>
+                    <td><lightning:select aura:id="vehType" value="{!v.FleetInspectionObj.ETT_Type__c}" onchange="{! c.onChange }">
+                        <option value="">choose one...</option>
+                        <option value="Bus">Bus</option>
+                        <option value="Truck">Truck</option>
+                        <option value="Trailor">Trailor</option>
+                         <option value="Mini Bus">Mini Bus</option>
+                        <option value="LCV">LCV</option>
+                        <option value="Unit">Unit</option>
+                        </lightning:select>
+                    </td>
+                    
+                    
+                    
+                </tr> 
+                <tr>
+                    
+                    <th>Odo Meter:</th>
+                    <td><lightning:input type="number"  aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetOdoMeter"
+                                         value="{!v.FleetInspectionObj.ETT_Odo_Meter__c}"
+                                         required="false"/></td>
+                    
+                    <th>Minimum Pull point:</th>
+                    <td><lightning:input type="number" aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetMinimumPullPoint"
+                                         value="{!v.FleetInspectionObj.ETT_Minimum_Pull_Point__c}"
+                                         step="0.01"
+                                         required="true"/></td>
+
+                </tr>
+                
+            </table><br/>
+            
+           
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size_3-of-12 border_zero">
+                    <aura:if isTrue="{!v.isTrailor}">
+                        
+                        <img src="{!$Resource.EtTyreIcons+'/trailor.png'}" style="width:100%" />
+                        
+                        <table>
+                            <tr>
+                                <td><lightning:button label="T1RLO" name="T1RLO" class="T1RLO" aura:id="T1RLO" onclick="{!c.AddNewRow}" /></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="T2RLO" name="T2RLO" class="T2RLO" aura:id="T2RLO" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="T3RLO" name="T3RLO" class="T3RLO" aura:id="T3RLO" onclick="{! c.AddNewRow }"/></td>
+                            </tr>                
+                        </table>
+                        
+                        
+                        <table>
+                            <tr>
+                                <td><lightning:button label="T1RLI" name="T1RLI" class="T1RLI" aura:id="T1RLI" onclick="{!c.AddNewRow}"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="T2RLI" name="T2RLI" class="T2RLI" aura:id="T2RLI" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="T3RLI" name="T3RLI" class="T3RLI" aura:id="T3RLI" onclick="{! c.AddNewRow }"/></td>
+                            </tr>                
+                        </table>
+                        
+              
+                        
+                        <table>
+                            <tr>
+                                <td><lightning:button label="T1RRI" name="T1RRI" class="T1RRI" aura:id="T1RRI" onclick="{!c.AddNewRow}"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="T2RRI" name="T2RRI" class="T2RRI" aura:id="T2RRI" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="T3RRI" name="T3RRI" class="T3RRI" aura:id="T3RRI" onclick="{! c.AddNewRow }"/></td>
+                            </tr>                
+                        </table>                        
+                                  
+                        <table>
+                            <tr>
+                                <td><lightning:button label="T1RRO" name="T1RRO" class="T1RRO" aura:id="T1RRO" onclick="{!c.AddNewRow}"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="T2RRO" name="T2RRO" class="T2RRO" aura:id="T2RRO" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="T3RRO" name="T3RRO" class="T3RRO" aura:id="T3RRO" onclick="{! c.AddNewRow }"/></td>
+                            </tr>                
+                        </table>
+                    </aura:if>
+                    <aura:if isTrue="{!v.isTruck}">
+                        
+                        <img src="{!$Resource.EtTyreIcons+'/truck.png'}" style="width:90%" />
+                        
+                        <table>
+                            <tr>
+                                <td><lightning:button label="FL" name="FL" class="FLTruck" aura:id="FL" title="FL" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="D1RLO" name="D1RLO" aura:id="D1RLO" class="D1RLOTruck" title="D1RLO" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="D2RLO" name="D2RLO" aura:id="D2RLO" class="D2RLOTruck" title="D2RLO" onclick="{! c.AddNewRow }"/></td>
+                            </tr>                
+                        </table>
+                        
+                        <table>
+                            <tr>
+                                <td><lightning:button label="D1RLI" name="D1RLI" aura:id="D1RLI" class="D1RLITruck" title="D1RLO" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="D2RLI" name="D2RLI" aura:id="D2RLI" class="D2RLITruck" title="D2RLO" onclick="{! c.AddNewRow }"/></td>
+                            </tr>                
+                        </table>
+                        
+                        
+                        <table>
+                                     <tr>
+                                <td><lightning:button label="D1RRI" name="D1RRI" aura:id="D1RRI" class="D1RRITruck" title="D1RRI" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="D2RRI" name="D2RRI" aura:id="D2RRI" class="D2RRITruck" title="D2RRI" onclick="{! c.AddNewRow }"/></td>
+                            </tr>   
+                        </table>
+                        <table>
+                            <tr>
+                                <td><lightning:button label="FR" name="FR" aura:id="FR" class="FRTruck" title="FR" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            
+                             <tr>
+                                <td><lightning:button label="D1RRO" name="D1RRO" aura:id="D1RRO" class="D1RROTruck" title="D1RRO" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="D2RRO" name="D2RRO" aura:id="D2RRO" class="D2RROTruck" title="D2RRO" onclick="{! c.AddNewRow }"/></td>
+                            </tr>   
+                        </table>                        
+                        
+                    </aura:if>
+                    <aura:if isTrue="{!v.isBus}">
+                        <img src="{!$Resource.EtTyreIcons+'/bus.png'}" style="width: 90%;" />
+                        <table>
+                            <tr>
+                                <td><lightning:button label="FL" name="FL" aura:id="FL" class="FLBtn" title="FL" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                          
+                            <tr>
+                                <td><lightning:button label="D1RLO" name="D1RLO" aura:id="D1RLO" class="D1RLOBtn" title="D1RLO" onclick="{! c.AddNewRow }"/></td>
+                            </tr> 
+                                 
+                            <tr>
+                                <td><lightning:button label="D1RLI" name="D1RLI" aura:id="D1RLI" class="D1RLIBtn" title="D1RLI" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr>
+                                <td><lightning:button label="FR" name="FR" aura:id="FR" class="FRBtn" title="FR" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="D1RRI" name="D1RRI" aura:id="D1RRI" class="D1RRIBtn" title="D1RRI" onclick="{! c.AddNewRow }"/></td>
+                            </tr>
+                            <tr>
+                                <td><lightning:button label="D1RRO" name="D1RRO" aura:id="D1RRO" class="D1RROBtn" title="D1RRO" onclick="{! c.AddNewRow }"/></td>
+                            </tr>                
+                        </table>
+                    </aura:if>
+                </div>
+                <div class="slds-col slds-size_9-of-12">
+                    
+                    <aura:if isTrue="{!v.isVehicalLoaded}">
+                        
+                        <div><h1 style="font-size:150%;"> Fleet Inspection</h1></div>  <br/>
+                        <div class="slds-scrollable inspection_table">
+                            <table class="slds-table" border="1" style="width: 170%;"> 
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>Wheel Position </th>
+                                    <th style="width:120px">Tyre Size</th>
+                                    <th style="width:120px">Casing Brand</th>
+                                    <th style="width:120px">Original Tread Design</th>
+                                    <th>Serial no.</th>
+                                    <th>Tyre Status</th>
+                                    <th>Retreader</th>
+                                    <th>Retread Tread Design</th>
+                                    <!--<th>Tread Depth </th>-->
+                                    <th>Tread Depth</th> 
+                                    <th>Pressure</th>
+                                    <th>Condition</th>
+                                    <th>Action</th>
+                                    <th>Image</th> 
+                                    <th>Remarks</th>
+                                    <th>Delete</th>
+                                    
+                                </tr> 
+                                <aura:iteration items="{!v.FleetInspectionLineItemList}" var="item" indexVar="index">
+                                    <aura:if isTrue="{!index>0}">
+                                        <tr class="slds-text-title_caps">
+                                            <td scope="col">
+                                                <!-- <b>{!index}.&nbsp;{!item.Tyre_Position__c}</b>-->
+                                                <b>{!index}</b>
+                                            </td> 
+                                            
+                                            <td scope="col">
+                                                <b>{!item.Tyre_Position__c}</b>
+                                                
+                                            </td>
+                                            <td scope="col cust_td" style="min-width: 200px;">
+                                                <c:ETT_FleetDynamicLookupSearch objectName="ETT_Tyre_Size_Master__c" fieldName="Name"  
+                                                                                selectRecordId="{!item.ETT_Tyre_Size__c}"
+                                                                                selectRecordId1="{!v.itemSelectedTyreSizeID}"
+                                                                                selectedIndex= "{!v.indexofTyre}"
+                                                                                selectRecordName="{!item.ETT_Tyre_Size_Name__c}"
+                                                                                selectRecordName1="{!v.itemSelectedTyreSizeName}"
+                                                                                rowNo="{!index}"
+                                                                                required="true" 
+                                                                                iconName="action:user"/> 
+                                            </td>
+                                            
+                                            <td scope="col cust_td" style="min-width: 200px;">
+                                                <c:ETT_FleetDynamicLookupSearch  objectName="ETT_Brand_Master__c" fieldName="Name"  
+                                                                                selectRecordId="{!item.ETT_Brand__c}"
+                                                                                selectRecordId1="{!v.itemSelectedTyreBrandID}"
+                                                                                selectedIndex= "{!v.indexofTyre}"
+                                                                                selectRecordName="{!item.ETT_Tyre_Brand_Name__c}"
+                                                                                rowNo="{!index}"
+                                                                                required="true" iconName="action:user"/> 
+ 
+                                            </td>
+                                            <td scope="col cust_td" style="min-width: 200px;">
+                                                <c:ETT_FleetDynamicLookupSearch objectName="ETT_Pattern_Master__c" fieldName="Name"  
+                                                                                selectRecordId="{!item.ETT_Pattern__c}"
+                                                                                selectRecordId1="{!v.itemSelectedTyrePatternID}"
+                                                                                selectedIndex= "{!v.indexofTyre}"
+                                                                                selectRecordName="{!item.ETT_Tyre_Pattern_Name__c}"
+                                                                                rowNo="{!index}"
+                                                                                required="false" iconName="action:user"/> 
+                                            </td>
+                                            <td scope="col">
+                                                <lightning:input onblur = "{!c.convertCase}" aura:id="stgNo" name="serialNumber" value="{!item.Serial_Number__c}"/>
+                                            </td>
+                                            <td scope="col">
+                                                <lightning:select aura:id="stgTyreStatus" value="{!item.Tyre_Status__c}"  name="FleetTyreStatusPicklist">
+                                                    <option value="">--None--</option>
+                                                    <aura:iteration items="{!v.TyreStatusPicklst}" var="ind" indexVar="key">
+                                                        <option text="{!ind.value}" value="{!ind.key}"/>
+                                                    </aura:iteration>
+                                                    
+                                                </lightning:select>
+                                            </td>
+                                            <td scope="col">
+                                                <lightning:input onblur = "{!c.convertCase}" aura:id="stgRetread" name="stgRTD" value="{!item.Retreader__c}"/>
+                                            </td>
+                                            <td scope="col">
+                                                <lightning:input onblur = "{!c.convertCase}" aura:id="stgRTDesign" name="stgRTDesign" value="{!item.Retread_Tread_Design__c}"/>
+                                            </td>
+                                            <td scope="col">
+                                                <table class="inner_table">
+                                                    <tr>
+                                                        <td>Original (MM)</td>
+                                                        <td>Actual (MM)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>    
+                                                            <lightning:input type="text" aura:id="stgTDODesign" name="stgRTDesign" value="{!item.ETT_Tread_Depth_Original__c}" step="0.01" />
+                                                        </td>
+                                                        <td scope="col">
+                                                            <lightning:input type="number" aura:id="stgTDAesign" name="stgRTDesign" value="{!item.ETT_Tread_Depth_Actual__c}" step="0.01" />
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            
+                                            <td scope="col">
+                                                <table class="inner_table">
+                                                    <tr>
+                                                        <td>Standard (PSI)</td>
+                                                        <td>Actual (PSI)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>    
+                                                            <lightning:input  aura:id="stgPPAesign" name="stgRTDesign" value="{!item.ETT_Proper_Pressure__c}"   />
+                                                             
+                                                        </td> 
+                                                        <td scope="col">
+                                                            <lightning:input type="number" aura:id="stgAPAesign" name="stgRTDesign" value="{!item.ETT_Actual_Pressure__c}" step="0.01"  />
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            
+                                            <td scope="col">
+                                                <!-- <lightning:input aura:id="stgCondition" name="stgCondition" value="{!item.ETT_Condition__c}" />-->
+                                                <!-- <lightning:select aura:id="stgCondition" value="{!item.ETT_Condition__c}"  name="FleetConditionPicklist" onchange="{!c.ConditionChange}">-->
+                                                <lightning:select aura:id="stgCondition" value="{!item.ETT_Condition__c}"  name="FleetConditionPicklist" >
+                                                    <option value="">--None--</option>
+                                                    <aura:iteration items="{!v.FleetCondition}" var="ind" indexVar="key">
+                                                        <option text="{!ind.value}" value="{!ind.key}"/>
+                                                        
+                                                    </aura:iteration>
+                                                </lightning:select>
+                                                <aura:if isTrue="{!item.ETT_Condition__c=='Poor'}">
+                                                    <c:ETT_Fleet_BadReasonMultiSelectPicklist values = "{!item.ETT_Bad_Reason_Complaint__c}"/> 
+                                                    <!--<td scope="col"> -->
+                                                    
+                                                    <!--   <c:ETT_Fleet_BadReasonMultiSelectPicklist options="{!v.FleetBadReason}"  Multivalues="{!item.ETT_Bad_Reason_Complaint__c}" multiSelect="true" label="Bad Complaint Reason"/> -->
+                                                    <!--<lightning:dualListbox aura:id="selectGenre"
+                                                                           name="Genre"
+                                                                           label="Select Poor Reason"
+                                                                           sourceLabel="Available Reason"
+                                                                           selectedLabel="Selected Reason"
+                                                                           options="{!v.FleetBadReason}"
+                                                                           value="{!item.ETT_Bad_Reason_Complaint__c}" 
+                                                                           onchange="{!c.handleGenreChange}"/> -->
+                                                    <!-- <lightning:button variant="brand" label="Get Selected Genre" onclick="{!c.getSelectedGenre}" /> -->
+                                                    
+                                                    <!--   </td>-->
+                                                    
+                                                </aura:if>
+                                                
+                                            </td>
+                                            
+                                            <td scope="col">
+                                                <lightning:select aura:id="stgAction" value="{!item.ETT_Action__c}"  name="FleetActionPicklist">
+                                                    <option value="">--None--</option>
+                                                    <aura:iteration items="{!v.FleetAction}" var="ind" indexVar="key">
+                                                        <option text="{!ind.value}" value="{!ind.key}"/>
+                                                    </aura:iteration>
+                                                    
+                                                </lightning:select>
+                                            </td>
+                                            
+                                            <td scope="col">
+                                                <div class="upload_btn">
+                                                    <lightning:input aura:id="fileTemp" 
+                                                                     type="file"
+                                                                     files="{!v.fileToBeUploaded}"
+                                                                     onchange="{!c.onFileUploaded}"
+                                                                     accept="{!v.accept}"
+                                                                     label=""
+                                                                     name="{!item.Tyre_Position__c}" 
+                                                                     multiple="true"/>  
+                                                    
+                                                    <aura:iteration items="{!v.fileUploadWrapper}" var="doc"  indexVar="index">
+                                                        
+                                                        <aura:if isTrue="{! and(doc.strFileName != '',doc.fileSourceType==item.Tyre_Position__c) }">
+                                                            <div>{!doc.strFileName}&nbsp;
+                                                                <a href="javascript:void(0)" style="color:blue;" data-filename="{!doc.strFileName}" data-index="{!index}" onclick="{!c.removeFile}">Remove</a>
+                                                            </div>
+                                                        </aura:if>
+                                                    </aura:iteration>                                            
+                                                </div>
+                                            </td>	
+                                            <td scope="col">
+                                                <lightning:input onblur = "{!c.convertCase}" aura:id="stgTDAesign" name="stgRTDesign" value="{!item.Remarks__c}" />
+                                            </td>
+                                            <td scope="col" class="icon_ui">
+                                                <aura:if isTrue="{!index == 0}">
+                                                    <a onclick="{!c.AddNewRow}">
+                                                        <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                                        <span class="slds-assistive-text">Add Icon</span>
+                                                    </a>
+                                                    <aura:set attribute="else">
+                                                        <a onclick="{!c.removeRow}" id="{!index}" >
+                                                            <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                                            <span class="slds-assistive-text">Delete Icon</span>
+                                                        </a>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </td>
+                                        </tr>
+                                    </aura:if>
+                                </aura:iteration>
+                            </table>
+                        </div>
+                        
+                    </aura:if>
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+    
+    
+    
+    <div class="modal-footer slds-modal__footer">
+        <lightning:button variant="Brand" class="slds-button" label="Submit" onclick="{!c.clickCreate}"/>
+        <lightning:button variant="Neutral" class="slds-button" label="Cancel" onclick="{!c.handleClose}"/>
+    </div>
+    
+    
+</aura:component>

@@ -1,0 +1,92 @@
+.THIS * {
+	box-sizing: border-box; 
+}
+.THIS .btn_next button {
+    min-width: 120px;
+}
+.THIS .input-group .lightningInput {
+    display: inline-block;
+    margin-right: 10px;
+}
+.THIS .slds-modal__container {
+    width: 85%;
+    max-width: 90%;
+    min-width: 40rem;
+}
+.THIS .slds-card__body {
+	height: auto;
+    margin-bottom: 0;
+    overflow:auto;
+}
+.THIS .slds-modal__close {
+    width: 2rem;
+    height: 2rem;
+    position: absolute;
+    top: -15px;
+    right: -10px;
+    background-color: transparent;
+    border-radius: 50%;
+    float: right;
+    z-index: 15;
+}
+.THIS .slds-p-around_medium, .THIS .slds-p-around--medium {
+     padding: 0px; 
+}
+.THIS .slds-button_icon-inverse{
+    background: #004487;
+    color: #fff;
+}
+.THIS .slds-backdrop {
+    background: transparent;
+}
+.THIS .processlink{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+.THIS .skilledsec{
+    position: relative;
+    padding-top: 1rem;
+    padding-bottom: 0rem;
+    text-align: -webkit-center;
+    text-align: center;
+}
+.THIS .firstsec , .THIS .Secondsec , .THIS .thirdsec{
+    position: relative;
+    width: 45%;
+    display: inline-block;
+}
+.THIS .slds-card__footer{
+    clear:both;
+    text-align: center;
+}
+.THIS .Secondsec .slds-form-element__control {
+    clear: left;
+    position: relative;
+    padding-bottom: 5px;
+}
+.THIS ol.slds-list_ordered li {
+    padding-bottom: 5px;
+}
+.THIS .slds-modal_small .slds-modal__container {
+    min-width: 99%!important;
+}
+@media only screen and (max-width: 1024px) {
+    .THIS .firstsec, .THIS .Secondsec, .THIS .thirdsec {
+        width: 50%;
+    }
+    .THIS ol.slds-list_ordered li {
+        padding-bottom: 0px;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .THIS .firstsec, .THIS .Secondsec, .THIS .thirdsec {
+        width: 100%;
+    }
+    .THIS ol.slds-list_ordered li {
+        padding-bottom: 5px;
+    }
+}
+.THIS .holdReason{
+    width:200px;
+}

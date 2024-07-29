@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ETT_Quality_control_start_time__c</fullName>
+    <externalId>false</externalId>
+    <label>Quality control start time</label>
+    <summarizedField>ETT_Job_Card_Line_Item__c.ETT_Overall_Start_time__c</summarizedField>
+    <summaryForeignKey>ETT_Job_Card_Line_Item__c.ETT_Job_Card__c</summaryForeignKey>
+    <summaryOperation>min</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

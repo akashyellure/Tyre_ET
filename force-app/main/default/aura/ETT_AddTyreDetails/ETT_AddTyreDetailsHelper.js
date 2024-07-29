@@ -1,0 +1,41 @@
+({
+	 fetchPickListVal: function(component, fieldName, elementId) {
+        
+        var action = component.get("c.getselectOptions");
+        
+        if(fieldName == 'ETT_Tyre_Life__c'){
+            action.setParams({
+                "objObject": component.get("v.stgQuotReq"),
+                "fld": fieldName
+            });
+        }        
+        var opts = [];
+        action.setCallback(this, function(response) {
+            if (response.getState() == "SUCCESS") {
+                
+                var result = response.getReturnValue();
+                console.log(result);
+                var opts = [];
+                for(var key in result){
+                    opts.push({key: key, value: result[key]});
+                }
+                var el = 'v.'+elementId;
+                component.set(el, opts);
+            }else{
+                console.log("Failed with state: " + state);
+                console.log('errror');
+            }
+        });
+        $A.enqueueAction(action);
+    },
+    
+    showErrorToast : function(params) {
+        var toastEvent = $A.get("e.force:showToast");
+        if(toastEvent){
+            toastEvent.setParams(params);
+            toastEvent.fire();
+        } else{
+            alert(params.message);
+        }
+    },
+})

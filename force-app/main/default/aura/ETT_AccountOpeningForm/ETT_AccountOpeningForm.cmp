@@ -1,0 +1,501 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" controller="ETT_LeadFormController" access="global" extensible="true">
+    
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important;
+        max-height:unset !important;
+        }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}"/>
+    <aura:attribute name="paymentTerms" type="Map"/>
+    <aura:attribute name="legalStatus" type="Map"/>    
+    <aura:attribute name="Emirate" type="Map"/> 
+     <aura:attribute name="Increment" type="Integer" default ="0"/> 
+    
+    
+    <aura:attribute name="newLead" type="Lead" default="{ 'sobjectType': 'Lead',
+                                                        'FirstName': '',
+                                                        'LastName': '',
+                                                        'Company': '',
+                                                        'Street':'',
+                                                        'Email': '',
+                                                        'Fax' : '',
+                                                        'ETT_Web_Address__c' :'',
+                                                        'ETT_VAT_TRN__c':'',
+                                                        'ETT_Emirate__c':'',
+                                                        'Phone': '' }"/>
+    
+    
+    <aura:attribute name="objStgTradeRef" type="ETT_Staging_Trade_Reference__c" 
+                    default="{ 'sobjectType': 'ETT_Staging_Trade_Reference__c',
+                             'ETT_Supplier_Name_Details__c': '',
+                             'ETT_Length_of_relationship__c': '',
+                             'ETT_Credit_Limit__c': '',
+                             'ETT_Payment_Terms__c':''}"/>
+    
+    <aura:attribute name="stagingContactList" type="ETT_Staging_Contacts__c[]"/>
+    <aura:attribute name="stagingCustomerLPOList" type="ETT_Staging_Customer_LPO__c[]"/>
+    <aura:attribute name="stagingTradeReferenceList" type="ETT_Staging_Trade_Reference__c[]"/>
+    <aura:attribute name="stagingBankReferenceList" type="ETT_Staging_Bank_Reference__c[]"/>    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    
+    
+    <div class="modal-header slds-modal__header">
+        
+        <img src="{!$Resource.EtTyreIcons+'/etLogo.png'}" style="width: 200px;float: left;"/>
+        <h4 class="title slds-text-heading--medium" style="text-align: center;margin-right: 10%;">Account Opening Form</h4>      
+        
+    </div>
+    
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">
+            
+            
+            <table class="slds-table" border="1" > 
+                
+                <tr>
+                    <th>Name of Company</th>
+                    <th colspan="3"><lightning:input aura:id="leadForm"
+                                                     name="leadCompanyName"
+                                                     value="{!v.newLead.Company}" 
+                                                     required="true"
+                                                     onchange="{!c.validateCompanyName}" />
+                        <span id="companyErr" style="color:red;"></span>     
+                    </th>
+                </tr>
+                <tr>
+                    <td>Phone</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadLocation"
+                                         value="{!v.newLead.Phone}"
+                                         required="true"
+                                         onblur="{!c.validateLeadPhone}"
+                                         />
+                        <span id="PhoneLeadErr" style="color:red;"></span>
+                    </td>  
+                    <td>Fax</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadFax"
+                                         value="{!v.newLead.Fax}"
+                                         onblur="{!c.validateFax}"/>
+                        <span id="faxErr" style="color:red;"></span> 
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>Email</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadEmail"
+                                         value="{!v.newLead.Email}"
+                                         required="true"
+                                         onchange="{!c.validateEmail}"/>
+                        <span id="emailErr" style="color:red;"></span> 
+                    </td>
+                    
+                    <td>P O Box</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadPOBox"
+                                         value="{!v.newLead.ETT_P_O_Box__c}"
+                                         required="false"
+                                         onchange="{!c.validatePOBox}"/>
+                        <span id="poBoxErr" style="color:red;"></span>     
+                    </td>
+                </tr>
+                <tr>
+                    <td>Location</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadLocation"
+                                         value="{!v.newLead.ETT_Location__c}"
+                                         required="true"
+                                         onchange="{!c.validateLocation}"/>
+                        <span id="locationErr" style="color:red;"></span>     
+                    </td>
+                    <td>Emirate</td>
+                    <td>
+                        
+                        <lightning:select class="mrgn" aura:id="EmirateMap" value="{!v.newLead.ETT_Emirate__c}" onchange="{!c.handleCompanyOnChange}" name="EmiratePicklist" required="true">
+                            <option value="">--None--</option>
+                            <aura:iteration items="{!v.Emirate}" var="ind" indexVar="key">
+                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==v.newLead.ETT_Emirate__c}" />
+                            </aura:iteration>
+                        </lightning:select>
+                        
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>Nature of Business</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadNatureofBusiness"
+                                         value="{!v.newLead.ETT_Nature_of_Business__c}"
+                                         required="false"
+                                         onchange="{!c.validateNatureOfBusiness}"/>
+                        <span id="NatureOfBusinessErr" style="color:red;"></span> 
+                    </td>
+                    <td>Legal Status</td>
+                    <td>
+                        <lightning:select class="mrgn" aura:id="legalStatus" value="{!v.newLead.ETT_Legal_Status__c}" onchange="{!c.handleCompanyOnChange}" name="legalStatusPicklist" required="false">
+                            <option value="">--None--</option>
+                            <aura:iteration items="{!v.legalStatus}" var="ind" indexVar="key">
+                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==v.newLead.ETT_Legal_Status__c}" />
+                            </aura:iteration>
+                        </lightning:select>                    
+                    </td>
+                </tr>
+                <tr>
+                    <td>Name of Owners / Sponsors 1</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadCompanyName"
+                                         value="{!v.newLead.ETT_Name_of_Owners_Sponsors_1__c}"
+                                         required="false"
+                                         onchange="{!c.validateSponsors1}"/>
+                        <span id="Sponsors1Err" style="color:red;"></span> 
+                    </td>
+                    <td>Owners / Sponers Phone 1</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadPhone"
+                                         value="{!v.newLead.Phone}"
+                                         required="true"
+                                         onchange="{!c.validatePhone}"/>
+                        <span id="mobileErr" style="color:red;"></span> 
+                    </td>
+                </tr>
+                <tr>
+                    <td>Name of Owners / Sponsors 2</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadOwnersSponsors2"
+                                         value="{!v.newLead.ETT_Name_of_Owners_Sponsors_2__c}"
+                                         required="false"
+                                         onchange="{!c.validateSponsors2}"/>
+                        <span id="Sponsors2Err" style="color:red;"></span> 
+                    </td>
+                    <td>Owners / Sponers Phone 2 </td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadOwnersSponersPhone2"
+                                         value="{!v.newLead.ETT_Owners_Sponers_Phone_2__c}"
+                                         required="false"
+                                         onchange="{!c.validateSponsorsPhone2}"/>
+                        <span id="SponsorsPhone2Err" style="color:red;"></span> 
+                    </td>
+                </tr>
+                <tr>
+                    <td>Trade License Number</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadCompanyName"
+                                         value="{!v.newLead.ETT_Trade_License_Number__c}"
+                                         required="true"
+                                         onchange="{!c.validateTradeLicNumber}"/>
+                        <span id="TradeLicNumberErr" style="color:red;"></span> 
+                    </td>
+                    <td>Trade Licenses Expiry Date</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         type="date"
+                                         name="leadTradeLicenseNumber"
+                                         value="{!v.newLead.ETT_Trade_Licenses_Expiry_Date__c}"
+                                         required="true"
+                                         onchange="{!c.validateTradExpiryDate}"/>
+                        <span id="TradExpiryDateErr" style="color:red;"></span> 
+                    </td>
+                </tr>
+                <tr>
+                    <td>Chamber of Commerce Certification No</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadChamberofCommerceCertification"
+                                         value="{!v.newLead.ETT_Chamber_of_Commerce_Certification_No__c}"
+                                         required="false"
+                                         onchange="{!c.validateleadChamberofCommerce}" />
+                        <span id="leadChamberofCommerceErr" style="color:red;"></span> 
+                    </td>
+                    
+                    <td>Chamber of Comm. Cert Expiry Date</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         type="date"
+                                         name="leadCommerceCertificationExpiryDate"
+                                         value="{!v.newLead.ETT_Chamber_of_Comm_Cert_Expiry_Date__c}"
+                                         required="false"
+                                         onchange="{!c.validateLeadCommerceCertificationExpiryDate}" />
+                        <span id="leadCommerceCertificationExpiryDateErr" style="color:red;"></span> 
+                    </td>
+                </tr>
+                <tr>
+                    <td>TRN</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadVATTRNNo"
+                                         value="{!v.newLead.ETT_VAT_TRN__c}"
+                                         required="true"
+                                         onchange="{!c.validateVAT}"/>
+                        <span id="vatErr" style="color:red;"></span> 
+                    </td>
+                    <td>Name of Chief Executive Officer</td>
+                    <td><lightning:input aura:id="leadForm"
+                                         name="leadNameofChiefExecutiveOfficer"
+                                         value="{!v.newLead.ETT_Name_of_Chief_Executive_Officer__c}"
+                                         required="false"
+                                         onchange="{!c.leadNameofChiefExecutive}"/>
+                        <span id="leadNameofChiefExecutiveErr" style="color:red;"></span> 
+                    </td>
+                </tr>
+                
+            </table>
+            
+            <br/><br/>
+            
+            
+            
+            <div><h1 style="font-size:150%;text-align:center;">Official Contact Person</h1></div>  <br/>
+            <table class="slds-table" border="1" >
+                <thead>
+                    <tr>
+                        <th>SL.No</th>
+                        <th>Name</th>
+                        <th>Designation</th>
+                        <th>Email Address</th>
+                        <th>Mobile Number</th>   
+                        <th>Add Row</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.stagingContactList}" var="item" indexVar="index">
+                        <tr>
+                            <td> {!index + 1}</td>
+                            <td><lightning:input aura:id="conName" name="conName" value="{!item.Name}"
+                                                 required="true" style="margin-top:
+                                                                        -6px;"/></td>
+                            <td><lightning:input aura:id="conDesignation" name="conDesignation" value="{!item.ETT_Designation__c}"
+                                                 required="false" style="margin-top:
+                                                                         -6px;"/></td>
+                            <td><lightning:input aura:id="conEmail" name="conEmail" value="{!item.Email}"
+                                                 required="true" style="margin-top:
+                                                                        -6px;"/></td>
+                            <td><lightning:input aura:id="conMobilePhone" name="conMobilePhone" value="{!item.MobilePhone}"
+                                                 required="true" style="margin-top:
+                                                                        -6px;"/></td>
+                            <td scope="col">
+                                <aura:if isTrue="{!index == 0}">
+                                    <a onclick="{!c.AddNewRow}">
+                                        <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                        <span class="slds-assistive-text">Add Icon</span>
+                                    </a>
+                                    <aura:set attribute="else">
+                                        <a onclick="{!c.removeRow}" id="{!index}" >
+                                            <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                            <span class="slds-assistive-text">Delete Icon</span>
+                                        </a>
+                                    </aura:set>
+                                </aura:if>
+                            </td>
+                            
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table><br/><br/>
+            
+            
+            
+            <div><h1 style="font-size:150%;text-align:center;">Names and Specimen signatures of the people authorized to sign the LPO. </h1></div>  <br/>
+            <table class="slds-table" border="1" >
+                <thead>
+                    <tr>
+                        <th>SL.No</th>
+                        <th>Name </th>
+                        <th> Designation </th>
+                        <th>Signature</th>  
+                        <th>Add Row</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.stagingCustomerLPOList}" var="item" indexVar="index">
+                        <tr>
+                            <td> {!index + 1}</td>
+                            <td><lightning:input aura:id="conName" name="conName" value="{!item.Name}"
+                                                 required="true" style="margin-top:
+                                                                        -6px;"/></td>
+                            <td><lightning:input aura:id="conDesignation" name="conDesignation" value="{!item.ETT_Designation__c}"
+                                                 required="true" style="margin-top:
+                                                                        -6px;"/></td>
+                            <td><lightning:input aura:id="conEmail" name="conEmail" value="{!item.ETT_Signature__c}"
+                                                 required="false" style="margin-top:
+                                                                         -6px;"/></td>
+                            <td scope="col">
+                                <aura:if isTrue="{!index == 0}">
+                                    <a onclick="{!c.addNewRowcustomerLPO}">
+                                        <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                        <span class="slds-assistive-text">Add Icon</span>
+                                    </a>
+                                    <aura:set attribute="else">
+                                        <a onclick="{!c.removeRowcustomerLPO}" id="{!index}" >
+                                            <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                            <span class="slds-assistive-text">Delete Icon</span>
+                                        </a>
+                                    </aura:set>
+                                </aura:if>
+                            </td>
+                            
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table><br/><br/>
+            
+            
+            
+            <div><h1 style="font-size:150%;text-align:center;">Trade References: - (lease provide the details suppliers of the applicant)</h1></div>  <br/>
+            <table class="slds-table" border="1" >
+                <thead>
+                    <tr>
+                        <th>SL.No</th>
+                        <th>Supplier Name and Details </th>
+                        <th>Length of relationship </th>
+                        <th>Credit Limit</th>
+                        <th>Payment Terms</th>      
+                        <th>Add Row</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.stagingTradeReferenceList}" var="item" indexVar="index">
+                        <tr>
+                            <td> {!index + 1}</td>
+                            <td><lightning:input aura:id="conName" name="conName" value="{!item.ETT_Supplier_Name_Details__c}"
+                                                 required="false" style="margin-top:
+                                                                         -6px;"/></td>
+                            <td><lightning:input aura:id="conDesignation" name="conDesignation" value="{!item.ETT_Length_of_relationship__c}"
+                                                 required="false" style="margin-top:
+                                                                         -6px;" onblur="{!c.validateRelationship}"/>
+                            <span id="relationError" style="color:red;"></span>
+                            </td>
+                            <td><lightning:input aura:id="conEmail" name="conEmail" value="{!item.ETT_Credit_Limit__c}"
+                                                 required="false" style="margin-top:
+                                                                         -6px;"/></td>
+                            <td>
+                                <lightning:select class="mrgn" aura:id="paymentTerms" value="{!item.ETT_Payment_Terms__c}" onchange="{!c.handleCompanyOnChange}" name="paymentTermsPicklist" required="false">
+                                    <option value="">--None--</option>
+                                    <aura:iteration items="{!v.paymentTerms}" var="ind" indexVar="key">
+                                        <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Payment_Terms__c}" />
+                                    </aura:iteration>
+                                </lightning:select>
+                            </td>
+                            <td scope="col">
+                                <aura:if isTrue="{!index == 0}">
+                                    <a onclick="{!c.addNewRowtradeReference}">
+                                        <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                        <span class="slds-assistive-text">Add Icon</span>
+                                    </a>
+                                    <aura:set attribute="else">
+                                        <a onclick="{!c.removeRowtradeReference}" id="{!index}" >
+                                            <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                            <span class="slds-assistive-text">Delete Icon</span>
+                                        </a>
+                                    </aura:set>
+                                </aura:if>
+                            </td>
+                            
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table><br/><br/>
+            
+            
+            
+            <div><h1 style="font-size:150%;text-align:center;">Bank References</h1></div><br/>
+            <table class="slds-table" border="1" >
+                <thead>
+                    <tr>
+                        <th>SL.No</th>
+                        <th>Name </th>
+                        <th> Address </th>
+                        <th>Account Number</th> 
+                        <th>Starting With</th>
+                        <th>Add Row</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.stagingBankReferenceList}" var="item" indexVar="index">
+                        <tr>
+                            <td> {!index + 1}</td>
+                            <td><lightning:input aura:id="conName" name="conName" value="{!item.Name}"
+                                                 required="false" style="margin-top:
+                                                                         -6px;"/></td>
+                            <td><lightning:input aura:id="conDesignation" name="conDesignation" value="{!item.ETT_Address__c}"
+                                                 required="false" style="margin-top:
+                                                                         -6px;"/></td>
+                            <td><lightning:input aura:id="conEmail" name="conEmail" value="{!item.ETT_Account_Number__c}"
+                                                 required="false" style="margin-top:
+                                                                         -6px;"/></td>
+                            <td><lightning:input aura:id="conEmail" name="conEmail" value="{!item.ETT_Starting_With__c}"
+                                                 required="false" style="margin-top:
+                                                                         -6px;"/></td>
+                            
+                            <td scope="col">
+                                <aura:if isTrue="{!index == 0}">
+                                    <a onclick="{!c.addNewRowbankReference}">
+                                        <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                        <span class="slds-assistive-text">Add Icon</span>
+                                    </a>
+                                    <aura:set attribute="else">
+                                        <a onclick="{!c.removeRowbankReference}" id="{!index}" >
+                                            <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                            <span class="slds-assistive-text">Delete Icon</span>
+                                        </a>
+                                    </aura:set>
+                                </aura:if>
+                            </td>
+                            
+                            
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table><br/><br/>
+            
+            
+            
+            
+            <div>
+                
+                <p><strong> The applicant undertakes and agrees that:-</strong> </p> <br/>
+                
+                1. All requests for retread business will be made in writing on company’s letter head or Purchase
+                Order.
+                <br/>2. All Invoices will be settled as per the credit limit/ credit period approved by EMIRATES TRANSPORT.
+                Failure to settle the account as per the credit limit/ credit period gives EMIRATES TRANSPORT the
+                right to take necessary legal action to recover the due amount .
+                <br/>3. Valid Copies of Trade License, Chamber of Commerce certificate, Owners passport copy or
+                Authorized persons passport copy (Holder of Power of attorney) will be attached. <br/><br/>
+                
+                <p><strong> Declarations </strong></p> <br/>
+                
+                1. We confirm that the information given in this application is to the best of my/our knowledge true
+                And correct and have not with held any material facts in which may any way prejudice this
+                application.
+                <br/>2. I/We authorized Emirates Transport to obtain banker or trade references in respect of our
+                business.
+                <br/>3. I/We undertake to provide Emirates Transport with any further information/documents if so
+                required.
+                <br/>4. We agree to settle the outstanding within.........Days. <br/>
+                
+                <p> <strong>Signature of Owner/ Holder of Power of Attorney:</strong> </p> <br/><br/>  …………………………………………………………………………….. <br/> <br/> <br/> 
+                
+                Name ………………………………………………………. ……………… &nbsp;&nbsp;&nbsp; Designation……………………………………………………….. <br/> <br/><br/> 
+                (Please attach a copy of Court attestation of Signature OR Power of Attorney)
+                
+                
+            </div>
+            
+        </div>
+    </div>
+    
+    
+    <div class="modal-footer slds-modal__footer">
+        <lightning:button variant="Brand" class="slds-button" label="Submit" onclick="{!c.clickCreate}"/>
+        <lightning:button variant="Neutral" class="slds-button" label="Cancel" onclick="{!c.handleClose}"/>
+    </div>
+    
+    
+</aura:component>

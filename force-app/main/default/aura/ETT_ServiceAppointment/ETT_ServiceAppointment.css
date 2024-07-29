@@ -1,0 +1,9 @@
+.THIS th{
+    font-weight: bold;
+}
+.THIS .skipCheckbox{
+    display: inline-block;
+    float: left;
+    margin-right: 3px;
+    margin-top: 1px;
+}

@@ -1,0 +1,42 @@
+.THIS.slds-spinner_container {  
+  z-index: 10000;
+  position: fixed;   
+}
+.THIS.slds-size_3-of-12 {
+    margin-left: 500px;
+}
+.THIS .mob{
+    margin-right: 21%;
+}
+.THIS .usr{
+    margin-left: 9%;
+}
+.THIS .custType{
+    width: 112%;
+}
+.THIS .tradeNo{
+    width: 103%;
+}
+.THIS .trExp{
+    margin-left: 2%;
+}
+.THIS .title{
+    padding-left: 1%;
+    font-weight: bold;
+    background: #9c7d0c;
+    font-size: 16px;
+    margin-top: 3%;
+    color:white;
+}
+.THIS .headingTitle{
+    font-size: 20px;
+    text-align: center;
+    margin-top: 4%;
+    font-weight: bold;
+}
+
+.THIS .submit{
+    margin-left: 43%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}

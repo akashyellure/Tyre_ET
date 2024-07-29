@@ -1,0 +1,439 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,lightning:isUrlAddressable,force:hasRecordId" access="global" controller="ETT_LeadFormController">
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important;
+        max-height:unset !important;
+        }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}"/>
+    <aura:attribute name="isBus" type="Boolean" default="false" />    
+    <aura:attribute name="isTruck" type="Boolean" default="false" />    
+    <aura:attribute name="isTrailor" type="Boolean" default="false" /> 
+    <aura:attribute name="isVehicalLoaded" type="Boolean" default="false" />     
+    <aura:attribute name="NumberOfTyres" type="Integer" /> 
+    
+    <aura:attribute name="stagingTestTyreObj" type="ETT_Staging_Test_Tyre__c" 
+                    default="{'sobjectType': 'ETT_Staging_Test_Tyre__c',
+                             'Name':'',
+                             'ETT_RadialNylon__c':'Radial',
+                             'ETT_Vehicle_Number__c':'',
+                             'ETT_Address__c':'',
+                             'ETT_Location__c':'',
+                             'ETT_Model__c':'',
+                             'ETT_Application_Picklist__c':'',
+                             'ETT_Load_Capacity__c':'',
+                             'ETT_Make__c':'',
+                             'ETT_Tyre_Size__c':'',
+                             'ETT_Radial__c':'',
+                             'ETT_Test_No__c':'',            
+                             'ETT_Brand__c':'',
+                             'ETT_Nylon__c':'',            
+                             'ETT_Retread_Process_Picklist__c':'',
+                             'ETT_Pattern__c':'',            
+                             'ETT_Load_Index__c':'',
+                             'ETT_Hot__c':'',            
+                             'ETT_Cold__c':'',
+                             'ETT_Fit_KMS__c':'',            
+                             'ETT_Date__c':'',
+                             'ETT_Rem_KMS__c':'',                        
+                             'ETT_Inspection_Date__c': '',
+                             'ETT_Axil_Configuration__c':'',
+                             'ETT_Rubber_Hardness__c':'',
+                             'ETT_Rec_PSI__c':'',
+                             'ETT_Tread_Width__c':'',
+                             'ETT_Tread_Depth__c':'',
+                             'ETT_Inspection_Date__c':'',
+                             'ETT_Tyre_Serial_Number__c':'',
+                             'ETT_Remaining_Tread_Depth_Position__c':'',
+                             'ETT_Remaining_Tread_Depth_1__c':'',
+                             'ETT_Remaining_Tread_Depth_2__c':'',
+                             'ETT_Remaining_Tread_Depth_3__c':'',
+                             'ETT_Remaining_Tread_Depth_4__c':'',
+                             'ETT_Remaining_Tread_Depth_Avg__c':'',
+                             'ETT_Remaining_Tread_Depth_1__c':'',
+                             'ETT_Original_Tread_Depth_lookup__c':'',
+                             'ETT_KMS_Reading__c':'',
+                             'ETT_KMS_Covered__c':'',
+                             'ETT_Wear_In_MM__c':'',
+                             'ETT_Expected_KMS__c':'',
+                             'ETT_Remarks__c':'',
+                             'ETT_Ply_Rating__c':''}" />    
+    <aura:attribute name="stagingTestTyreList" type="ETT_Staging_Test_Tyre__c[]"/>
+    <aura:attribute name="lineTestTyreList" type="ETT_Staging_Test_Tyre__c[]"/>
+    
+    <aura:attribute name="radioGroups" type="List" default="[{'label': 'Radial', 'value': 'Radial'},
+                                                            {'label': 'Nylon', 'value': 'Nylon'}]"/>  
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="newLead" type="Lead" default="{ 'sobjectType': 'Lead',
+                                                        'LastName': ''}" />
+    <aura:attribute name="stgTestTyreRecord" type="Object"/>
+    <aura:attribute name="stagingContactList" type="ETT_Staging_Contacts__c[]"/>    
+    <aura:attribute name="applicationMap" type="Map"/>            
+    <aura:attribute name="retreadProcessMap" type="Map"/>  
+    <aura:attribute name="RadialNylonMap" type="Map"/>      
+    
+    
+    <force:recordData aura:id="recordLoader"
+                      recordId="{!v.recordId}"
+                      fields="Name,LastName"
+                      targetFields="{!v.stgTestTyreRecord}"
+                      />
+    
+    
+    <div class="modal-header slds-modal__header" style="background: #000033;color: white;">
+        <h4 class="title slds-text-heading--medium">
+            Emirates Transport Tyre Retreading Unit - Tyre Performance Report
+        </h4>
+    </div>    
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">
+            
+            <table class="slds-table" border="1" style="background:#eff0f5;" > 
+                <tr> 
+                    <th>Customer Name:</th>
+                    <td>{!v.stgTestTyreRecord.Name}</td>
+                    
+                    <!--<th>Contact Person:</th>
+                    <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetVehicleNum"
+                                         value=""
+                                         required="true"/></td>-->
+                    
+                    <th>Vehicle No:</th>
+                    <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetInternalNum"
+                                         value="{!v.stagingTestTyreObj.ETT_Vehicle_Number__c}"
+                                         required="true"/></td>
+                    
+                    <td  colspan="2"></td>
+                </tr>
+                <tr>
+                    <th>Address:</th>
+                    <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetVehicleConfig"
+                                         value="{!v.stagingTestTyreObj.ETT_Address__c}"
+                                         required="true"/></td>
+                    
+                    
+                    <th>Location:</th>
+                    <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetLocation"
+                                         value="{!v.stagingTestTyreObj.ETT_Location__c}"
+                                         required="true"/></td>
+                    
+                    <th>Model:</th>
+                    <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetTypeModel"
+                                         value="{!v.stagingTestTyreObj.ETT_Model__c}"
+                                         required="false"/></td>
+                </tr>  
+                <tr>
+                    <th>Application:</th>
+                    <td>
+                        <lightning:select class="mrgn" aura:id="applicationMap" value="{!v.stagingTestTyreObj.ETT_Application_Picklist__c}" name="applicationPicklist" required="true" onchange="{!c.doSomething}">
+                            <option value="">--None--</option>
+                            <aura:iteration items="{!v.applicationMap}" var="ind" indexVar="key">
+                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==v.stagingTestTyreObj.ETT_Application_Picklist__c}" />
+                            </aura:iteration>
+                        </lightning:select>                        
+                    </td>
+                    <th>Load Capacity:</th>
+                    <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetOdoMeter"
+                                         value="{!v.stagingTestTyreObj.ETT_Load_Capacity__c}"
+                                         required="true"/></td>
+                    
+                    <th>Make:</th>
+                    <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                         name="stgFleetOdoMeter"
+                                         value="{!v.stagingTestTyreObj.ETT_Make__c}"
+                                         required="true"/></td>                    
+                    
+                </tr> 
+            </table>
+            
+            <br/><br/>
+            
+            <div class="slds-scrollable">
+                
+                <table class="slds-table" border="1" style="width: 160%;background:#eff0f5;">             
+                    
+                    <tr>
+                        <th>Tyre Size</th>
+                        <td><c:ETT_DynamicLookupSearchComponent objectName="ETT_Tyre_Size_Master__c" fieldName="Name"  
+                                                                selectRecordId="{!v.stagingTestTyreObj.ETT_Tyre_Size__c}" selectRecordName="" rowNo=""
+                                                                required="true" iconName="standard:stage_collection"/> 
+                        </td>
+                        
+                        <th>Type</th>
+                        <td>
+                            <lightning:select class="mrgn" aura:id="RadialNylonMap" value="{!v.stagingTestTyreObj.ETT_RadialNylon__c}" name="RadialNylonPicklist" required="true" onchange="{!c.doSomething}">
+                                <option value="">--None--</option>
+                                <aura:iteration items="{!v.RadialNylonMap}" var="ind" indexVar="key">
+                                    <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==v.stagingTestTyreObj.ETT_RadialNylon__c}" />
+                                </aura:iteration>
+                            </lightning:select> 
+                            <!--<ui:inputCheckbox class="chkbx" aura:id="skip" label="Radial" value="{!v.stagingTestTyreObj.ETT_Radial__c}" />
+                            <ui:inputCheckbox class="chkbx" aura:id="skip" label="Nylon" value="{!v.stagingTestTyreObj.ETT_Nylon__c}"/>-->
+                        </td>
+                        
+                        <th>Test No</th>
+                        <td>
+                            <lightning:input aura:id="stgPR" name="stgPR" value="{!v.stagingTestTyreObj.ETT_Test_No__c}" required="true" style="margin-top:-6px;"/>
+                        </td>
+                       
+                        
+                    </tr>
+                    <tr>
+                        <th>Brand:</th>
+                        <td>
+                            <c:ETT_DynamicLookupSearchComponent objectName="ETT_Brand_Master__c" fieldName="Name"  
+                                                                selectRecordId="{!v.stagingTestTyreObj.ETT_Brand__c}" selectRecordName="" rowNo=""
+                                                                required="true" iconName="standard:brand"/> 
+                            
+                        </td>
+                        
+                        
+                        <th>Retread Process:</th>
+                        <td>
+                            <lightning:select class="mrgn" aura:id="retreadProcessMap" value="{!v.stagingTestTyreObj.ETT_Retread_Process_Picklist__c}" name="applicationPicklist" required="true" onchange="{!c.doSomething}">
+                                <option value="">--None--</option>
+                                <aura:iteration items="{!v.retreadProcessMap}" var="ind" indexVar="key">
+                                    <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==v.stagingTestTyreObj.ETT_Retread_Process_Picklist__c}" />
+                                </aura:iteration>
+                            </lightning:select>                                                    
+                        </td>
+                        
+                        
+                        <td colspan="2">
+                            <!--<ui:inputCheckbox class="chkbx" aura:id="hot" label="Hot" value="{!v.stagingTestTyreObj.ETT_Hot__c}" />
+                            <ui:inputCheckbox class="chkbx" aura:id="cold" label="Cold" value="{!v.stagingTestTyreObj.ETT_Cold__c}" />                        
+-->                        
+                        </td>  
+                        
+                    </tr>
+                    <tr>
+                        <th>Pattern:</th>
+                        <td>
+                            <c:ETT_DynamicLookupSearchComponent objectName="ETT_Pattern_Master__c" fieldName="Name"  
+                                                                selectRecordId="{!v.stagingTestTyreObj.ETT_Pattern__c}" selectRecordName="" rowNo=""
+                                                                required="true" iconName="standard:steps"/> 
+                            
+                        </td>
+                        
+                        <th>Load Index:</th>
+                        <td>
+                            <lightning:input aura:id="stgPR" name="stgPR" value="{!v.stagingTestTyreObj.ETT_Load_Index__c}" style="margin-top:-6px;"/>                        
+                        </td>
+                        
+                        <th>Fit. KMs</th>
+                        <td>
+                            <lightning:input aura:id="stgPR" name="stgPR" value="{!v.stagingTestTyreObj.ETT_Fit_KMS__c}" style="margin-top:-6px;"/>                        
+                        </td>                    
+                        
+                        <th>Date:</th>
+                        <td>
+                            <lightning:input aura:id="stgPR" type="date" name="stgPR" value="{!v.stagingTestTyreObj.ETT_Date__c}" style="margin-top:-6px;"/>                                                
+                        </td>                                        
+                    </tr>
+                    <tr>
+                        <th>Tread Depth:</th>
+                        <td>
+                            <lightning:input aura:id="stgPR" name="stgPR" value="{!v.stagingTestTyreObj.ETT_Tread_Depth__c}" required="true" style="margin-top:-6px;"/>                        
+                        </td>
+                        
+                        <th>Ply Rating:</th>
+                        <td>
+                            <lightning:input aura:id="stgPR" name="stgPR" value="{!v.stagingTestTyreObj.ETT_Ply_Rating__c}" style="margin-top:-6px;"/>                        
+                        </td>
+                        
+                        <th>Rem. Kms:</th>
+                        <td>
+                            <lightning:input aura:id="stgPR" name="stgPR" value="{!v.stagingTestTyreObj.ETT_Rem_KMS__c}" style="margin-top:-6px;"/>                        
+                        </td>                    
+                    </tr>
+                    <tr>
+                        <th>Tread Width:</th>
+                        <td>
+                            <lightning:input aura:id="stgPR" name="stgPR" value="{!v.stagingTestTyreObj.ETT_Tread_Width__c}" style="margin-top:-6px;"/>                        
+                        </td>
+                        
+                        <th>Rec. PSI:</th>
+                        <td>
+                            <lightning:input aura:id="stgPR" name="stgPR" value="{!v.stagingTestTyreObj.ETT_Rec_PSI__c}" style="margin-top:-6px;"/>                        
+                        </td>
+                        
+                        <th>Rubber Hardness:</th>
+                        <td>
+                            <lightning:input aura:id="stgPR" name="stgPR" value="{!v.stagingTestTyreObj.ETT_Rubber_Hardness__c}" style="margin-top:-6px;"/>                        
+                        </td>          
+                        
+                        <th>Axl. Configuration:</th>
+                        <td>
+                            <lightning:input aura:id="stgPR" name="stgPR" value="{!v.stagingTestTyreObj.ETT_Axil_Configuration__c}" style="margin-top:-6px;"/>                        
+                        </td>
+                    </tr>
+                    
+                </table>
+                
+                
+            </div><br/>
+            
+            
+            <div class="slds-scrollable">
+                
+                <table class="slds-table" border="1" style="width: 225%;background:#eff0f5;">             
+                    <tr style="background: #000033;color: white;">
+                        <td rowspan="2">S.No</td>
+                        <th rowspan="2">Insp.Date</th>
+                        <td rowspan="2">Tyre Sl.No</td>
+                        <td colspan="6" style="text-align: center;">Remaining Tread Depth</td>
+                        <td rowspan="2">Original Tread Depth</td>
+                        <td rowspan="2">Kms Reading</td>
+                        <td rowspan="2">Kms Covered</td>
+                        <td rowspan="2">Wear in mm</td>
+                        <td rowspan="2">Expected KMs</td>
+                        <td rowspan="2">Remarks</td>     
+                        <td rowspan="2">Add New</td>                             
+                    </tr>
+                    <tr style="background: #000033;color: white;">
+                        <td>Position</td>         
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                        <td>Avg.</td>
+                    </tr>
+                    
+                    <aura:iteration items="{!v.stagingTestTyreList}" var="item" indexVar="index">
+                        
+                        <tr>
+                            <td>{!index+1}</td>                    
+                            <td>
+                                <lightning:input aura:id="stgPR" type="date" name="stgPR" value="{!item.ETT_Inspection_Date__c}" style="margin-top:-6px;" required="true" />                                                
+                            </td>
+                            <td>
+                                <lightning:input aura:id="stgPR" name="stgPR" value="{!item.ETT_Tyre_Serial_Number__c}" style="margin-top:-6px;" required="true" />                                                
+                            </td>                    
+                            <td>
+                                <lightning:input aura:id="stgPR" name="stgPR" value="{!item.ETT_Remaining_Tread_Depth_Position__c}" style="margin-top:-6px;" required="true" />                        
+                            </td>
+                            <td>
+                                <lightning:input aura:id="stgPR" value="{!item.ETT_Remaining_Tread_Depth_1__c}" name="{!index}" onchange="{!c.calculateAvg}" style="margin-top:-6px;" required="true" />                        
+                            </td>                    
+                            <td>
+                                <lightning:input aura:id="stgPR" value="{!item.ETT_Remaining_Tread_Depth_2__c}" name="{!index}" onchange="{!c.calculateAvg}" style="margin-top:-6px;" required="true"/>                        
+                            </td>
+                            <td>
+                                <lightning:input aura:id="stgPR" value="{!item.ETT_Remaining_Tread_Depth_3__c}" name="{!index}" onchange="{!c.calculateAvg}" style="margin-top:-6px;" required="true"/>                        
+                            </td>                    
+                            <td>
+                                <lightning:input aura:id="stgPR" value="{!item.ETT_Remaining_Tread_Depth_4__c}" name="{!index}" onchange="{!c.calculateAvg}" style="margin-top:-6px;" required="true"/>                        
+                            </td>
+                            <td>
+                                <lightning:input aura:id="stgPR" value="{!item.ETT_Remaining_Tread_Depth_Avg__c}" name="{!index}" style="margin-top:-6px;" disabled="true" required="true" />                        
+                            </td>                    
+                            <td>
+                                <c:ETT_DynamicLookupSearchComponent objectName="ETT_Tread_Master__c" fieldName="Name"  
+                                                                selectRecordId="{!item.ETT_Original_Tread_Depth_lookup__c}" selectRecordName="" rowNo=""
+                                                                required="true" iconName="standard:stage_collection"/> 
+                            </td>
+                            <td>
+                                <lightning:input aura:id="stgPR" name="stgPR" value="{!item.ETT_KMS_Reading__c}" style="margin-top:-6px;" required="true"/>                        
+                            </td>                    
+                            <td>
+                                <lightning:input aura:id="stgPR" name="stgPR" value="{!item.ETT_KMS_Covered__c}" style="margin-top:-6px;"/>                        
+                            </td>                        
+                            <td>
+                                <lightning:input aura:id="stgPR" name="stgPR" value="{!item.ETT_Wear_In_MM__c}" style="margin-top:-6px;" required="true"/>                        
+                            </td>
+                            <td>
+                                <lightning:input aura:id="stgPR" name="stgPR" value="{!item.ETT_Expected_KMS__c}" style="margin-top:-6px;" required="true"/>                        
+                            </td>                    
+                            <td>
+                                <lightning:input aura:id="stgPR" name="stgPR" value="{!item.ETT_Remarks__c}" style="margin-top:-6px;"/>                        
+                            </td>                      
+                            <td>
+                                <a onclick="{!c.AddNewRow}">
+                                    <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                    <span class="slds-assistive-text">Add Icon</span>
+                                </a>
+                                
+                            </td>                        
+                            
+                        </tr>
+                        
+                    </aura:iteration>
+                </table>
+                
+                
+                <br/><br/>
+                
+            </div>     
+            
+            <br/>
+            <div><h1 style="font-size:150%;text-align:center;">Official Contact Person</h1></div>  <br/>
+            <table class="slds-table" style="background:#eff0f5;" border="1" >
+                    <tr  style="background: #000033;color: white;">
+                        <th>SL.No</th>
+                        <th>Name</th>
+                        <th>Designation</th>
+                        <th>Email Address</th>
+                        <th>Mobile Number</th>   
+                        <th>Add Row</th>
+                    </tr>
+                    <aura:iteration items="{!v.stagingContactList}" var="item" indexVar="index">
+                        <tr>
+                            <td> {!index + 1}</td>
+                            <td><lightning:input aura:id="conName" name="conName" value="{!item.Name}"
+                                                 required="true" style="margin-top:
+                                                                        -6px;"/></td>
+                            <td><lightning:input aura:id="conDesignation" name="conDesignation" value="{!item.ETT_Designation__c}"
+                                                 required="false" style="margin-top:
+                                                                         -6px;"/></td>
+                            <td><lightning:input aura:id="conEmail" name="conEmail" value="{!item.Email}"
+                                                 required="true" style="margin-top:
+                                                                        -6px;"/></td>
+                            <td><lightning:input aura:id="conMobilePhone" name="conMobilePhone" value="{!item.MobilePhone}"
+                                                 required="true" style="margin-top:
+                                                                        -6px;"/></td>
+                            <td scope="col">
+                                <aura:if isTrue="{!index == 0}">
+                                    <a onclick="{!c.AddNewRowContact}">
+                                        <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                        <span class="slds-assistive-text">Add Icon</span>
+                                    </a>
+                                    <aura:set attribute="else">
+                                        <a onclick="{!c.removeRowContact}" id="{!index}" >
+                                            <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                            <span class="slds-assistive-text">Delete Icon</span>
+                                        </a>
+                                    </aura:set>
+                                </aura:if>
+                            </td>
+                            
+                        </tr>
+                    </aura:iteration>
+            </table><br/><br/>
+
+            <br/><br/> <br/><br/> <br/><br/>
+            
+        </div>
+    </div>
+    
+    <div class="modal-footer slds-modal__footer">
+        <lightning:button variant="Brand" class="slds-button" label="Submit" onclick="{!c.clickCreate}"/>
+        <lightning:button variant="Neutral" class="slds-button" label="Cancel" onclick="{!c.handleClose}"/>
+    </div>  
+    
+</aura:component>

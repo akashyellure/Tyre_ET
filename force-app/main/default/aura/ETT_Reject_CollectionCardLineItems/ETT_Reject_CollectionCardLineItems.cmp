@@ -1,0 +1,291 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" controller="ETT_CollectionLineItemController" access="global">
+    
+    <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}" />
+
+    <aura:attribute name="objCLI" type="ETT_Tyre_Rejection_Report__c" default="{'sobjectType': 'ETT_Tyre_Rejection_Report__c',
+                                                                               'ETT_Brand__c':'',
+                                                                               'ETT_Country__c':'',
+                                                                               'ETT_Pattern__c':'',
+                                                                               'ETT_Tyre_Size__c':'',
+                                                                               'ETT_Rejection_Reason__c':''
+                                                                               }" />
+    <aura:attribute name="lstTyreRejectionLineItem" type="ETT_Tyre_Rejection_Report__c[]" />
+    <aura:attribute name="lstTyreRejectionWrapper" type="ETT_TyreInspectionCardWrapper.TyreRejectionSubLineItems[]" />
+
+    <aura:attribute name="fileToBeUploaded" type="Object[]"/>
+    <aura:attribute name="fileName" type="string"  />    
+    <aura:attribute name="TyreSizeName" type="String" />
+    <aura:attribute name="BrandName" type="String" />
+    <aura:attribute name="PatternName" type="String" />
+    <aura:attribute name="CountryName" type="String" />
+    <aura:attribute name="TyreSizeId" type="String" />
+    <aura:attribute name="BrandId" type="String" />
+    <aura:attribute name="PatternId" type="String" />
+    <aura:attribute name="CountryId" type="String" />
+    
+    <aura:attribute name="isUserReceptionist" type="boolean" default="false" />    
+    <aura:attribute name="update" type="boolean" default="false" />    
+    <aura:attribute name="isCheckoutDone" type="boolean" default="false" />    
+    
+    <aura:attribute name="CollectionCardRecord" type="Object" />
+    <aura:attribute name="CollectionCardLoadError" type="String" />
+    
+    <aura:handler name="updateLookupIdEvent" event="c:ETT_DynamicEvent" action="{!c.handleComponentEvent}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <force:recordData aura:id="CollectionCardLoader" recordId="{!v.recordId}" 
+                      fields="Id,Name,ETT_Accounts__c,ETT_Check_Out__c,Driver_Name__c,Collection_Appointment__c,Collection_Appointment__r.Name" 
+                      targetFields="{!v.CollectionCardRecord}" 
+                      targetError="{!v.CollectionCardLoadError}" />
+
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Rejected Tyre Details</h4>
+    </div>
+    
+    
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">
+            <div class="slds-scrollable">
+                
+                <aura:if isTrue="{!empty(v.CollectionCardRecord.Collection_Appointment__c)}">
+
+                    <p>There is no Service Appointment for this Collection Card. You cant add tyre details for this Record.</p>
+                    <aura:set attribute="else">
+                        
+                        <aura:if isTrue="{!!empty(v.CollectionCardRecord.ETT_Check_Out__c)}">
+                            <p style="color: red;text-align: center;">Collection card is already checked out.Not possible to add rejected tyres.</p>
+                            <aura:set attribute="else">
+                                
+                                <table class="slds-border--left slds-border--right slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th></th>
+                                            <th scope="col" class="slds-text-align--center">
+                                                <div title="SLNO" class="line_tit"><b>SLNO</b> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--center">
+                                                <div title="Tyre Size" class="line_tit"><b>Tyre Size</b> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--center">
+                                                <div title="Brand" class="line_tit"><b>Brand</b> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--center">
+                                                <div title="Pattern" class="line_tit"><b>Pattern </b> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--center">
+                                                <div title="Country Of Origion" class="line_tit"><b>Country Of Origion</b> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--center">
+                                                <div title="Qty" class="line_tit"><b>Qty</b> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--center">
+                                                <div title="Image" class="line_tit"><b>Rejection Reason</b> </div>
+                                            </th>
+                                            <aura:if isTrue="{!v.isCheckoutDone==false}">
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Image" class="line_tit"><b>Upload Image</b> </div>
+                                                </th>
+                                            </aura:if>
+                                            
+                                            <aura:if isTrue="{!v.isCheckoutDone==false}">
+                                                <th scope="col">
+                                                    <div title="Add / Delete" class="line_tit"><b>Action </b> </div>
+                                                </th>
+                                            </aura:if>
+                                        </tr>
+                                    </thead>
+                                    <aura:if isTrue="{!v.isCheckoutDone==false}">
+                                        <tbody>
+                                            <aura:iteration items="{!v.lstTyreRejectionLineItem}" var="item" indexVar="index">
+                                                <tr>
+                                                    <td></td>
+                                                    <td>
+                                                        <div>{!index + 1}</div>
+                                                    </td>
+                                                    <td data-label="TYRE SIZE" class="slds-cell-wrap">
+                                                        <div style="width: 140px;">
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Tyre_Size_Master__c" 
+                                                                                                     fieldName="ETT_Tyre_Size__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!item.ETT_Tyre_Size__c}" 
+                                                                                                     selectRecordName="{!item.ETT_Tyre_Size__r.Name}" 
+                                                                                                     rowNo="{!index}"
+                                                                                                     required="true" 
+                                                                                                     iconName="standard:stage_collection"/>
+                                                            
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="BRAND" class="slds-text-align--center ">
+                                                        <div style="width: 140px;">
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Brand_Master__c" 
+                                                                                                     fieldName="ETT_Brand_Name__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!item.ETT_Brand__c}" 
+                                                                                                     selectRecordName="{!item.ETT_Brand__r.Name}" 
+                                                                                                     rowNo="{!index}"
+                                                                                                     required="true" iconName="standard:brand"/> 
+                                                            
+                                                            
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="PATTERN	" class="slds-text-align--center">
+                                                        <div style="width: 140px;">
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Pattern_Master__c" 
+                                                                                                     fieldName="ETT_Original_Pattern__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!item.ETT_Pattern__c}" 
+                                                                                                     selectRecordName="{!item.ETT_Pattern__r.Name}" 
+                                                                                                     rowNo="{!index}"
+                                                                                                     required="true" iconName="standard:steps"/>
+                                                            
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="COUNTRY OF ORIGION" class="slds-text-align--center">
+                                                        <div style="width: 140px;">
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Country_Master__c" 
+                                                                                                     fieldName="ETT_Country_Name__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!item.ETT_Country__c}" 
+                                                                                                     selectRecordName="{!item.ETT_Country__r.Name}"
+                                                                                                     rowNo="{!index}"
+                                                                                                     required="true" iconName="standard:service_territory_location"/> 
+                                                            
+                                                            
+                                                            
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="QTY" class="slds-text-align--center">
+                                                        <div>
+                                                            <lightning:input variant="label-hidden" style="width:100px;" type="text" value="{!item.ETT_Quantity__c}"  required="true" />
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="REJECTIONREASON" class="slds-text-align--center">
+                                                        <div>
+                                                            <lightning:textarea required="true" value="{!item.ETT_Rejection_Reason__c}" />
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <lightning:input height="200" width="350" 
+                                                                         label="File Upload"  
+                                                                         id="{!index}"  
+                                                                         files="{!v.fileToBeUploaded}"
+                                                                         type="file" 
+                                                                         name="BeadArea" 
+                                                                         multiple="true" 
+                                                                         required="false" 
+                                                                         onchange="{!c.handleFilesChange}"
+                                                                         />
+                                                        <div id="{!'div-'+index}" class="slds-text-body_small slds-text-color_error"></div>
+                                                    </td>
+                                                    <td data-label="Action" class="slds-cell-wrap">
+                                                        <aura:if isTrue="{!index == 0}">
+                                                            <a onclick="{!c.addNewRowCollectionLineItem}">
+                                                                <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add" />
+                                                                <span class="slds-assistive-text">Add Icon</span>
+                                                            </a>
+                                                            <aura:set attribute="else">
+                                                                <a onclick="{!c.removeRowCollectionLineItem}" id="{!index}">
+                                                                    <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon" />
+                                                                    <span class="slds-assistive-text">Delete Icon</span>
+                                                                </a>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>
+                                        </tbody>
+                                        <aura:set attribute="else">
+                                            <tbody>
+                                                <aura:iteration items="{!v.lstTyreRejectionLineItem}" var="item" indexVar="index">
+                                                    <tr>
+                                                        <td></td>
+                                                        <td>
+                                                            <div>{!index + 1}</div>
+                                                        </td>
+                                                        <td data-label="TYRE SIZE" class="slds-cell-wrap">
+                                                            {!item.ETT_Tyre_Size__r.Name}
+                                                        </td>
+                                                        <td data-label="BRAND" class="slds-text-align--center ">
+                                                            {!item.ETT_Brand__r.Name}
+                                                        </td>
+                                                        <td data-label="PATTERN	" class="slds-text-align--center">
+                                                            {!item.ETT_Pattern__r.Name}
+                                                        </td>
+                                                        <td data-label="COUNTRY OF ORIGION" class="slds-text-align--center">
+                                                            {!item.ETT_Country__r.Name}
+                                                        </td>
+                                                        <td data-label="QTY" class="slds-text-align--center">
+                                                            {!item.ETT_Quantity__c}
+                                                        </td>
+                                                        <td data-label="REJECTIONREASON" class="slds-text-align--center">
+                                                            {!item.ETT_Rejection_Reason__c}
+                                                        </td>
+                                                        
+                                                        
+                                                    </tr>
+                                                </aura:iteration>
+                                            </tbody> 
+                                        </aura:set>
+                                    </aura:if>
+                                </table>               
+                            </aura:set>
+                        </aura:if>
+                        
+                        <br/><br/>
+                    </aura:set>
+                </aura:if>
+                
+            </div>
+            
+        </div>
+    </div>
+    
+    
+    
+    <div class="modal-footer slds-modal__footer">
+        <!--button groups-->
+        <div class="slds-no-flex">
+            <aura:if isTrue="{!empty(v.CollectionCardRecord.Collection_Appointment__c)}">  
+                <aura:set attribute="else">
+                    <lightning:buttonGroup>
+                        
+                        <aura:if isTrue="{!empty(v.CollectionCardRecord.ETT_Check_Out__c)}">
+                            <aura:if isTrue="{!v.isUserReceptionist==false}">
+                                <aura:if isTrue="{!v.update}">
+                                    <lightning:button class="" variant="brand" label="Update" onclick="{!c.update}" iconName="action:add_file" aura:id="start" />    
+                                    <aura:set attribute="else">
+                                        <lightning:button class="" variant="brand" label="Save" onclick="{!c.submit}" iconName="action:add_file" aura:id="start" />                        
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <!--<lightning:button class="" variant="brand" label="Checkout" onclick="{!c.checkout}" iconName="action:add_file" aura:id="start" />-->
+                            
+                        </aura:if>
+                        
+                    </lightning:buttonGroup>
+                </aura:set>
+            </aura:if>
+        </div>
+    </div>
+    
+</aura:component>

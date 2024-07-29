@@ -1,0 +1,219 @@
+<aura:component controller="ETT_DeliveryNoteController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,lightning:isUrlAddressable,force:hasRecordId" access="global">
+    <!-- button Delivery Note ON Account Object-->
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important;
+        max-height:unset !important;
+        }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="objDeliveryNote" type="ETT_Delivery_Note__c" default="{'sobjectType': 'ETT_Delivery_Note__c'}" />
+    
+    <aura:attribute name="isSelectAll" type="boolean"/>
+    
+    <aura:attribute name="DeliveryNoteRecord" type="Object" />
+    <aura:attribute name="DeliveryNoteRecordError" type="String" /> 
+    <aura:attribute name="deliveryLineItem" type="Map"/>
+    <aura:attribute name="collectionCardList" type="List"/>
+    <aura:attribute name="objDeliveryLineItem" type="Object[]"/>
+    <aura:attribute name="isDLIPrepared" type="Boolean" default="false" />
+    
+    <aura:attribute name="lstDeliveryLineItem" type="ETT_Delivery_Line_Item__c[]"/>
+    <aura:attribute name="lstDeliveryLineItemArr" type="ETT_Delivery_Line_Item__c[]"/>
+    
+    <aura:attribute name="userInfo" type="user"/>  
+     
+    <force:recordData aura:id="DeliveryNoteRecord" 
+                      recordId="{!v.recordId}" 
+                      fields="Id,Name,BillingStreet,Phone" 
+                      targetFields="{!v.DeliveryNoteRecord}" 
+                      targetError="{!v.DeliveryNoteError}"
+                      /> 
+    
+
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">
+            Delivery Note
+        </h4>
+    </div>    
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">
+            
+            <aura:if isTrue="{!v.isDLIPrepared}">
+                <div style="font-size: 14px;font-weight: bold;">
+                    There is no Delivery Note Pending for this account.
+                </div>
+                <aura:set attribute="else">
+                    
+                    <table class="slds-table" border="1"> 
+                        <tr>
+                            <td>Customer:</td>
+                            <td colspan="3">{!v.DeliveryNoteRecord.Name}</td>            
+                            <td>Delivery No:</td>
+                            <td colspan="3"><lightning:input aura:id="leadForm"
+                                                             name="leadTRNNumber" type="text"
+                                                             value="" required="true"/></td>            
+                        </tr>
+                        <tr>
+                            <td>Address:</td>
+                            <td colspan="3">{!v.DeliveryNoteRecord.BillingStreet}</td>            
+                            <td>Date:</td>
+                            <td colspan="3"><lightning:input aura:id="leadForm"
+                                                             name="leadTRNNumber" type="date"
+                                                             value="{!v.objDeliveryNote.ETT_Date__c}" required="true"/></td>            
+                        </tr>
+                        <tr>
+                            <td>Telephone:</td>
+                            <td><lightning:input aura:id="deliveryNotePhone"
+                                                 name="leadTRNNumber" type="text"
+                                                 value="{!v.objDeliveryNote.ETT_Phone__c}" required="false"/></td> 
+                            <td>Reference:</td>
+                            <td><lightning:input aura:id="leadForm"
+                                                 name="leadTRNNumber" type="text"
+                                                 value="{!v.objDeliveryNote.ETT_Reference__c}" required="false"/></td>
+                            <td>Casing:</td>
+                            <td>Supplier Casing</td>            
+                        </tr>
+                        <tr>
+                            <td>Remarks:</td>
+                            <td colspan="3">
+                                
+                                <lightning:textarea aura:id="remark"
+                                                    value="{!v.objDeliveryNote.ETT_Remark__c}" 
+                                                    />
+                                
+                            </td>
+                            <td>Collection Card:</td>
+                            <td>
+                                <aura:iteration items="{!v.collectionCardList}" var="ind" indexVar="key">
+                                    {!ind.value}
+                                    <aura:if isTrue="{!greaterthan(v.collectionCardList.length,1)}">
+                                        ,&nbsp;
+                                    </aura:if>
+                                </aura:iteration>
+                            </td>            
+                        </tr>
+                        
+                    </table>
+                    <br/><br/>
+                    
+                    <table class="slds-table" border="1"> 
+                        <thead>
+                            <th>          
+                                <label class="slds-checkbox">
+                                    <ui:inputCheckbox value="{!v.isSelectAll}" change="{!c.handleSelectAllEstimation}" aura:id="selectAll"/>
+                                    <span class="slds-checkbox--faux" />
+                                    <span class="slds-form-element__label"></span>
+                                </label>
+                            </th>
+                            <th>SNo</th>
+                            <th>Tyre Size</th>
+                            <th>Brand Name</th>
+                            <th>Orig.Pattern</th>
+                            <th>Serial Number</th>
+                            <th>Tread Pattern</th>
+                            <th>Job Type</th>
+                          <!--  <th>Rejection Reason</th> -->
+                             <th>Inspection Card</th>
+                            <th>Collection Card</th>
+                        </thead>
+                        <tbody>
+                            
+                            <aura:iteration items="{!v.objDeliveryLineItem}" var="ind" indexVar="key">
+                                <tr>
+                                    <td>
+                                        <label class="slds-checkbox">
+                                            <ui:inputCheckbox aura:id="checkEstimation" value="{!ind.isChecked}" text=""/>
+                                            <span class="slds-checkbox--faux" />
+                                            <span class="slds-form-element__label"></span>
+                                        </label>
+                                    </td>
+                                    <td>{!key+1}</td>
+                                    <td>{!ind.ETT_Tyre_Size__r}</td>
+                                    <td>{!ind.Brand__c}</td>
+                                    <td>{!ind.ETT_Original_Pattern__c}</td>
+                                    <td>{!ind.ETT_Tyre_Serial_Number__c}</td>
+                                 <!--   <td>{!ind.ETT_Original_Pattern__c}</td>--> 
+                                    <td> </td>
+                                    <td>{!ind.ETT_Status__c}</td>
+                                  <!--  <td>{!ind.FailedReason}</td> -->
+                                    <td>
+                                        <a href= "{!ind.InspectionCardIdLink}" >
+                                            <div style="height:100%;width:100%">
+                                                {!ind.InspectionCardName}
+                                            </div>
+                                        </a>
+                                       </td>
+                                    <td>{!ind.ETT_Collection_Card__c}</td>
+                                    
+                                    
+                                </tr>
+                            </aura:iteration>
+                            
+                        </tbody>
+                    </table>
+                    
+                    <br/><br/>
+                    <table class="slds-table" border="1"> 
+                        <tr>
+                            <td>Prepared By :</td>
+                            <td colspan="3">{!v.userInfo.Name}</td>
+                            <td>Confirmed By :</td>
+                            <td colspan="3"></td>            
+                        </tr>
+                        <tr>
+                            <td>Received the above Goods :</td>
+                            <td colspan="3">_____________</td>
+                            <td>Delivered By :</td>
+                            <td colspan="3">_____________</td>
+                        </tr>
+                        <tr>
+                            <td>Name:</td>
+                            <td>_____________</td>
+                            <td>Signature:</td>
+                            <td>_____________</td>
+                            <td>Driver Name :</td>                  
+                            <td>_____________</td>
+                            <td>Vehicle No :</td>
+                            <td>_____________</td>
+                        </tr>
+                        <tr>
+                            <td>Designation:</td>
+                            <td>_____________</td>
+                            <td>Date:</td>
+                            <td>_____________</td>
+                            <td>Signature:</td>                  
+                            <td>_____________</td>
+                            <td>Date:</td>
+                            <td>_____________</td>
+                        </tr>                
+                        <tr>
+                            <td colspan="8">
+                                PO Box: 5757, Al Warsan, Dubai, UAE, Tel: 04-2330680, Fax: 04-2872475, Email: Retreadenquiries@et.ae, Call Center: 8006006
+                            </td>
+                        </tr>
+                    </table>
+                    
+                </aura:set>
+            </aura:if>
+        </div>
+    </div>
+    
+    <div class="modal-footer slds-modal__footer">
+        <aura:if isTrue="{!v.isDLIPrepared==false}">
+            <lightning:button variant="Brand" class="slds-button" label="Submit" onclick="{!c.Submit}"/>
+            <lightning:button variant="Neutral" class="slds-button" label="Cancel" onclick="{!c.handleClose}"/>
+        </aura:if>
+    </div>  
+    
+</aura:component>

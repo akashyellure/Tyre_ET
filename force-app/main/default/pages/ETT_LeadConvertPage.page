@@ -1,0 +1,25 @@
+<apex:page standardController="Lead" extensions="ETT_LeadConvertProcessController" action="{!leadConvertProcess}">
+    <apex:form id="frmId">
+        <apex:outputText value="{!Lead.Status}" rendered="false">
+        </apex:outputText>
+        <apex:outputText value="{!Lead.Website}" rendered="false">
+        </apex:outputText>        
+        <apex:outputText value="{!Lead.RecordTypeId}" rendered="false">
+        </apex:outputText>
+        <apex:outputText value="{!Lead.ETT_VAT_TRN__c}" rendered="false">
+        </apex:outputText>
+        <apex:outputText value="{!Lead.Phone}" rendered="false">
+        </apex:outputText>
+        <apex:outputText value="{!Lead.ETT_Trade_License_Number__c}" rendered="false">
+        </apex:outputText>
+        <apex:outputText value="{!Lead.ETT_Trade_Licenses_Expiry_Date__c}" rendered="false">
+        </apex:outputText>
+        <apex:outputText value="{!Lead.ETT_Party_Type__c}" rendered="false">
+        </apex:outputText>
+        <apex:outputText value="{!Lead.ETT_Emirates_Id__c}" rendered="false">
+        </apex:outputText>
+        <apex:outputText value="{!Lead.Email}" rendered="false">
+        </apex:outputText>        
+        <apex:pageMessages id="showmsg"></apex:pageMessages>
+    </apex:form>
+</apex:page>

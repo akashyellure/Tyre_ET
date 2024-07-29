@@ -1,0 +1,152 @@
+<aura:component controller="ETT_DeliveryNote_AccCtrl" implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+    <!--
+Author:Janardhan
+created Date:08/12/2021
+This Tyre Delivery Note On Account
+ -->
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    <aura:attribute name="insCardList" type="ETT_Inspection_Card__c[]"/>
+    <aura:attribute name="isSelectAll" type="boolean"/>
+    <aura:attribute name="tempDate" type="date"/>
+    <aura:attribute name="tempName" type="string"/>
+    <aura:attribute name="tempMobNum" type="string"/>
+    <aura:attribute name="tempCollCards" type="string"/>
+    <aura:attribute name="address" type="string"/>
+    <aura:attribute name="remarks" type="string"/>
+    <aura:attribute name="reference" type="string"/>
+    <aura:attribute name="quotationId" type="String"/>
+    <aura:attribute name="quotationName" type="String"/>
+    <aura:attribute name="quotationIds" type="List"/>
+    <aura:method name="filterQuotation" action="{!c.filterQuotation}" access="public"/>
+    
+    <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+        .slds-modal__container{
+        max-width: 95rem !important;
+        width:95% !important;
+        }
+        
+    </aura:html>
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Delivery Note</h4>
+    </div>
+    <div class="mainDiv"> 
+        <div class="outer-div">
+            <aura:if isTrue="{!v.showSpinner}">
+                <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+            </aura:if>
+            <div class="slds-modal__content">
+                
+                <div class="slds-scrollable collectionitemdiv" >
+                    
+                    <lightning:card title="Delivery Note Details" >
+                          <div class="slds-form_horizontal slds-form slds-grid slds-wrap" style="margin:10px"> 
+                              
+                               <lightning:input class="slds-size_1-of-3" required="true" label="Contact Person" value="{!v.tempName}"/>
+                               <lightning:input type="tel" class="slds-size_1-of-3" required="true" label="Contact Number"  value="{!v.tempMobNum}"/>
+                               <lightning:input type="date" class="slds-size_1-of-3" required="true" label="Date" value="{!v.tempDate}" />
+                               <lightning:textarea class="slds-size_1-of-3" required="true" label="Address" value="{!v.address}" />
+                               <lightning:textarea class="slds-size_1-of-3" label="Remarks" value="{!v.remarks}"/>
+                               <lightning:textarea class="slds-size_1-of-3" disabled="true" label="Collection Cards" value="{!v.tempCollCards}"/>
+                              <lightning:input class="slds-size_1-of-3" label="Reference" value="{!v.reference}"/>
+  
+                          </div>
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_5-of-6 slds-m-left_large" >
+                                <!--c:ETT_Quotation_CustomLkup  custmPlaceholder="Search Quotation..." selectCustomerId="{!v.recordId}" disable="{!v.isDisabled}" selectRecordId="{!v.quotationId}" selectRecordName="{!v.quotationName}" /><selectCustomerId="{!v.customerId}" selectInventoryId="{!v.subInventoryId}"-->
+                                <c:ETT_QuotationMultiSelectLookup objectName="ETT_Quotation__c" fieldName="Name" iconName="custom:custom20" filterValue="{!v.recordId}" placeholder="Search Quotation..." selectedRecords="{!v.quotationIds}" parent="{!this}"/>
+                            </div>
+                            <!--aura:if isTrue="{!not(empty(v.quotationIds))}">
+                                <div class="slds-col slds-size_1-of-6 slds-m-left_large">
+                                    <lightning:button label="Filter" variant="brand" onclick="{!c.filterQuotation}"/>
+                                </div>
+                            </aura:if-->
+                        </div> 
+                    </lightning:card>
+                    
+                    
+                    <aura:if isTrue="{!not(empty(v.insCardList))}"> 
+                      
+                        <table class="slds-table" border="1"> 
+                            <thead>
+                                <th>          
+                                    <label class="slds-checkbox">
+                                        <ui:inputCheckbox value="{!v.isSelectAll}" change="{!c.handleSelectAll}" aura:id="selectAll"/>
+                                        <span class="slds-checkbox--faux" />
+                                        <span class="slds-form-element__label"></span>
+                                    </label>
+                                </th>
+                                <th>SNo</th>
+                                <th>Tyre Size</th>
+                                <th>Brand Name</th>
+                                <th>Orig.Pattern</th>
+                                <th>Serial Number</th>
+                                <th>Job Type</th>
+                                <th>Inspection Card</th>
+                                <th>Collection Card</th>
+                                <th>Desired Tread Pattern</th>
+                                <th>Price</th>
+                            </thead>
+                            <tbody>
+                                
+                                <aura:iteration items="{!v.insCardList}" var="item" indexVar="key">
+                                    <tr>
+                                        <td>
+                                            <label class="slds-checkbox">
+                                                <ui:inputCheckbox aura:id="checkEstimation" value="{!item.isChecked}" text=""/>
+                                                <span class="slds-checkbox--faux" />
+                                                <span class="slds-form-element__label"></span>
+                                            </label>
+                                        </td>
+                                        <td>{!key+1}</td>
+                                        <td>{!item.objIC.Tyre_Inventory__r.ETT_Tyre_Size_Master__r.Name}</td>
+                                        <td>{!item.objIC.Tyre_Inventory__r.ETT_Brand__r.Name}</td>
+                                        <td>{!item.objIC.Tyre_Inventory__r.ETT_Pattern__r.Name}</td>
+                                        <td>{!item.objIC.Tyre_Inventory__r.Serial_Number__c}</td>
+                                        <aura:if isTrue="{!item.objIC.ETT_Status__c == 'Accepted'}">
+                                            <!--td>Refurbished Tyres</td-->
+                                            <td>{!item.objIC.Tyre_Inventory__r.Job_Type__c}</td>
+                                            <aura:set attribute="else">
+                                        		<td>{!item.objIC.ETT_Status__c}</td>
+                                            </aura:set>
+                                        </aura:if>
+                                        <td>
+                                            <a href= "{!item.link}" >
+                                                <div style="height:100%;width:100%">
+                                                    {!item.objIC.Name}
+                                                </div>
+                                            </a>
+                                        </td>                                                              
+                                        <td>{!item.objIC.ETT_Collection_Card__r.Name}</td>
+                                        <td style="width : 168px">{!item.desiredTreadPattern}</td>
+                                        <td>{!item.unitPrice}</td> 
+                                        
+                                    </tr>
+                                </aura:iteration>
+                                
+                            </tbody>
+                        </table>
+                        <aura:set attribute="else">
+                            <div style="margin:20px" class="slds-text-align_center slds-text-heading_medium">Tyres are not yet inspected.</div>
+                        </aura:set>
+                        
+                    </aura:if> 
+                    
+                </div>
+            </div>
+            
+            <div class="modal-footer slds-modal__footer">
+                <aura:if isTrue="{!not(empty(v.insCardList))}"> 
+                    <lightning:button variant="brand" disabled="{!v.showSpinner}" onclick="{!c.processSubmitReq}" label="Submit" iconName="utility:outcome"/>
+                </aura:if>
+            </div>
+        </div>
+    </div>
+    
+</aura:component>

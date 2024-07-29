@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ETT_Defect_s_Identified_On_Building__c</fullName>
+    <externalId>false</externalId>
+    <label>Defect(s) Identified On Building</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Improper One Side Filling</fullName>
+                <default>false</default>
+                <label>Improper One Side Filling</label>
+            </value>
+            <value>
+                <fullName>Missing Skiving Spot</fullName>
+                <default>false</default>
+                <label>Missing Skiving Spot</label>
+            </value>
+            <value>
+                <fullName>Nail Hole Missing</fullName>
+                <default>false</default>
+                <label>Nail Hole Missing</label>
+            </value>
+            <value>
+                <fullName>Length, Tread Pattern &amp; Width mismatch</fullName>
+                <default>false</default>
+                <label>Length, Tread Pattern &amp; Width mismatch</label>
+            </value>
+            <value>
+                <fullName>Nail Hole Visible With Air Bubble</fullName>
+                <default>false</default>
+                <label>Nail Hole Visible With Air Bubble</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

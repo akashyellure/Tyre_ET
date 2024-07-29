@@ -1,0 +1,13 @@
+<apex:page showHeader="false">
+  <apex:includeLightning />
+  <div id="LcDisplayId"></div> 
+  <script>
+      $Lightning.use("c:ETT_Lead_Credit_B2B_Tyre_Supplier_App", function() {
+      $Lightning.createComponent("c:ETT_Lead_Credit_B2B_Tyre_Supplier_v2",null,
+       "LcDisplayId",
+        function(component) {
+            //nothing to do
+        });
+     });
+   </script>
+</apex:page>

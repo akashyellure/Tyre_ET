@@ -1,0 +1,87 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" controller="ETT_TyreInspectionCardController" access="global">
+    
+    <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}" />    
+    <aura:attribute name="lstTyreMaster" type="ETT_Tyre_Master__c[]"/>                        
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="noPendingItem" type="boolean" default="false" />         
+    <aura:attribute name="isUserFM" type="boolean" default="false" />
+    <aura:attribute name="isUserHOO" type="boolean" default="false" />     
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">New Tyres Approval</h4>
+    </div>
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">    
+            
+            <aura:if isTrue="{!v.isUserHOO}">
+                <aura:if isTrue="{!v.noPendingItem==false}">
+                    <table class="slds-border--left slds-border--right slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                        <thead>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Tyre Size</th>
+                            <th>Brand</th>
+                            <th>Pattern</th>
+                            <th>Country</th>
+                        </thead>
+                        <tbody>
+                            <aura:iteration items="{!v.lstTyreMaster}" var="mapKey" indexVar="key">
+                                <tr>
+                                    <td>
+                                        <label class="slds-checkbox">
+                                            <ui:inputCheckbox aura:id="checkEstimation" value="{!mapKey.ETT_Status__c}"/>
+                                            <span class="slds-checkbox--faux" />
+                                            <span class="slds-form-element__label"></span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        {!mapKey.Name}
+                                    </td>
+                                    <td>
+                                        {!mapKey.ETT_Tyre_Size__r.Name}
+                                    </td>
+                                    <td>
+                                        {!mapKey.ETT_Brand_Name__r.Name}
+                                    </td>
+                                    <td>
+                                        {!mapKey.ETT_Original_Pattern__r.Name}
+                                    </td>
+                                    <td>
+                                        {!mapKey.ETT_Country_Name__r.Name}
+                                    </td>
+                                </tr>
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                </aura:if>
+                <aura:if isTrue="{!v.noPendingItem}">
+                    <p>No Pending Item</p>
+                </aura:if>
+            </aura:if>
+            
+            <aura:if isTrue="{!v.isUserHOO==false}">
+                <p>You do not have access to access this component.</p>
+            </aura:if>
+        </div>
+    </div>
+    
+    <div class="modal-footer slds-modal__footer">
+        <div class="slds-no-flex">
+            <lightning:buttonGroup>
+                <aura:if isTrue="{!v.isUserHOO}">
+                    <aura:if isTrue="{!v.noPendingItem==false}">
+                        <lightning:button variant="brand" label="Approve" onclick="{!c.Approve}" iconName="action:add_file" aura:id="start" />
+                    </aura:if>
+                </aura:if>
+            </lightning:buttonGroup>
+        </div>
+    </div>
+    
+</aura:component>

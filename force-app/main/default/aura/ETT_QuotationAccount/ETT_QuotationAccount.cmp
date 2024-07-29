@@ -1,0 +1,328 @@
+<aura:component implements="force:hasRecordId,force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global" controller="ETT_EstimationController">
+    
+    <ltng:require styles="{!$Resource.ModalWidthCSS}"/>
+    
+    <aura:attribute name="lstQuotation" type="ETT_Quotation_Line_Item__c[]"  /> 
+    <aura:attribute name="lstWOLI" type="WorkOrderLineItem[]"  /> 
+    <aura:attribute name="lstWallet" type="ET_Tyre_Wallet__c[]"  /> 
+    
+    <aura:attribute name="lstObjects" type="List[]"  />     
+    <aura:attribute name="lstCCNames" type="String[]"  /> 
+    
+    <aura:attribute name="disablBtn" type="boolean" default="false" />    
+    <aura:attribute name="isSelectAll" type="boolean" default="false"/>
+    <aura:attribute name="isSelectAllClaim" type="boolean" default="false"/>    
+    
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="isUserFM" type="boolean" default="false" />
+    <aura:attribute name="isUserHOO" type="boolean" default="false" />
+    <aura:attribute name="readonly" type="boolean" default="false" />    
+    <aura:attribute name="isWalletEmpty" type="boolean" default="false" />        
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />    
+    
+    <aura:attribute name="AccountRecord" type="Object" />
+    <aura:attribute name="CollectionCardRecord" type="Object" />
+    <aura:attribute name="AccountLoadError" type="String" />
+    <aura:attribute name="totalPrice" type="Double" />
+    <aura:attribute name="vat" type="Double" />    
+    <aura:attribute name="totalAmount" type="Double" />        
+    <aura:attribute name="today" type="Date" />
+    <aura:attribute name="lstCC" type="List" />
+    <aura:attribute name="CCDateList" type="List" />   
+    <aura:attribute name="contactEmail" type="String" />
+    <aura:attribute name="contactName" type="String" />
+    <aura:attribute name="accID" type="Id" />   
+    <aura:attribute name="tyreSizeVsPrice" type="Map" />  
+    <aura:attribute name="claimAmount" type="Double" default="0"/> 
+     <aura:attribute name="selectedLstWallet" type="ET_Tyre_Wallet__c[]"  /> 
+    <aura:attribute name="showSpinner" type="boolean" default="false" /> 
+    
+
+    
+    <force:recordData aura:id="AccountLoader" recordId="{!v.recordId}" 
+                      fields="Id,Name,BillingStreet,Phone,Fax,ETT_Payment_Term__c,ETT_Email__c,CreatedBy.Name,CreatedBy.MobilePhone,CreatedBy.Email" 
+                      targetFields="{!v.AccountRecord}" 
+                      targetError="{!v.AccountLoadError}"  
+                      recordUpdated="{!c.onCollectionCardLoad}"/>
+    
+        
+    <!--force:recordData aura:id="AcctDetails" recordId="{!v.recordId}" 
+                      fields="ETT_Accounts__c,ETT_Accounts__r.Name,ETT_Accounts__r.BillingStreet,ETT_Accounts__r.Phone,ETT_Accounts__r.CreatedBy.Name" 
+                      targetFields="{!v.CollectionCardRecord}" 
+                      targetError="{!v.AccountLoadError}" recordUpdated="{!c.onCollectionCardLoad}" /-->
+    
+    
+    
+    <div style="border: 1px solid black;padding: 2%;" >
+       <div class="outer-div">
+           <aura:if isTrue="{!v.showSpinner}">
+               <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+           </aura:if>
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col">
+                <div>
+                    <img src="{!$Resource.ETT_Logo}" width="150" height="100" />
+                </div>
+            </div>
+            <div class="slds-col">
+                <div class="title">QUOTATION</div>
+            </div>
+            <div class="slds-col">
+                <div style="text-align:right;font-size:10px;">
+                    Toll Free: 800 6006<br/>
+                    P.O. Box : 5757, Dubai, UAE<br/>
+                    Tel: 04-233 0680,Fax: 04-2872475<br/>
+                    retreadenquiries@et.ae<br/>
+                    www.et.gov.ae<br/>
+                    {!v.AccountLoadError}
+                </div>
+            </div>
+        </div><br/>
+        
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+            <tbody>
+                <tr>
+                    <th>Customer:</th>
+                    <td colspan="3">{!v.AccountRecord.Name}</td>
+                    <th>Quotation No:</th>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th>Address:</th>
+                    <td colspan="3">{!v.AccountRecord.BillingStreet}</td>
+                    <th>Date:</th>
+                    <td>{!v.today}</td>
+                </tr>
+                <tr>
+                    <th>Telephone:</th>
+                    <td>{!v.AccountRecord.Phone}</td>
+                    <th>Fax:</th>
+                    <td></td>
+                    <th>Sales Rep:</th>
+                    <td>{!v.AccountRecord.CreatedBy.Name}</td>
+                </tr>
+                <tr>
+                    <th>Kind Atten :</th>
+                    <td> <ui:inputText label="" class="field" value="{!v.contactName}" updateOn="click"/></td>
+                    <th>CC:</th>
+                    <td></td>
+                    <th>Email:</th>
+                    <td><ui:inputText label="" class="field" value="{!v.AccountRecord.CreatedBy.Email}" updateOn="click"/></td>
+                </tr>
+                <tr>
+                    <th>Collection Card:</th>
+                    <td colspan="3">
+                        <aura:iteration items="{!v.lstCC}" var="item">
+                            {!item},&nbsp;
+                        </aura:iteration>
+
+                    </td>
+                    <th>Collection Date:</th>
+                    <td>
+                    <aura:iteration items="{!v.CCDateList}" var="item">
+                            {!item},&nbsp;
+                        </aura:iteration>
+                    </td>
+                </tr>   
+            </tbody>
+        </table>
+        
+        <br/><p>
+            Dear Sir,<br/>
+            Please find below our best prices with relevant details as follows. 
+        </p><br/>
+        
+        
+        
+        
+        
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <th>          
+                        <label class="slds-checkbox">
+                            <ui:inputCheckbox value="{!v.isSelectAll}" change="{!c.handleSelectAllQuotation}" aura:id="selectAll"/>
+                            <span class="slds-checkbox--faux" />
+                            <span class="slds-form-element__label"></span>
+                        </label>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="SNo">SNo</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Tyre Size">Tyre Size</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Job Type">Job Type</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Status">Status</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Qty">Qty</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Unit Price">Unit Price</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Total">Total</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <aura:iteration items="{!v.lstObjects}" var="item" indexVar="index">
+                    <tr class="slds-hint-parent">
+                        <td>
+                            <label class="slds-checkbox">
+                                <ui:inputCheckbox aura:id="checkEstimation" change="{!c.handleSingleQuotation}" value="{!item.isSelected}" text=""/>
+                                <span class="slds-checkbox--faux" />
+                                <span class="slds-form-element__label"></span>
+                            </label>
+                        </td>
+                        <td data-label="Account Name">
+                            <div class="slds-truncate" title="3">{!index+1}</div>
+                        </td>
+                        <td data-label="Close Date">
+                            <div class="slds-truncate" title="12.00R24">{!item.ETT_Tyre_Size_Name__c}</div>
+                        </td>
+                        <td data-label="Prospecting">
+                            <div class="slds-truncate" title="RETREAD">{!item.ETT_Job_Type__c}</div>
+                        </td>
+                        <td data-label="Confidence">
+                            <div class="slds-truncate" title="ACCEPTED">{!item.ETT_Status__c}</div>
+                        </td>
+                        <td data-label="Amount">
+                            <div class="slds-truncate" title="4">{!item.Quantity}</div>
+                        </td>
+                        <td data-label="Amount">
+                            <div class="slds-truncate" title="430.00">{!item.ETT_Unit_Price__c}</div>
+                        </td>
+                        <td data-label="Amount">
+                            <div class="slds-truncate" title="1,720.00">{!item.ETT_Total__c}</div>
+                        </td>                        
+                    </tr>
+                </aura:iteration>
+                
+                <tr>
+                    <th colspan='7' style="text-align: right;">Total Price:</th>
+                    <td>{!v.totalPrice}</td>
+                </tr>
+                <tr>
+                    <th colspan='7' style="text-align: right;">Claim Amount(-) :</th>
+                    <td>{!v.claimAmount}</td>
+                </tr> 
+                <tr>
+                    <th colspan='7' style="text-align: right;">VAT (@5%) :</th>
+                    <td>{!v.vat}</td>
+                </tr>
+                 
+                <tr>
+                    <th colspan='7' style="text-align: right;">Total Amount :</th>
+                    <td>{!v.totalAmount}</td>
+                </tr>                
+            </tbody>
+        </table>
+        
+        
+        <aura:if isTrue="{!v.isWalletEmpty}">
+            <br/><br/>
+            <p style="color:red;"><b>Traffic Fine settlement/Claim Tyre settlement is pending.</b></p>
+            <br/>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                <thead>
+                    <th>          
+                        <ui:inputCheckbox value="{!v.isSelectAllClaim}" change="{!c.handleSelectAllClaimTyreSettlement}" aura:id="selectAll"/>
+                        <span class="slds-checkbox--faux" />
+                        <span class="slds-form-element__label"></span>
+                    </th>
+                    <th>Case No</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.lstWallet}" var="item" indexVar="index">
+                        <tr>
+                            <td>
+                                <ui:inputCheckbox aura:id="checkEstimation" value="{!item.ETT_Is_Checked__c}" text=""/>
+                                <span class="slds-checkbox--faux" />
+                                <span class="slds-form-element__label"></span>
+                            </td>
+                            <td>{!item.CaseNumber__r.CaseNumber}</td>
+                            <td>{!item.Adjustment__c}</td>
+                            <td>{!item.Status__c}</td>
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table>
+            <br/>
+            <div style="float:right;">
+                <lightning:button class="" variant="brand" label="Claim Tyre settlement" onclick="{!c.claimSettlement}" disabled="{!v.disablBtn}" />
+            </div>
+        </aura:if>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <br/>
+        <p>Material Used : Engineered in Malaysia with German technology</p>
+        <p>Payment Terms : <b>{!v.AccountRecord.ETT_Payment_Term__c}</b></p>
+        
+        
+        <br/><br/>
+        <p>
+            Warranty : All of our retreads are warranted for untill the pull point (5mm) for any manufacturing defects in
+            material and workmanship under normal working conditions. A pro rata settlement would be given for such cases
+            upon the inspection by our Good way trained experts at our plant.
+        </p><br/><br/>
+        
+        <p>
+            Please do not hesitate to contact us should you have any additional requirements.
+        </p>
+        <p>
+            Thanking you and assuring you of our best services at all times.
+        </p>            
+        <br/>
+        <p>Best Regards,</p>            
+        
+        
+        <p>
+            Name : {!v.AccountRecord.CreatedBy.Name}<br/>
+            Mob No : {!v.AccountRecord.CreatedBy.MobilePhone}<br/>
+            CC :Factory Manager
+        </p>
+        <br/>
+        
+        <p><b>*Please send your LPO/ confirmation to Fax No: 042872475 or retreadenquiries@et.ae</b></p>
+        <p>*Please note that this is a computer generated document and hence needs no signature </p>
+        
+        
+        
+        <br/>            
+        <table style="border: 1px solid black;">
+            <tr>
+                <td style="padding: 1%;">
+                    <p>PO Box: 5757, Al Warsan, Dubai, UAE, Tel: 04-2330680, Fax: 04-2872475, Email: Retreadenquiries@et.ae, Call Center: 8006006</p>        
+                </td>
+            </tr>
+        </table>
+        <br/><br/>
+        
+        
+        <div style="float:right;">
+            <lightning:button class="" variant="brand" label="Submit" onclick="{!c.submit}" />
+            <lightning:button class="" variant="brand" label="Cancel" onclick="{!c.cancel}" />
+        </div>
+        <br/><br/>
+        </div>
+    </div>
+    
+    
+</aura:component>

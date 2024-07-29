@@ -1,0 +1,21 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" controller="ETT_JobCardListController">
+    <aura:attribute name="validJobCardWrapper" type="ETT_JobCardListController.JobWrapper"/> 
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>    
+    <aura:handler event="c:ETT_JobCardUpdate" action="{!c.doInit}" name="refreshJobCardList"/>
+    
+    <aura:attribute name="selectedIds"  type="ID[]" /> 
+    <aura:registerEvent name="sampleComponentEvent" type="c:ETT_Retreading_Curing_Event"/>
+    
+    <br/><hr/>
+    <div style="text-align: center;">
+        <b>Select Job Cards For Curing Process</b><br/><br/>
+        <aura:iteration items="{!v.validJobCardWrapper.validJobCardList}" var="item" indexVar="i">            
+            <lightning:input type="checkbox" checked="{!item.ETT_Is_Valid_For_Curing__c}" label="{!item.Name }" name="{!item.Id}" />
+        </aura:iteration>
+    <br/><br/> 
+    <lightning:button variant="brand" label="Add Job Cards" title="Add Job Cards" onclick="{!c.handleClick}"/>
+    </div>
+    <br/>    
+    
+</aura:component>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ETT_Overall_Time_taken_in_mins__c</fullName>
+    <externalId>false</externalId>
+    <label>Overall Time taken (in mins)</label>
+    <summarizedField>ETT_Work_Activity__c.ETT_Time_taken_in_mins__c</summarizedField>
+    <summaryForeignKey>ETT_Work_Activity__c.ETT_Job_Card_Line_Item__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

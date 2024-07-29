@@ -1,0 +1,278 @@
+<!--
+  Created By   :G.Krishnareddy
+  Created Date :05/27/2020
+  Description  :This is for Site Registration Process for to Maintain Community User in site.
+-->
+<aura:component controller="ETT_LeadFormController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <ltng:require styles="{!$Resource.ModalWidthCSS}" />    
+    <aura:attribute name="fileToBeUploaded" type="Object[]"/>
+    <aura:attribute name="fileUploadWrapper" type="ETT_FileUploadWrapper[]"/>
+    <aura:attribute name="activeSections" type="List" default="['A','B']" />
+    <aura:attribute name="activeSectionsMessage" type="String" default="" />
+    <aura:attribute name="Password" type="String" default="" />
+     <aura:attribute name="isdisabled" type="boolean" default="false" />
+    <aura:attribute name="filetype" type="List" default="['.png', '.jpg', '.jpeg','.pdf,.doc']" />
+    <aura:attribute name="ConfirmPassword" type="String" default="" />
+    <aura:attribute name="CustomerType" type="string[]" default="Person,Organization" />    
+    <aura:attribute name="accept" type="List" default="['.png', '.jpg', '.jpeg','.pdf,.doc']"/>
+    <aura:attribute name="multiple" type="Boolean" default="true"/>
+    <aura:attribute name="disabled" type="Boolean" default="false"/>
+    <aura:attribute name="isError" type="Boolean" default="false"/>    
+    <aura:attribute name="today" type="Date" default=""/>
+    
+    <aura:attribute name="showThankYou" type="Boolean" default="false" />    
+    <aura:attribute name="showError" type="Boolean" default="false" />        
+    
+    <aura:attribute name="fileNames" type="List" />            
+    <aura:attribute name="stagingQuotationRequest" type="ETT_Staging_Quotation_Request__c[]"/>
+    
+    <aura:attribute name="newLead" type="Lead" default="{'sobjectType': 'Lead',
+                                                        'FirstName': '',
+                                                        'LastName': '',
+                                                        'Company': '',
+                                                        'Street':'',
+                                                        'Email': '',
+                                                        'Fax' : '',
+                                                        'MobilePhone':'',
+                                                        'Status':'New',
+                                                        'ETT_VAT_TRN__c' : '',
+                                                        'ETT_Emirates_Id__c' : '',
+                                                        'ETT_Trade_License_Number__c' : '',
+                                                        'ETT_Trade_Licenses_Expiry_Date__c' : ''}"/>
+
+    
+    <aura:attribute name="objAccount" type="Account" default="{'sobjectType': 'Account',
+                                                              'ETT_First_Name__c':'',
+                                                              'ETT_Last_Name__c':'',
+                                                              'ETT_VAT_TRN__c':'',
+                                                              'ET_Emirates_Id__c':'',
+                                                              'ETT_Trade_License_Number__c':'',
+                                                              'ETT_Trade_Licenses_Expiry_Date__c':'',
+                                                              'BillingCity':'',
+                                                              'BillingCountry':'',
+                                                              'BillingStreet':'',
+                                                              'ShippingCity':'',
+                                                              'ShippingCountry':'',
+                                                              'ShippingStreet':'',
+                                                              'ETT_Organization_Name__c':'',
+                                                              'ETT_Organization_Address__c':'',
+                                                              'ETT_Organization_Phone__c':'',
+                                                              'ETT_Organization_Fax__c':'',
+                                                              'ETT_Organization_Website__c':''}" />
+    
+    <aura:attribute name="objUser" type="User" default="{'sobjectType': 'User',
+                                                        'Username':'',
+                                                        'Email':'',
+                                                        'MobilePhone':'',
+                                                        'ETT_Customer_Type__c':''
+                                                        }" />
+    <aura:attribute name="objBank" type="ETT_Bank_Reference__c" default="{'sobjectType': 'ETT_Bank_Reference__c',
+                                                                         'ETT_Account_Name__c':'',
+                                                                         'ETT_Account_Number__c':'',
+                                                                         'ETT_IBAN__c':'',
+                                                                         'ETT_Bank_Name__c':'',
+                                                                         'ETT_Branch_Name__c':''}" />
+    
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <!--<aura:handler event="aura:waiting" action="{!c.jsFunction}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.jsFunction}"/>-->
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    
+    <!--loading spinner start... style=Brand Medium (blue dots)-->
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showThankYou == false}">
+         <fieldset class="slds-box suppliermaindiv">
+         <div class="supheading">
+                <h1>Portal Registration Form <br/>
+                	<span style="font-size: 14px;font-weight: normal;">(Credit/B2B Tyre Supplier)</span>
+                </h1>
+            </div> 
+            <table class="padtb slds-box slds-table slds-table slds-table--striped" border="1">
+                <tr>  
+                  <th>Company<i class="required_field">*</i></th> 
+                  <th>
+                  	<lightning:input onblur = "{!c.convertCase}" name="Company" value="{!v.newLead.Company}" required="true" />
+                  	<span id="CompanyErr" style="color: red;"></span>
+                  </th>
+                  
+                  <th>First Name</th> 
+                  <th>
+                     <lightning:input  onblur = "{!c.convertCase}" name="fname" value="{!v.newLead.FirstName}" required="false" onchange="{!c.validateFirstName}" />
+                     <span id="fnameErr" style="color: red;"></span>
+                  </th> 
+                    
+                    <th>Last Name<i class="required_field">*</i> </th> 
+                  <th>
+                     <lightning:input onblur = "{!c.convertCase}" name="lname" value="{!v.newLead.LastName}" required="true"  onchange="{!c.validateLastName}" />                
+                        <span id="lnameErr" style="color: red;"></span>
+                  </th>
+                    
+                </tr>
+                <tr>
+ 					<th>Email<i class="required_field">*</i> </th> 
+                    <th>
+                        <lightning:input onblur = "{!c.convertCase}" name="Email" value="{!v.newLead.Email}" required="true" onchange="{!c.validateEmail}" />
+                        <span id="emailErr" style="color: red;"></span>
+                    </th>
+                 
+                    <th>Mobile<i class="required_field">*</i> </th> 
+                    <th>
+                        <lightning:input name="MobilePhone" value="{!v.newLead.MobilePhone}" required="true" onchange="{!c.validateMobile}"   />                
+                        <span id="mobileErr" style="color: red;"></span>
+                    </th>
+                    
+                    <th>City</th> 
+                    <th>
+                        <lightning:input onblur = "{!c.convertCase}" name="City" value="{!v.newLead.City}" required="false" onchange="{!c.validateCity}" />
+                        <span id="cityErr" style="color: red;"></span>
+                    </th> 
+                </tr>
+              
+                <tr>
+                    <th>Country</th> 
+                    <th>
+                        <lightning:input onblur = "{!c.convertCase}" name="Country" value="{!v.newLead.Country}" required="false" onchange="{!c.validateCountry}" />                
+                        <span id="companyErr" style="color: red;"></span>
+                    </th>
+                    
+                     <th>Address1<i class="required_field">*</i> </th> 
+                    <th>
+                        <lightning:textarea onblur = "{!c.convertCase}" name="Address1" value="" required="true" />
+                        <span id="address1Err" style="color: red;"></span>
+                    </th>
+                    
+                    <th>Address2</th> 
+                    <th>
+                        <lightning:textarea onblur = "{!c.convertCase}" name="Address2" value="" />
+                        <span id="address2Err" style="color: red;"></span>
+                    </th>
+                    
+                </tr>
+                <tr>
+                   <th>TRN Number<i class="required_field">*</i> </th> 
+                     <th>
+                        <lightning:input name="trnNumber" value="{!v.newLead.ETT_VAT_TRN__c}" required="true" onchange="{!c.validateTRN}" />            
+                        <span id="trnErr" style="color: red;"></span>
+                    </th>
+                    
+                    <th>Emirates ID</th> 
+                    <th>
+                        <lightning:input name="emiratesId" value="{!v.newLead.ETT_Emirates_Id__c}" onchange="{!c.validateEmirateId}" />            
+                        <span id="emiIdErr" style="color: red;"></span>
+                    </th> 
+                    
+                    <th>Trade License Number<i class="required_field">*</i> </th> 
+                    <th>
+                        <lightning:input name="tradeLicenseNumber" value="{!v.newLead.ETT_Trade_License_Number__c}" required="true"  onchange="{!c.validateTradeNumber}" />                            
+                        <span id="tradeNoErr" style="color: red;"></span>                            
+                    </th> 
+                </tr>
+                <tr> 
+                    <th>Trade License Expiry Date<i class="required_field">*</i> </th> 
+                    <th>
+                        <lightning:input type="date" name="tradeLicenseDate" value="{!v.newLead.ETT_Trade_Licenses_Expiry_Date__c}" required="true" onchange="{!c.dateUpdate}" />                
+                        <span id="tradeLicenseDateErr" style="color: red;"></span>
+                    </th>
+                    <th colspan="4"></th> 
+                </tr>
+                <!--<tr>
+                    <td>
+                        <lightning:input aura:id="TradingLicense" 
+                                         type="file"
+                                         files="{!v.fileToBeUploaded}"
+                                         onchange="{!c.onFileUploaded}"
+                                         accept="{!v.accept}"
+                                         label="Trade License"
+                                         name="TradingLicense" 
+                                         multiple="true"/>  
+                        <span id="TradingLicenseErr" style="color:red;"></span>
+                        <aura:iteration items="{!v.fileUploadWrapper}" var="doc"  indexVar="index">
+                            <aura:if isTrue="{! and(doc.strFileName != '',doc.fileSourceType=='TradingLicense') }">
+                                <div>{!doc.strFileName}&nbsp;
+                                    <a href="javascript:void(0)" style="color:blue;" data-filename="{!doc.strFileName}" data-index="{!index}" onclick="{!c.removeFile}">Remove</a>
+                                </div>
+                            </aura:if>
+                            
+                        </aura:iteration>
+                        
+                        
+                    </td>
+                    <td>
+                        <lightning:input aura:id="membershipOfChamber" 
+                                         type="file"
+                                         files="{!v.fileToBeUploaded}"
+                                         onchange="{!c.onFileUploaded}"
+                                         accept="{!v.accept}"
+                                         label="Chamber of Commerce"
+                                         name="membershipOfChamber" 
+                                         multiple="true"/>   
+                        <span id="membershipOfChamberErr" style="color:red;"></span>                                
+                        <aura:iteration items="{!v.fileUploadWrapper}" var="doc"  indexVar="index">
+                            <aura:if isTrue="{! and(doc.strFileName != '',doc.fileSourceType=='membershipOfChamber') }">
+                                <div>        {!doc.strFileName}&nbsp;
+                                    <a href="javascript:void(0)" style="color:blue;" data-filename="{!doc.strFileName}" data-index="{!index}" onclick="{!c.removeFile}">Remove</a>
+                                </div>
+                            </aura:if>
+                            
+                        </aura:iteration>
+                        
+                        
+                    </td>                
+                </tr>
+                <tr>
+                    <td>
+                        <lightning:input aura:id="companyProfile"
+                                         type="file"
+                                         files="{!v.fileToBeUploaded}"
+                                         onchange="{!c.onFileUploaded}"
+                                         accept="{!v.accept}"
+                                         label="Company Profile"
+                                         name="companyProfile" 
+                                         multiple="true"
+                                         />                        
+                        <span id="companyProfileErr" style="color:red;"></span>                                
+                        
+                        <aura:iteration items="{!v.fileUploadWrapper}" var="doc"  indexVar="index">
+                            <aura:if isTrue="{! and(doc.strFileName != '',doc.fileSourceType=='companyProfile') }">
+                                <div>{!doc.strFileName}&nbsp;
+                                    <a href="javascript:void(0)" style="color:blue;" data-filename="{!doc.strFileName}" data-index="{!index}" onclick="{!c.removeFile}">Remove</a>
+                                </div>
+                            </aura:if>
+                        </aura:iteration>
+                        
+                    </td>
+                    <td>
+                    </td>
+                </tr>-->
+            </table>
+          </fieldset>
+        
+        
+        
+        
+        <div class="slds-text-align--center">
+        	<lightning:button disabled="{!v.isdisabled}" class="submit" variant="brand" label="Submit" title="Brand action" onclick="{! c.handleClick }" />
+        </div>
+        
+        <aura:set attribute="else">
+            <div style="color: white;
+                        font-size: 50px;
+                        text-align: center;
+                        ">Thank You!</div>
+        </aura:set>
+        
+    </aura:if> 
+    
+</aura:component>

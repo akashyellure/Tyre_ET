@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Job_card_Details</fullName>
+    <columns>NAME</columns>
+    <columns>Party__c</columns>
+    <columns>Job_Card__c</columns>
+    <columns>Collection_Card__c</columns>
+    <columns>Status__c</columns>
+    <columns>Tyre_Size__c</columns>
+    <columns>Party_Type__c</columns>
+    <columns>Brand_Name__c</columns>
+    <columns>O_Pattern__c</columns>
+    <columns>Serial_Number__c</columns>
+    <columns>Job_Type__c</columns>
+    <columns>Production_Status__c</columns>
+    <columns>ThreadPattern__c</columns>
+    <columns>EBS_Ref_No__c</columns>
+    <columns>JV_Request_Status__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>Job card Details</label>
+</ListView>

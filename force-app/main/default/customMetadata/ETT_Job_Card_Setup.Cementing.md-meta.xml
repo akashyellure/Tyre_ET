@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Cementing</label>
+    <protected>false</protected>
+    <values>
+        <field>ETT_Instructions__c</field>
+        <value xsi:type="xsd:string">&lt;ol class=&quot;slds-list_ordered&quot; type=&quot;a&quot;&gt;
+&lt;li&gt;&quot;Dry clean the casing?&quot; with high pressure air blower.&lt;/li&gt;
+&lt;li&gt;&quot;Reactivate the casing?&quot; with handled wire brush or light buffing.&lt;/li&gt;
+                                                        &lt;/ol&gt;</value>
+    </values>
+</CustomMetadata>

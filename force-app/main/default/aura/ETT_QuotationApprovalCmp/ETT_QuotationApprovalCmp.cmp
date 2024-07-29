@@ -1,0 +1,527 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" controller="ETT_QuotationApprovalController" access="global">
+    
+    
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important;
+        max-height:unset !important;
+        }
+    </aura:html>
+    <aura:attribute name="recordId" type="Id" />
+    <ltng:require styles="{!$Resource.ModalWidthCSS}" />    
+    <aura:attribute name="activeSections" type="List" default="" />
+    <aura:attribute name="LeadRecord" type="Object" />
+    <aura:attribute name="LeadLoadError" type="String" /> 
+    <aura:attribute name="approvalStageMap" type="Map"/>
+    <aura:attribute name="tyreLifeMap" type="Map"/>
+    <aura:attribute name="tyreConditionMap" type="Map"/> 
+    <aura:attribute name="reasonForPriceReductionMap" type="Map"/>     
+    
+    
+    <aura:attribute name="isDraft" type="boolean" default="false" />    
+    <aura:attribute name="isUserFM" type="boolean" default="false" />
+    <aura:attribute name="isUserHOO" type="boolean" default="false" />
+    <aura:attribute name="isUserRecp" type="boolean" default="false" />
+    <aura:attribute name="autoConvertLead" type="boolean" default="false" />    
+    
+    <aura:attribute name="leadObj" type="Lead" />
+    
+    <aura:attribute name="stagingQuotationRequest" type="object[]"/>
+    <aura:attribute name="stgQuoteReq" type="ETT_Staging_Quotation_Request__c[]"/>    
+
+    <aura:attribute name="lstTyreMasterDetails" type="ETT_Tyre_Master__c[]"/>        
+    
+    
+    <aura:attribute name="objInfo" type="ETT_Staging_Quotation_Request__c" default="{sobjectType : 'ETT_Staging_Quotation_Request__c'}" />
+    
+    <aura:attribute name="ListOfOption" type="Object[]" default="[{'label':'Hot','value':'Hot'},{'label':'Procure','value':'Procure'}]"></aura:attribute>
+    <aura:attribute name="defaultOptions" type="List" />
+    
+    <aura:attribute name="isNewHot" type="boolean" default="false" />
+    <aura:attribute name="isNewProcure" type="boolean" default="false" />
+    <aura:attribute name="isRetreadHot" type="boolean" default="false" />
+    <aura:attribute name="isRetreadProcure" type="boolean" default="false" />
+    <aura:attribute name="isRepair" type="boolean" default="false" />
+    <aura:attribute name="isError" type="boolean" default="false" />
+    
+    <aura:attribute name="tyreLifeOfOption" type="Object[]" default="[{'label':'New','value':'New'},{'label':'Retread','value':'Retread'},{'label':'Repair','value':'Repair'}]"></aura:attribute>
+    <aura:attribute name="tyreLifedefaultOptions" type="List" />
+    
+    <aura:attribute name="metaDataPriceRanges" type="ETT_Used_Tyre_Casing_Price__mdt[]" />
+    
+    <aura:attribute name="minRange" type="Integer" />
+    <aura:attribute name="maxRange" type="Integer" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <force:recordData aura:id="LeadRecord" 
+                      recordId="{!v.recordId}" 
+                      fields="Id,Name,ETT_isSupplierConvert__c,Phone,RecordTypeId,RecordType.Name" 
+                      targetFields="{!v.LeadRecord}" 
+                      targetError="{!v.LeadLoadError}"
+                      />    
+    
+    <aura:if isTrue="{!or(or(v.isUserFM,v.isUserHOO),v.isUserRecp)}">
+        
+        <div class="modal-header slds-modal__header">
+            <h4 class="title slds-text-heading--medium">Estimation Approval</h4>
+        </div>
+        
+        <div class="slds-modal__content" id="LeadQuoationRecord">
+            <div class="slds-box">
+                
+                
+                <lightning:accordion allowMultipleSectionsOpen="true" onsectiontoggle="{! c.handleSectionToggle }" activeSectionName="{! v.activeSections }">
+                    
+                    <lightning:accordionSection name="A" label="Lead Details">
+                        
+                        <br/>
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                            <tbody>
+                                <tr class="slds-hint-parent">
+                                    <td>
+                                        <div>Lead Name:</div>
+                                    </td>
+                                    <td>
+                                        <div>{!v.LeadRecord.Name}</div>
+                                    </td>
+                                    
+                                    <td>
+                                        <div>Auto convert Lead?</div>
+                                    </td>
+                                    <td>
+                                        <div><ui:inputCheckbox aura:id="autoConvertLead" value="{!v.autoConvertLead}" change="{!c.onCheck}" /></div>
+                                    </td>
+                                    
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br/>
+                        
+                    </lightning:accordionSection>
+                    
+                    <aura:if isTrue="{!v.LeadRecord.RecordType.Name=='Tyre - Refurbishing Services'}">
+                        <lightning:accordionSection name="B" label="Service Pricing Approval">
+                            <div class="slds-scrollable--x">                        
+                                
+                                <table style="border:1px solid black;" class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>TYRE SIZE</th>
+                                            <aura:if isTrue="{!v.LeadRecord.RecordType.Name=='Tyre - Refurbishing Services'}">
+                                                <th>TYRE LIFE</th>
+                                                <th>TYRE RETREAD</th>
+                                                <th>TYRE PROCESS</th> 
+                                                <th>SERVICE PRICE</th> 
+                                            </aura:if>
+                                            <aura:if isTrue="{!or(v.LeadRecord.RecordType.Name=='Tyre - Cash Supplier',v.LeadRecord.RecordType.Name=='Tyre Cash Individual')}">
+                                                <th>PURCHASE PRICE</th> 
+                                            </aura:if>
+                                            <th>LEAD</th>
+                                            <!--<th>APPROVED</th>-->
+                                            <th>APPROVE STAGE</th>
+                                            
+                                            <aura:if isTrue="{!or(v.LeadRecord.RecordType.Name=='Tyre - Cash Supplier',v.LeadRecord.RecordType.Name=='Tyre Cash Individual')}">
+                                                <th>MIN PRICE</th>
+                                                <th>MAX PRICE</th>
+                                                <th>REASONS FOR PRICE REDUCTION</th>
+                                            </aura:if>
+                                            
+                                            <aura:if isTrue="{!v.isUserHOO==true}">
+                                                <th>HOO REJECTION COMMENTS</th> 
+                                            </aura:if>
+                                            <aura:if isTrue="{!v.isUserFM==true}">
+                                                <th>FM REJECTION COMMENTS</th> 
+                                            </aura:if>
+                                            <th>RESUBMISSION REASON</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{!v.stagingQuotationRequest}" var="item" indexVar="index">
+                                            <tr>
+                                                <td>{!item.TyreSize}</td>
+                                                <aura:if isTrue="{!v.LeadRecord.RecordType.Name=='Tyre - Refurbishing Services'}">
+                                                    
+                                                    <td>{!item.ETT_Tyre_Life__c}
+                                                    </td>
+                                                    <td>{!item.ETT_Tyre_Condition__c}
+                                                    </td>
+                                                    <td>{!item.ETT_Tyre_Process__c}</td>
+                                                    <td>
+                                                        <lightning:input aura:id="purchasePrice" 
+                                                                         name="{!index}" 
+                                                                         value="{!item.PurchasePrice}" 
+                                                                         required="true"
+                                                                         onblurr="{!c.purchasePrice}" />
+                                                    </td>
+                                                    
+                                                    <!--<aura:if isTrue="{!v.isNewHot}">
+                                                    <td><lightning:input aura:id="purchasePrice" 
+                                                                         name="purchasePrice" 
+                                                                         value="{!item.ETT_New_Hot_Price__c}" required="true"/>
+                                                    </td>
+                                                </aura:if>
+                                                <aura:if isTrue="{!v.isNewProcure}">
+                                                    <td><lightning:input aura:id="purchasePrice" 
+                                                                         name="purchasePrice" 
+                                                                         value="{!item.ETT_New_Procure_Price__c}" required="true"/>
+                                                    </td>
+                                                </aura:if>
+                                                <aura:if isTrue="{!v.isRetreadHot}">
+                                                    <td><lightning:input aura:id="purchasePrice" 
+                                                                         name="purchasePrice" 
+                                                                         value="{!item.ETT_Retread_Hot_Price__c}" required="true"/>
+                                                    </td>
+                                                </aura:if>
+                                                <aura:if isTrue="{!v.isRetreadProcure}">
+                                                    <td><lightning:input aura:id="purchasePrice" 
+                                                                         name="purchasePrice" 
+                                                                         value="{!item.ETT_Retread_Procure_Price__c}" required="true"/>
+                                                    </td>
+                                                </aura:if>
+                                                <aura:if isTrue="{!v.isRepair}">
+                                                    <td><lightning:input aura:id="purchasePrice" 
+                                                                         name="purchasePrice" 
+                                                                         value="{!item.ETT_Repair_Price__c}" required="true"/>
+                                                    </td>
+                                                </aura:if>-->
+                                                </aura:if>
+                                                <aura:if isTrue="{!or(v.LeadRecord.RecordType.Name=='Tyre - Cash Supplier',v.LeadRecord.RecordType.Name=='Tyre Cash Individual')}">
+                                                    <td>
+                                                        <lightning:input aura:id="purchasePrice" 
+                                                                         name="{!index}" 
+                                                                         value="{!item.PurchasePrice}" 
+                                                                         required="true"
+                                                                         onblurr="{!c.purchasePrice}" />
+                                                    </td>
+                                                </aura:if>
+                                                <td>{!item.LeadName}</td>
+                                                <!--<td>
+                                                <aura:if isTrue="{!v.isUserHOO}">
+                                                    <ui:inputCheckbox aura:id="isApproved" value="{!item.isApproved}" change="{!c.onClick}" disabled="true" />
+                                                </aura:if>
+                                                
+                                                <aura:if isTrue="{!v.isUserFM}">
+                                                    <ui:inputCheckbox aura:id="isApproved" value="{!item.isApproved}" change="{!c.onClick}" />
+                                                </aura:if>
+                                            </td>-->
+                                                <td>
+                                                    <lightning:select  aura:id="approvalStage" value="{!item.approvalStage}" onchange="{!c.handleCompanyOnChange}" name="approvalList" class="selectCls">
+                                                        <aura:iteration items="{!v.approvalStageMap}" var="ind" indexVar="key">
+                                                            <option text="{!ind.value}" value="{!ind.key}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </td>
+                                                
+                                                <aura:if isTrue="{!or(v.LeadRecord.RecordType.Name=='Tyre - Cash Supplier',v.LeadRecord.RecordType.Name=='Tyre Cash Individual')}">
+                                                    <td>{!item.minRange}</td>
+                                                    <td>{!item.maxRange}</td>
+                                                    <td>
+                                                        <lightning:select  aura:id="reasonForPriceReduction" value="{!item.ETT_Reasons_For_Price_Reduction__c}" name="reasonForPriceReductionList">
+                                                            <option text="None" value="" />
+                                                            <aura:iteration items="{!v.reasonForPriceReductionMap}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </td>
+                                                </aura:if>
+                                                <aura:if isTrue="{!v.isUserHOO==true}"> 
+                                                    <td>
+                                                        <lightning:textarea name="hooComment" value="{!item.hooComment}" />
+                                                    </td>
+                                                </aura:if>
+                                                <aura:if isTrue="{!v.isUserFM==true}"> 
+                                                    <td>
+                                                        <lightning:textarea name="fmComment" value="{!item.fmComment}" />
+                                                    </td>
+                                                </aura:if>
+                                                <td>
+                                                    <lightning:textarea name="leadResubmitReason" value="{!item.leadResubmitReason}" />
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>
+                                    </tbody>
+                                </table>
+                                
+                                
+                                <aura:if isTrue="{!v.isDraft}">
+                                    <br/><br/><br/>
+                                    <table style="border:1px solid black;" class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>Tyre Size</th>
+                                                <th>Brand</th>
+                                                <th>Pattern</th>
+                                                <th>Country</th> 
+                                                <th>Status</th>
+                                                <th>Select</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <aura:iteration items="{!v.lstTyreMasterDetails}" var="item" indexVar="index">
+                                                <tr>
+                                                    <td>
+                                                        <label class="slds-checkbox">
+                                                            <ui:inputCheckbox aura:id="checkEstimation" value="{!item.ETT_Status__c}"/>
+                                                            <span class="slds-checkbox--faux" />
+                                                            <span class="slds-form-element__label"></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>{!item.ETT_Tyre_Size__r.Name}</td>
+                                                    <td>{!item.ETT_Brand_Name__r.Name}</td>
+                                                    <td>{!item.ETT_Original_Pattern__r.Name}</td>
+                                                    <td>{!item.ETT_Country_Name__r.Name}</td>
+                                                    <td>{!item.RecordType.Name}</td>
+                                                    <td>
+                                                        <lightning:select  aura:id="reasonForPriceReduction" value="{!item.RecordTypes__c}" name="reasonForPriceReductionList">
+                                                            <option text="Draft" value="Draft" />
+                                                            <option text="Approve" value="Approve" />
+                                                            <option text="Reject" value="Reject" />
+                                                        </lightning:select>
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>
+                                        </tbody>
+                                    </table>
+                                    <br/>
+                                </aura:if>
+                                
+                                
+                            </div>                        
+                        </lightning:accordionSection>
+                        <aura:set attribute="else">
+                            <lightning:accordionSection name="B" label="Supplier Pricing Approval">
+                                <div class="slds-scrollable--x">                        
+                                    
+                                    <table style="border:1px solid black;" class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>TYRE SIZE</th>
+                                                <aura:if isTrue="{!v.LeadRecord.RecordType.Name=='Tyre - Refurbishing Services'}">
+                                                    <th>TYRE LIFE</th>
+                                                    <th>TYRE RETREAD</th>
+                                                    <th>TYRE PROCESS</th> 
+                                                    <th>SERVICE PRICE</th> 
+                                                </aura:if>
+                                                <aura:if isTrue="{!or(v.LeadRecord.RecordType.Name=='Tyre - Cash Supplier',v.LeadRecord.RecordType.Name=='Tyre Cash Individual')}">
+                                                    <th>PURCHASE PRICE</th> 
+                                                </aura:if>
+                                                <th>LEAD</th>
+                                                <!--<th>APPROVED</th>-->
+                                                <th>APPROVE STAGE</th>
+                                                
+                                                <aura:if isTrue="{!or(v.LeadRecord.RecordType.Name=='Tyre - Cash Supplier',v.LeadRecord.RecordType.Name=='Tyre Cash Individual')}">
+                                                    <th>MIN PRICE</th>
+                                                    <th>MAX PRICE</th>
+                                                    <th>REASONS FOR PRICE REDUCTION</th>
+                                                </aura:if>
+                                                
+                                                <aura:if isTrue="{!v.isUserHOO==true}">
+                                                    <th>HOO REJECTION COMMENTS</th> 
+                                                </aura:if>
+                                                <aura:if isTrue="{!v.isUserFM==true}">
+                                                    <th>FM REJECTION COMMENTS</th> 
+                                                </aura:if>
+                                                <th>RESUBMISSION REASON</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <aura:iteration items="{!v.stagingQuotationRequest}" var="item" indexVar="index">
+                                                <tr>
+                                                    <td>{!item.TyreSize}</td>
+                                                    <aura:if isTrue="{!v.LeadRecord.RecordType.Name=='Tyre - Refurbishing Services'}">
+                                                        
+                                                        <td>{!item.ETT_Tyre_Life__c}
+                                                        </td>
+                                                        <td>{!item.ETT_Tyre_Condition__c}
+                                                        </td>
+                                                        <td>{!item.ETT_Tyre_Process__c}</td>
+                                                        <td>
+                                                            <lightning:input aura:id="purchasePrice" 
+                                                                             name="{!index}" 
+                                                                             value="{!item.PurchasePrice}" 
+                                                                             required="true"
+                                                                             onblurr="{!c.purchasePrice}" />
+                                                        </td>
+                                                        
+                                                        <!--<aura:if isTrue="{!v.isNewHot}">
+                                                    <td><lightning:input aura:id="purchasePrice" 
+                                                                         name="purchasePrice" 
+                                                                         value="{!item.ETT_New_Hot_Price__c}" required="true"/>
+                                                    </td>
+                                                </aura:if>
+                                                <aura:if isTrue="{!v.isNewProcure}">
+                                                    <td><lightning:input aura:id="purchasePrice" 
+                                                                         name="purchasePrice" 
+                                                                         value="{!item.ETT_New_Procure_Price__c}" required="true"/>
+                                                    </td>
+                                                </aura:if>
+                                                <aura:if isTrue="{!v.isRetreadHot}">
+                                                    <td><lightning:input aura:id="purchasePrice" 
+                                                                         name="purchasePrice" 
+                                                                         value="{!item.ETT_Retread_Hot_Price__c}" required="true"/>
+                                                    </td>
+                                                </aura:if>
+                                                <aura:if isTrue="{!v.isRetreadProcure}">
+                                                    <td><lightning:input aura:id="purchasePrice" 
+                                                                         name="purchasePrice" 
+                                                                         value="{!item.ETT_Retread_Procure_Price__c}" required="true"/>
+                                                    </td>
+                                                </aura:if>
+                                                <aura:if isTrue="{!v.isRepair}">
+                                                    <td><lightning:input aura:id="purchasePrice" 
+                                                                         name="purchasePrice" 
+                                                                         value="{!item.ETT_Repair_Price__c}" required="true"/>
+                                                    </td>
+                                                </aura:if>-->
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!or(v.LeadRecord.RecordType.Name=='Tyre - Cash Supplier',v.LeadRecord.RecordType.Name=='Tyre Cash Individual')}">
+                                                        <td>
+                                                            <lightning:input aura:id="purchasePrice" 
+                                                                             name="{!index}" 
+                                                                             value="{!item.PurchasePrice}" 
+                                                                             required="true"
+                                                                             onblurr="{!c.purchasePrice}" />
+                                                        </td>
+                                                    </aura:if>
+                                                    <td>{!item.LeadName}</td>
+                                                    <!--<td>
+                                                <aura:if isTrue="{!v.isUserHOO}">
+                                                    <ui:inputCheckbox aura:id="isApproved" value="{!item.isApproved}" change="{!c.onClick}" disabled="true" />
+                                                </aura:if>
+                                                
+                                                <aura:if isTrue="{!v.isUserFM}">
+                                                    <ui:inputCheckbox aura:id="isApproved" value="{!item.isApproved}" change="{!c.onClick}" />
+                                                </aura:if>
+                                            </td>-->
+                                                    <td>
+                                                        <lightning:select  aura:id="approvalStage" value="{!item.approvalStage}" onchange="{!c.handleCompanyOnChange}" name="approvalList" class="selectCls">
+                                                            <aura:iteration items="{!v.approvalStageMap}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </td>
+                                                    
+                                                    <aura:if isTrue="{!or(v.LeadRecord.RecordType.Name=='Tyre - Cash Supplier',v.LeadRecord.RecordType.Name=='Tyre Cash Individual')}">
+                                                        <td>{!item.minRange}</td>
+                                                        <td>{!item.maxRange}</td>
+                                                        <td>
+                                                            <lightning:select  aura:id="reasonForPriceReduction" value="{!item.ETT_Reasons_For_Price_Reduction__c}" name="reasonForPriceReductionList">
+                                                                <option text="None" value="" />
+                                                                <aura:iteration items="{!v.reasonForPriceReductionMap}" var="ind" indexVar="key">
+                                                                    <option text="{!ind.value}" value="{!ind.key}" />
+                                                                </aura:iteration>
+                                                            </lightning:select>
+                                                        </td>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!v.isUserHOO==true}"> 
+                                                        <td>
+                                                            <lightning:textarea name="hooComment" value="{!item.hooComment}" />
+                                                        </td>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!v.isUserFM==true}"> 
+                                                        <td>
+                                                            <lightning:textarea name="fmComment" value="{!item.fmComment}" />
+                                                        </td>
+                                                    </aura:if>
+                                                    <td>
+                                                        <lightning:textarea name="leadResubmitReason" value="{!item.leadResubmitReason}" />
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>
+                                        </tbody>
+                                    </table>
+                                    
+                                    
+                                    <aura:if isTrue="{!v.isDraft}">
+                                        <br/><br/><br/>
+                                        <table style="border:1px solid black;" class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Tyre Size</th>
+                                                    <th>Brand</th>
+                                                    <th>Pattern</th>
+                                                    <th>Country</th> 
+                                                    <th>Status</th>
+                                                    <th>Select</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <aura:iteration items="{!v.lstTyreMasterDetails}" var="item" indexVar="index">
+                                                    <tr>
+                                                        <td>
+                                                            <label class="slds-checkbox">
+                                                                <ui:inputCheckbox aura:id="checkEstimation" value="{!item.ETT_Status__c}"/>
+                                                                <span class="slds-checkbox--faux" />
+                                                                <span class="slds-form-element__label"></span>
+                                                            </label>
+                                                        </td>
+                                                        <td>{!item.ETT_Tyre_Size__r.Name}</td>
+                                                        <td>{!item.ETT_Brand_Name__r.Name}</td>
+                                                        <td>{!item.ETT_Original_Pattern__r.Name}</td>
+                                                        <td>{!item.ETT_Country_Name__r.Name}</td>
+                                                        <td>{!item.RecordType.Name}</td>
+                                                        <td>
+                                                            <lightning:select  aura:id="reasonForPriceReduction" value="{!item.RecordTypes__c}" name="reasonForPriceReductionList">
+                                                                <option text="Draft" value="Draft" />
+                                                                <option text="Approve" value="Approve" />
+                                                                <option text="Reject" value="Reject" />
+                                                            </lightning:select>
+                                                        </td>
+                                                    </tr>
+                                                </aura:iteration>
+                                            </tbody>
+                                        </table>
+                                        <br/>
+                                    </aura:if>
+                                    
+                                    
+                                </div>                        
+                            </lightning:accordionSection>                            
+                        </aura:set>
+                    </aura:if>
+
+                    
+                </lightning:accordion>
+                
+                
+                <!--<lightning:button label="Submit" title="Submit" onclick="{! c.submit }"/>-->
+                
+                
+                
+            </div> 
+        </div>
+        
+        <div class="modal-footer slds-modal__footer">
+            
+            <aura:if isTrue="{!v.isDraft}">
+                <div style="text-align: center;color: red;font-weight: bold;">Tyres are pending for HOO Approval</div>
+
+                <lightning:button variant="Brand" class="slds-button" label="Approve New Tyre Details" onclick="{!c.Approve}"/>
+                
+                <aura:set attribute="else">
+                    
+                    <lightning:button variant="Brand" class="slds-button" label="Submit" onclick="{!c.submit}"/>
+                    <lightning:button variant="Neutral" class="slds-button" label="Cancel" onclick="{!c.handleClose}"/>
+                </aura:set>
+            </aura:if>
+        </div>
+        
+        <aura:set attribute="else">
+            <p style="text-align: center;
+                      margin: 5%;
+                      font-size: 16px;
+                      color: red;">You do not have access to this component</p>
+        </aura:set>
+    </aura:if>
+    
+</aura:component>

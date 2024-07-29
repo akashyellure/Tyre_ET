@@ -1,0 +1,62 @@
+.THIS .tyreLife{
+    width:100px;
+}
+.THIS .suppliermaindiv{
+    width: 100%;
+    background: #fff;
+    margin-bottom: 15px;
+}
+.THIS .supheading{
+    width:100%;
+    display:block;
+}
+.THIS .supheading h1{
+    background: #f2f2f2;
+    border: 1px solid #ddd;
+    padding:10px .5rem;
+    text-align: center;
+    font-size: 22px;
+    position: relative;
+    border-bottom: none;
+}
+.THIS .supheading img{
+    height: 40px;
+    float: left;
+    position: absolute;
+    left: 12px;
+    top: 12px;
+}
+.THIS .suppliermaindiv .slds-form-element__label{
+    display:none;
+}
+.THIS .subheading{
+    background: #f2f2f2;
+    border: 1px solid #ddd;
+    padding:10px .5rem;
+    text-align: left;
+    font-size: 18px;
+    position: relative;
+    border-bottom: none;
+}
+.THIS .addiconcus svg{
+    width: 28px;
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+.THIS .slds-table th, .THIS .slds-table td {
+    border: none;
+}
+.THIS .required_field{
+    color:#f00;
+    font-style:normal;
+    margin-left:5px;
+}
+.THIS table.slds-box{
+    margin-bottom:25px;
+}
+.THIS .padtb tr:first-child th, .THIS .padtb tr:first-child td{
+    padding-top:15px !important;
+}
+.THIS .padtb tr:last-child th, .THIS .padtb tr:last-child td{
+    padding-bottom:15px !important;
+}

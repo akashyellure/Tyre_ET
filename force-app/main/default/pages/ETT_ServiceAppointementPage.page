@@ -1,0 +1,9 @@
+<!--
+ Created Date:08/27/2020
+ Created By:Guda Krishnareddy
+ Description:This is for Creating Service Appointments and Work Order details
+-->
+<apex:page standardController="Opportunity">
+    <apex:iframe src="https:/icrm--tyre.lightning.force.com/one/one.app?source=aloha#/sObject/00O3M000000FGneUAG/view"/>
+    
+</apex:page>

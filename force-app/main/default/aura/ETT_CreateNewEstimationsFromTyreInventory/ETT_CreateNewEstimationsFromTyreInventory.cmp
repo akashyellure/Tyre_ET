@@ -1,0 +1,134 @@
+<aura:component controller="ETT_CreateNewEstimationsController" implements="lightning:actionOverride,lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    <aura:attribute name="recordId" type="String" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="searchVal" type="string" />
+    <aura:attribute name="tyreDetails" type="Object"/>
+    <aura:attribute name="filterData" type="Object"/>
+    <aura:attribute name="selectedTyres" type="List" />
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    <aura:attribute name="customerId" type="string"/>
+    <aura:attribute name="customerName" type="string"/>
+    <aura:attribute name="subInventoryId" type="string"/>
+    <aura:attribute name="subInventoryName" type="string"/>
+    <aura:attribute name="tyreSizeVal" type="string"/>
+    <aura:attribute name="brandVal" type="string"/>
+    <aura:attribute name="patternVal" type="string"/>
+    <aura:attribute name="TyreType" type="string"/>
+    <aura:attribute name="ThreadPattern" type="string"/>
+    <aura:attribute name="EstimstionsType" type="string"/>
+    <aura:attribute name="countryVal" type="string"/>
+    <aura:attribute name="isSearched" type="boolean"/>
+    <aura:attribute name="isDisabled" type="boolean"/>
+    
+    <lightning:card class="outer-div">
+        <aura:if isTrue="{!v.showSpinner}">
+            <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+        </aura:if>
+        <aura:set attribute="title">
+            <lightning:icon  iconName='standard:pricebook' size="small"/>
+            Create New Estimations
+        </aura:set>
+
+        <div class="slds-p-around_medium">
+            <div class="slds-grid slds-wrap slds-gutters">
+                <div class="slds-col slds-size_4-of-12 slds-m-bottom_medium">
+                    <lightning:select disabled="{!v.isDisabled}" name="Estimation Type" label="Estimation Type" value="{!v.EstimstionsType}">
+                        <option value="">--Estimations Type--</option>
+                        <option value="Customer">Customer</option>
+                        <option value="Internal">Internal</option>
+                        <option value="Internal Private">Internal Private</option>
+                    </lightning:select>
+                </div>
+    
+                <aura:if isTrue="{!v.EstimstionsType == 'Customer'}"> 
+                    <div class="slds-col slds-size_4-of-12 slds-m-bottom_medium"> 
+                        <c:ETT_Acc_CustomLkup custmPlaceholder="Search Customer..." Label="Customer Name" disable="{!v.isDisabled}" selectRecordId="{!v.customerId}" selectRecordName="{!v.customerName}" />
+                    </div> 
+                </aura:if>
+    
+                <aura:if isTrue="{!or(v.EstimstionsType == 'Internal', v.EstimstionsType == 'Internal Private')}">
+                    <div class="slds-col slds-size_4-of-12 slds-m-bottom_medium "> 
+                        <c:ETT_SubInventory_CustomLkup custmPlaceholder="Search SubInventory..." Label="SubInventory Name" disable="{!v.isDisabled}" selectRecordId="{!v.subInventoryId}" selectRecordName="{!v.subInventoryName}" />
+                    </div> 
+                </aura:if>
+            </div>
+            
+            <aura:if isTrue="{!v.customerId || v.subInventoryId}"> 
+                <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_medium">
+                    <div class="slds-col slds-size_1-of-6 slds-m-bottom_medium">
+                        <lightning:input name="inline-search-input" label="Search Tyre Size" type="search" placeholder="Search Tyre Size" value="{!v.tyreSizeVal}"/>
+                    </div>
+                    <div class="slds-col slds-size_1-of-6 slds-m-bottom_medium">
+                        <lightning:input name="inline-search-input" label="Search Brand" type="search" placeholder="Search Brand" value="{!v.brandVal}"/>
+                    </div>
+                    <div class="slds-col slds-size_1-of-6 slds-m-bottom_medium">
+                        <lightning:input name="inline-search-input" label="Search Pattern" type="search" placeholder="Search Pattern" value="{!v.patternVal}"/>
+                    </div>
+                    <div class="slds-col slds-size_1-of-6 slds-m-bottom_medium">
+                        <lightning:input name="inline-search-input" label="Search Country" type="search" placeholder="Search Country" value="{!v.countryVal}"/>
+                    </div>
+                    <div class="slds-col slds-size_1-of-6 slds-m-bottom_medium">
+                        <lightning:input name="inline-search-input" label="Search Tyre Serial No." type="search" placeholder="Search Tyre Serial No." value="{!v.searchVal}"/>
+                    </div>
+                    <div class="slds-col slds-size_1-of-6 slds-m-bottom_medium">
+                        <lightning:select name="Tyre Type" label="Tyre Type" value="{!v.TyreType}">
+                            <option value="">--Tyre Type--</option>
+                            <option value="Refurbished">Refurbished</option>
+                            <option value="New">New</option>
+                            <option value="Scrapped">Scrapped</option>
+                        </lightning:select>
+                    </div>
+                    <div class="slds-col slds-size_1-of-6 slds-m-bottom_medium">
+                        <lightning:input name="inline-search-input" label="Thread Pattern" type="search" placeholder="Thread Pattern" value="{!v.ThreadPattern}"/>
+                    </div>
+                </div>
+
+                <div class="slds-grid slds-wrap slds-align_absolute-center slds-m-bottom_medium">
+                    <lightning:button label="Search" variant="brand" onclick="{!c.filterHandler}"/>
+                </div>
+
+                <aura:if isTrue="{!not(empty(v.filterData))}">
+                    <div class="slds-box slds-p-around_none slds-m-bottom_medium">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                            <thead>
+                                <tr class="slds-text-title_caps">
+                                    <th scope="col"><label class="slds-checkbox"><ui:inputCheckbox value="" change="{!c.selectAllTyres}" aura:id="selectAllId"/><span class="slds-checkbox--faux"></span><span class="slds-form-element__label"></span></label></th>
+                                    <th scope="col">Serial Number</th>
+                                    <th scope="col">Type Size</th>
+                                    <th scope="col">Tyre Type</th>
+                                    <th scope="col">Brand</th>
+                                    <th scope="col">Pattern</th>
+                                    <th scope="col">Country</th>
+                                    <th scope="col">CC Ref. No</th>
+                                    <th scope="col">Unit Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <aura:iteration items="{!v.filterData}" var="item" indexVar="key">
+                                    <tr id="{!key}">
+                                        <td><label class="slds-checkbox"><ui:inputCheckbox value="{!item.isChecked}" aura:id="checkTyre" change="{!c.selectOneTyre}"/><span class="slds-checkbox--faux"></span><span class="slds-form-element__label"></span></label></td>
+                                        <td>{!item.objTI.Serial_Number__c}</td>
+                                        <td>{!item.objTI.ETT_Tyre_Size_Master__r.Name}</td>
+                                        <td>{!item.objTI.Tyre_Type__c}</td>
+                                        <td>{!item.objTI.ETT_Brand__r.Name}</td>
+                                        <td>{!item.objTI.ETT_Pattern__r.Name}</td>
+                                        <td>{!item.objTI.ETT_Country__r.Name}</td>
+                                        <td>{!item.objTI.ETT_Collection_Card__r.Name}</td>
+                                        <td>{!item.unitPrice}</td>
+                                    </tr>
+                                </aura:iteration>
+                            </tbody>
+                        </table>
+                    </div>
+                </aura:if>
+                
+                <aura:if isTrue="{!v.filterData.length > 0}">
+                    <div class="slds-align_absolute-center">
+                        <lightning:button  label="Create Estimations" variant="success" 
+                         onclick="{!c.createEstimationHandler}"/>
+                    </div>
+                </aura:if>
+            </aura:if>
+        </div>
+    </lightning:card>
+</aura:component>

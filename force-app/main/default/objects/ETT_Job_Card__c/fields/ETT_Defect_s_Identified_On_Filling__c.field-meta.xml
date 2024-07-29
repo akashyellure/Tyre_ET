@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ETT_Defect_s_Identified_On_Filling__c</fullName>
+    <externalId>false</externalId>
+    <label>Defect(s) Identified On Filling</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Improper Cement solution Coating</fullName>
+                <default>false</default>
+                <label>Improper Cement solution Coating</label>
+            </value>
+            <value>
+                <fullName>Nail Hole Missing</fullName>
+                <default>false</default>
+                <label>Nail Hole Missing</label>
+            </value>
+            <value>
+                <fullName>Crack on Sidewall Missing</fullName>
+                <default>false</default>
+                <label>Crack on Sidewall Missing</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

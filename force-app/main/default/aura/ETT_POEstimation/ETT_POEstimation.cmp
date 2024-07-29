@@ -1,0 +1,117 @@
+<aura:component controller="ETT_POEstimationCtrl" implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+    <!--
+Author:Janardhan
+created Date:30/11/2021
+ -->
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+     <aura:attribute name="inspectionCCList" type="ETT_Inspection_Card__c[]"/>
+     <aura:attribute name="itemgroupInfo" type="List"  />
+      <aura:attribute name="userInfo" type="Object"/>
+    <aura:attribute name="CCRecord" type="Object"/>
+    <aura:attribute name="recordLoadError" type="String"/>
+    
+    <force:recordData aura:id="recordLoader"
+                      recordId="{!v.recordId}"
+                      fields="PO_Created__c,Approval_Status__c"
+                      targetFields="{!v.CCRecord}"
+                      targetError="{!v.recordLoadError}" recordUpdated="{!c.onForceCCLoad}"/>
+    
+    <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+        .slds-modal__container{
+        max-width: 95rem !important;
+        width:95% !important;
+        }
+      
+    </aura:html>
+    
+     <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Purchase Order Details</h4>
+    </div>
+    <div class="mainDiv"> 
+        <div class="outer-div">
+            <aura:if isTrue="{!v.showSpinner}">
+                <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+            </aura:if>
+            <div class="slds-modal__content">
+                
+                <div class="slds-scrollable collectionitemdiv" >
+                    <aura:if isTrue="{!!v.CCRecord.PO_Created__c}">
+                        
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered"> 
+                            <thead>
+                                <th>Item Code</th>
+                                <th>Count</th>
+                            </thead>
+                            <aura:iteration items="{!v.itemgroupInfo}" var="item" indexVar="index">
+                                <tr>
+                                    <th>{!item.Tyre_Inventory__r.Item_Code__c}</th>
+                                    <th>{!item.TempQuantity__c}</th>                            
+                                </tr>
+                            </aura:iteration>
+                        </table>
+                        
+                        <aura:if isTrue="{!not(empty(v.inspectionCCList))}">
+                            <table class="slds-box slds-table slds-table slds-table--striped">
+                                <thead>
+                                    
+                                    <th>Inspection Number</th>
+                                    <th>Tyre Size</th>
+                                    <th>Brand</th>
+                                    <th>Pattern</th>
+                                    <th>Country</th>
+                                    <th>Serial No.</th>
+                                    <th>Item Code</th>
+                                    <aura:if isTrue="{!v.userInfo.Profile.Name!='ETT_Receptionist'}"> 
+                                        <th>Purchase Price</th>
+                                    </aura:if>
+                                    <th>Status</th>
+                                    
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{!v.inspectionCCList}" var="item" indexVar="key">
+                                        <tr>
+                                            <td><ui:outputText value="{!item.Name}"/> </td>
+                                            <td><ui:outputText value="{!item.Tyre_Inventory__r.ETT_Tyre_Size_Master__r.Name}"/> </td>
+                                            <td><ui:outputText value="{!item.Tyre_Inventory__r.ETT_Brand__r.Name}"/> </td>
+                                            <td><ui:outputText value="{!item.Tyre_Inventory__r.ETT_Pattern__r.Name}"/> </td>
+                                            <td><ui:outputText value="{!item.Tyre_Inventory__r.ETT_Country__r.Name}"/> </td>
+                                            <td><ui:outputText value="{!item.Tyre_Inventory__r.Serial_Number__c}"/> </td>
+                                            <td><ui:outputText value="{!item.Tyre_Inventory__r.Item_Code__c}"/> </td>
+                                            <aura:if isTrue="{!v.userInfo.Profile.Name!='ETT_Receptionist'}">  
+                                             <td><ui:inputText value="{!item.Purchase_Price__c}" required="true"/> </td>
+                                            </aura:if>
+                                          
+                                            <td><ui:outputText value="{!item.ETT_Status__c}"/> </td>
+                                        </tr>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                            
+                            <aura:set attribute="else">
+                                <div style="margin-top: 102px" class="slds-text-align_center slds-text-heading_medium">Tyres are not yet inspected.</div>
+                            </aura:set>
+                        </aura:if>
+                        
+                        
+                        <aura:set attribute="else">
+                            <div style="margin-top: 102px" class="slds-text-align_center slds-text-heading_medium">PO is created already.</div>
+                        </aura:set>
+                    </aura:if>
+                    
+                    
+                </div>
+            </div>
+            
+            
+            <div class="modal-footer slds-modal__footer">
+                <lightning:button variant="brand" disabled="{!v.CCRecord.PO_Created__c}" onclick="{!c.approveProcess}" label="Approve" iconName="utility:approval"/>
+            </div>
+        </div>
+    </div>
+   
+</aura:component>

@@ -1,0 +1,1206 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome" access="global" controller="ETT_JobCardListController">
+	<aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="workStationSchedule" type="ETT_Work_Schedule__c"/>
+    <aura:attribute name="skillSets" type="ETT_Skill_Set__c[]"/>
+    <aura:attribute name="stationTools" type="ETT_Tools_Allocation__c[]"/> 
+    <aura:attribute name="toolsListOptions" type="List"/>
+    <aura:attribute name="bladeTools" type="List"/> 
+    <aura:attribute name="sideBufferTools" type="List"/>
+    <aura:attribute name="suctionPipelineTools" type="List"/>
+    <aura:attribute name="suctionFilterTools" type="List"/>
+    <aura:attribute name="dustCollectorReasonValues" type="Map"/>
+    <aura:attribute name="precuredTreadLineValues" type="Map"/>    
+    <aura:attribute name="tyreMaster" type="ETT_Tyre_Master__c" />
+    <aura:attribute name="treadMasterList" type="ETT_Tools_Allocation__c[]" />
+    <aura:attribute name="treadMasterListValues" type="Map" />
+    
+    <aura:attribute name="toolsCheckFinal" type="Boolean" default="false"/>
+    <aura:attribute name="showJobModelView" type="Boolean" default="false"/>
+    <aura:attribute name="recordsFound" type="Boolean" default="false"/>    
+    
+    <aura:attribute name="step_error" type="String"/>
+    <aura:attribute name="current_line" type="ETT_JobCardListController.JobLineItemWrapper"/>
+    <aura:attribute name="current_sequence" type="Integer" default="0"/> 
+    <aura:attribute name="allowDML" type="Boolean" default="true"/>
+    
+    <aura:attribute name="seq_8_initialState" type="String"/>
+    <aura:attribute name="seq_8_lineId" type="String"/>    
+    <aura:attribute name="seq_8_finalState" type="String"/>
+    
+    <aura:attribute name="startBuffingCheckbox" type="boolean"/>
+    
+    <aura:attribute name="goodNotGoodValues" type="Map"/>  
+    <aura:attribute name="NotGoodAndGoodValues" type="Map"/>
+    <aura:attribute name="highLowValues" type="Map"/>  
+    <aura:attribute name="lowHighValues" type="Map"/>    
+    <aura:attribute name="yesNoValues" type="Map"/>  
+    <aura:attribute name="noYesValues" type="Map"/>    
+    <aura:attribute name="matchedNotValues" type="Map"/>  
+    <aura:attribute name="notMatchedValues" type="Map"/>    
+    
+    <aura:attribute name="options" type="List" />
+    <aura:attribute name="value" type="List" default=""/>
+    <aura:attribute name="WearRequiredPPT" type="boolean" default="false"/> 
+    <aura:attribute name="newToolRequests" type="ETT_Tools_Master__c[]"/>
+    
+    <aura:attribute name="tyreCutList" type="List"  default="[]"/>
+    <aura:attribute name="tyreCrownInspection" type="ETT_Tyre_Rejection_Line_Item__c"/>
+    <aura:attribute name="selectedCutsNTCList" type="List" default="[]" description="Selected Genre Picklist Values"/>    
+    <aura:attribute name="selectedCutsNTC" type="List"  default="[]"/>
+    <aura:attribute name="statusValues" type="Map"/>
+    
+    <aura:attribute name="isOnHold" type="boolean" default="false"/>
+    <aura:attribute name="lineItemForHold" type="ETT_JobCardListController.JobLineItemWrapper"/>
+    <aura:attribute name="holdReasonValues" type="Map"/>
+    
+    <aura:attribute name="confirmHoldVar" type="boolean"/>
+    
+    <!--all handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.initAction}"/>
+    <aura:registerEvent name="refreshJobCardList" type="c:ETT_JobCardUpdate" />
+    
+    <aura:if isTrue="{!v.showJobModelView}">
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+            <div class="slds-modal__container animated slideInUp" draggable="true">                
+                <header class="slds-modal__header">
+                    <h3 id="modal-heading-01" class="slds-text-heading_small slds-hyphenate">JOB CARD: {!v.current_line.relatedJobWrapper.validJobCardList[0].Name} <b>({!v.current_line.relatedJobWrapper.validJobCardList[0].ETT_Stages__c})</b></h3>
+                    <lightning:buttonIcon iconName="utility:close"
+                                          onclick="{! c.closeModal }"
+                                          alternativeText="close"
+                                          variant="bare-inverse"
+                                          class="slds-modal__close"/>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <div style="overflow:auto;">
+                        <aura:if isTrue="{!!empty(v.current_line.relatedJobWrapper.validJobCardList)}"> 
+                            
+							<!--step-1-->
+                            <aura:if isTrue="{!and(v.current_sequence eq 1,v.current_line.jobLineItem.Sequence__c eq 1)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Precautions &amp; Technician Skills">
+                                        <a target="_blank" class="processlink" href="{!$Resource.ETI_Inspection_Process}" title="Process Tutorial">Process Tutorial</a>
+                                        <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                            <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                <b>Error:&nbsp;</b>{!v.step_error}
+                                            </div>
+                                        </aura:if>
+                                        <div class="skilledsec">
+                                            <div class="firstsec">
+                                                <div class="slds-form-element ">
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-checkbox">
+                                                            <abbr class="slds-required" title="required">*</abbr>
+                                                            <input type="checkbox" name="options" id="WearRequiredPPT" value="WearRequiredPPT" aria-describedby="error_01" onclick="{!c.onCheck}"/>
+                                                            
+                                                            <label class="slds-checkbox__label" for="WearRequiredPPT">
+                                                                <span class="slds-checkbox_faux"></span>
+                                                                <span class="slds-form-element__label">Wear Required PPT</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-form-element__help slds-hide" id="error_01">This field is required</div>
+                                                </div>
+                                                <img src="{!$Resource.Technician_Skill}" width="600" style="padding-left: 5%;"/>
+                                            </div>
+                                            <aura:iteration items="{!v.options}" var="sf" indexVar="i">
+                                                <div class="slds-form-element Secondsec">
+                                                    <div class="slds-form-element__control">
+                                                        <div class="slds-checkbox">
+                                                            <abbr class="slds-required" title="required">*</abbr>
+                                                            <input value="{!i}" type="checkbox" name="options" id="{!sf.label}"  aria-describedby="error_01" onclick="{!c.onCheck}"/>
+                                                            
+                                                            <label class="slds-checkbox__label" for="{!sf.label}">
+                                                                <span class="slds-checkbox_faux"></span>
+                                                                <span class="slds-form-element__label">{!sf.label}</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <ol type="a">
+                                                        <aura:iteration items="{!sf.subitem}" var="item">
+                                                            <li>{!item.label}</li>
+                                                        </aura:iteration>
+                                                    </ol>
+                                                    <div class="slds-form-element__help slds-hide" id="error_01">This field is required</div>
+                                                </div>
+                                            </aura:iteration>
+                                        </div>                                    
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 2,v.current_line.jobLineItem.Sequence__c eq 2)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Station Code &amp; Required Tools"> 
+                                        <div style="width:70%;margin:auto;">
+                                        <div class="slds-grid slds-wrap">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                           
+                                            <div class="slds-col slds-size_12-of-12">
+                                                <b>Station Code:&nbsp;</b>{!v.workStationSchedule.ETT_Work_Station__r.ETT_Station_Code__c}
+                                                <br/>
+                                                
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Select Tool(s) For New Request</label>
+                                                    <div>
+                                                        <aura:iteration items="{!v.toolsListOptions}" var="sf" indexVar="i">
+                                                            <div class="slds-form-element tool_Secondsec">
+                                                                <ul type="a">
+                                                                    <lightning:input type="checkbox" checked="{!sf.isSelected}" name="bladeEach" label="{!sf.label}"/>
+                                                                    <aura:if isTrue="{!sf.isSelected}">
+                                                                        <div class="slds-form-element textboxdiv">
+                                                                            <label class="slds-form-element__label slds-text-title_bold" for="select-01">Remarks Comment</label>
+                                                                            <div>
+                                                                                <lightning:textarea title="Remarks" value="{!sf.remarks}" label=""/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </aura:if>
+                                                                </ul>
+                                                            </div>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </div>
+                                                <aura:if isTrue="{!v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c}">
+                                                    <br/><br/>
+                                                    <div class="slds-form-element textboxdiv">
+                                                        <label class="slds-form-element__label slds-text-title_bold" for="select-01">Request(s) Information &amp; Status</label>
+                                                        <div>
+                                                            <aura:iteration items="{!v.newToolRequests}" var="sf" indexVar="i">
+                                                                <div class="slds-form-element tool_Secondsec">
+                                                                    <ul type="a">
+                                                                        #{!sf.Name} - ({!sf.ETT_Status__c})
+                                                                    </ul>
+                                                                </div>
+                                                            </aura:iteration>
+                                                        </div>
+                                                    </div>
+                                                </aura:if>
+                                                <br/>
+                                                <div class="slds-form-element textboxdiv">
+                                                    <lightning:input type="checkbox" checked="{!v.toolsCheckFinal}" label="I ensure I have all the tools/consumables are available to proceed."/>
+                                                </div>
+                                            </div>
+                                        </div>   
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                                
+                            <aura:if isTrue="{!and(v.current_sequence eq 3,v.current_line.jobLineItem.Sequence__c eq 3)}">
+                            	<aura:if isTrue="{!!v.confirmHoldVar}">    
+                                	<lightning:card  title="Check Floor Conditions"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Floor Condition</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" name="FloorCheck" label="Initial Floor Conditions" variant="label-hidden"  disabled="{!not(v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                                                        <aura:iteration items="{!v.goodNotGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!not(v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Floor Condition</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" name="FloorCheck" label="Final Floor Conditions" variant="label-hidden">
+                                                            <aura:iteration items="{!v.NotGoodAndGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}" />
+                                                        </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                        </div>  
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 4,v.current_line.jobLineItem.Sequence__c eq 4)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Floor Conditions"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Light Condition</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" label="Initial Light Conditions" variant="label-hidden" disabled="{!not(v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                                                        <aura:iteration items="{!v.goodNotGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!not(v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Light Condition</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" name="LightCheck" label="Final Light Conditions" variant="label-hidden">
+                                                            <aura:iteration items="{!v.NotGoodAndGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}" />
+                                                        </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                        </div>  
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 5,v.current_line.jobLineItem.Sequence__c eq 5)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Blade Conditions"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>                                        
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Blade Condition</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" label="Initial Blade Conditions" variant="label-hidden">
+                                                        <aura:iteration items="{!v.goodNotGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c=='Not Good'}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Select Tool(s) For New Request</label>
+                                                    <div>
+                                                        <aura:iteration items="{!v.bladeTools}" var="sf" indexVar="i">
+                                                            <div class="slds-form-element tool_Secondsec">
+                                                                <ul type="a">
+                                                                    <lightning:input type="checkbox" checked="{!sf.isSelected}" name="bladeEach" label="{!sf.label}"/>
+                                                                    <aura:if isTrue="{!sf.isSelected}">
+                                                                        <div class="slds-form-element textboxdiv">
+                                                                            <label class="slds-form-element__label slds-text-title_bold" for="select-01">Remarks Comment</label>
+                                                                            <div>
+                                                                                <lightning:textarea title="Remarks" value="{!sf.remarks}" label=""/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </aura:if>
+                                                                </ul>
+                                                            </div>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                            <aura:if isTrue="{!v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c}">
+                                                <br/><br/>
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Request(s) Information &amp; Status</label>
+                                                    <div>
+                                                        <aura:iteration items="{!v.newToolRequests}" var="sf" indexVar="i">
+                                                            <div class="slds-form-element tool_Secondsec">
+                                                                <ul type="a">
+                                                                    #{!sf.Name} - ({!sf.ETT_Status__c})
+                                                                </ul>
+                                                            </div>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </div>
+                                                <br/>
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Blade Condition</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" variant="label-hidden">
+                                                            <aura:iteration items="{!v.NotGoodAndGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}" />
+                                                        </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                        </div>  
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if>
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 6,v.current_line.jobLineItem.Sequence__c eq 6)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Side Buffer Condition"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>                                        
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Side buffer Condition</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" label="Initial Blade Conditions" variant="label-hidden">
+                                                        <aura:iteration items="{!v.goodNotGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c=='Not Good'}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Select Tool(s) For New Request</label>
+                                                    <div>
+                                                        <aura:iteration items="{!v.sideBufferTools}" var="sf" indexVar="i">
+                                                            <div class="slds-form-element tool_Secondsec">
+                                                                <ul type="a">
+                                                                    <lightning:input type="checkbox" checked="{!sf.isSelected}" name="bladeEach" label="{!sf.label}"/>
+                                                                    <aura:if isTrue="{!sf.isSelected}">
+                                                                        <div class="slds-form-element textboxdiv">
+                                                                            <label class="slds-form-element__label slds-text-title_bold" for="select-01">Remarks Comment</label>
+                                                                            <div>
+                                                                                <lightning:textarea title="Remarks" value="{!sf.remarks}" label=""/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </aura:if>
+                                                                </ul>
+                                                            </div>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                            <aura:if isTrue="{!v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c}">
+                                                <br/><br/>
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Request(s) Information &amp; Status</label>
+                                                    <div>
+                                                        <aura:iteration items="{!v.newToolRequests}" var="sf" indexVar="i">
+                                                            <div class="slds-form-element tool_Secondsec">
+                                                                <ul type="a">
+                                                                    #{!sf.Name} - ({!sf.ETT_Status__c})
+                                                                </ul>
+                                                            </div>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </div>
+                                                <br/>
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Side Buffer Condition</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" variant="label-hidden">
+                                                            <aura:iteration items="{!v.NotGoodAndGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}" />
+                                                        </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                        </div>  
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if>
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 7,v.current_line.jobLineItem.Sequence__c eq 7)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Buffing Powder Replacement"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Buffing powder replacement condition</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" variant="label-hidden" disabled="{!not(v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                                                        <aura:iteration items="{!v.goodNotGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!not(v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Buffing powder replacement condition</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" variant="label-hidden">
+                                                            <aura:iteration items="{!v.NotGoodAndGoodValues}" var="inv" indexVar="key">
+                                                                <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                        </div>  
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 8,v.current_line.jobLineItem.Sequence__c eq 8)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Dust Collector Suction Status"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Dust Collector Suction Status</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" name="DustCollectorCheck" label="Initial Dust Collector Suction Status" variant="label-hidden">
+                                                        <aura:iteration items="{!v.goodNotGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good'}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Reason Maintenance</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Dust_Collector_Reason__c}" name="DustCollectorReason" label="Reason Maintenance" variant="label-hidden">
+                                                            <aura:iteration items="{!v.dustCollectorReasonValues}" var="inv" indexVar="key">
+                                                                <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Dust_Collector_Reason__c}"/>
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                        </div>  
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 9,v.current_line.jobLineItem.Sequence__c eq 9)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Dust Collector Suction line"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Suction line condition</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" variant="label-hidden">
+                                                        <aura:iteration items="{!v.goodNotGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}"/>
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Suction line condition</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" variant="label-hidden">
+                                                            <aura:iteration items="{!v.NotGoodAndGoodValues}" var="inv" indexVar="key">
+                                                                <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if> 
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 10,v.current_line.jobLineItem.Sequence__c eq 10)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Dust Collector Suction Pipeline"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Suction Pipeline Value</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" variant="label-hidden">
+                                                        <aura:iteration items="{!v.highLowValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}"/>
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            
+                                            <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Low')}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Select Tool(s) For New Request</label>
+                                                    <div>
+                                                        <aura:iteration items="{!v.suctionPipelineTools}" var="sf" indexVar="i">
+                                                            <div class="slds-form-element tool_Secondsec">
+                                                                <ul type="a">
+                                                                    <lightning:input type="checkbox" checked="{!sf.isSelected}" name="bladeEach" label="{!sf.label}"/>
+                                                                    <aura:if isTrue="{!sf.isSelected}">
+                                                                        <div class="slds-form-element textboxdiv">
+                                                                            <label class="slds-form-element__label slds-text-title_bold" for="select-01">Remarks Comment</label>
+                                                                            <div>
+                                                                                <lightning:textarea title="Remarks" value="{!sf.remarks}" label=""/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </aura:if>
+                                                                </ul>
+                                                            </div>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                            <aura:if isTrue="{!v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c}">
+                                                <br/><br/>
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Request(s) Information &amp; Status</label>
+                                                    <div>
+                                                        <aura:iteration items="{!v.newToolRequests}" var="sf" indexVar="i">
+                                                            <div class="slds-form-element tool_Secondsec">
+                                                                <ul type="a">
+                                                                    #{!sf.Name} - ({!sf.ETT_Status__c})
+                                                                </ul>
+                                                            </div>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </div>
+                                                <br/>
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Suction Pipeline Value</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" variant="label-hidden">
+                                                            <aura:iteration items="{!v.lowHighValues}" var="inv" indexVar="key">
+                                                                <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}"/>
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if>
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if>
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 11,v.current_line.jobLineItem.Sequence__c eq 11)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Dust Collector Suction Filter"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Suction Filter Value</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" variant="label-hidden">
+                                                        <aura:iteration items="{!v.highLowValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}"/>
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            
+                                            <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Low')}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Select Tool(s) For New Request</label>
+                                                    <div>
+                                                        <aura:iteration items="{!v.suctionFilterTools}" var="sf" indexVar="i">
+                                                            <div class="slds-form-element tool_Secondsec">
+                                                                <ul type="a">
+                                                                    <lightning:input type="checkbox" checked="{!sf.isSelected}" name="bladeEach" label="{!sf.label}"/>
+                                                                    <aura:if isTrue="{!sf.isSelected}">
+                                                                        <div class="slds-form-element textboxdiv">
+                                                                            <label class="slds-form-element__label slds-text-title_bold" for="select-01">Remarks Comment</label>
+                                                                            <div>
+                                                                                <lightning:textarea title="Remarks" value="{!sf.remarks}" label=""/>
+                                                                            </div>
+                                                                        </div>
+                                                                    </aura:if>
+                                                                </ul>
+                                                            </div>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </div>
+                                             </aura:if>
+                                             <aura:if isTrue="{!v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c}">
+                                                 <br/><br/>
+                                                 <div class="slds-form-element textboxdiv">
+                                                     <label class="slds-form-element__label slds-text-title_bold" for="select-01">Request(s) Information &amp; Status</label>
+                                                     <div>
+                                                         <aura:iteration items="{!v.newToolRequests}" var="sf" indexVar="i">
+                                                             <div class="slds-form-element tool_Secondsec">
+                                                                 <ul type="a">
+                                                                     #{!sf.Name} - ({!sf.ETT_Status__c})
+                                                                 </ul>
+                                                             </div>
+                                                         </aura:iteration>
+                                                     </div>
+                                                 </div>
+                                                 <br/>
+                                                 <div class="slds-form-element textboxdiv">
+                                                     <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Suction Filter Value</label>
+                                                     <div>
+                                                         <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" variant="label-hidden">
+                                                             <aura:iteration items="{!v.lowHighValues}" var="inv" indexVar="key">
+                                                                 <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}"/>
+                                                             </aura:iteration>
+                                                         </lightning:select>
+                                                     </div>
+                                                 </div>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Dust Collection Status</label>
+                                                <div>
+                                                    <lightning:select value="{!v.seq_8_finalState}" variant="label-hidden">
+                                                        <aura:iteration items="{!v.NotGoodAndGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.seq_8_finalState}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if>
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 12,v.current_line.jobLineItem.Sequence__c eq 12)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Inflation Pressure"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Inflation Pressure having 25-30 psi</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" variant="label-hidden">
+                                                        <aura:iteration items="{!v.goodNotGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}"/>
+                                                        </aura:iteration>
+                                                    </lightning:select> 
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Inflation Pressure Condition(25-30 psi)</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" variant="label-hidden">
+                                                            <aura:iteration items="{!v.NotGoodAndGoodValues}" var="inv" indexVar="key">
+                                                                <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if> 
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 13,v.current_line.jobLineItem.Sequence__c eq 13)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Rasp hub position Check"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Rasp hub in non-contact position with tyre?</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" variant="label-hidden">
+                                                        <aura:iteration items="{!v.yesNoValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}"/>
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'No',not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Resp hub in non-contact position with tyre?</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" variant="label-hidden">
+                                                            <aura:iteration items="{!v.noYesValues}" var="inv" indexVar="key">
+                                                                <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if> 
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 14,v.current_line.jobLineItem.Sequence__c eq 14)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Check Stones inside Tyre"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Stone check conditions on tyre</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" variant="label-hidden">
+                                                        <aura:iteration items="{!v.goodNotGoodValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}"/>
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Stone check conditions on tyre</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" variant="label-hidden">
+                                                            <aura:iteration items="{!v.NotGoodAndGoodValues}" var="inv" indexVar="key">
+                                                                <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if> 
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 15,v.current_line.jobLineItem.Sequence__c eq 15)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Other activities"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Please confirm below activities</label>
+                                                <div>
+                                                    <div class="slds-form-element tool_Secondsec">
+                                                        <ul type="a">
+                                                            <lightning:input type="checkbox" checked="{!v.current_line.relatedJobWrapper.validJobCardList[0].ETT_Buffing_Started_Dust_Collection__c}" label="Did you started dust collection system?"/>
+                                                            <lightning:input type="checkbox" checked="{!v.current_line.relatedJobWrapper.validJobCardList[0].ETT_Buffing_On_Power_Switch__c}" label="Did you switched on power?"/>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if>
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 16,v.current_line.jobLineItem.Sequence__c eq 16)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Start Buffing"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Please read below instructions carefully:</label>
+                                                <div>
+                                                    <ol class="slds-list_ordered" type="a">
+                                                        <li>Excessive smoke and heat emitted indicates that either pressing the buffer too hard and/or buffing blades are already worn out. Release the buffing pressure or replace the buffing blade is necessary to avoid scorching to the rubber fire hazard.</li>
+                                                        <li>All buffed radial tyre casings to be cemented with in 8 hours.</li>
+                                                    </ol>
+                                                    <div class="slds-form-element tool_Secondsec">
+                                                        <ul type="a">
+                                                            <lightning:input type="checkbox" checked="{!v.startBuffingCheckbox}" label="I ensure I read the details to proceed further."/>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if>
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 17,v.current_line.jobLineItem.Sequence__c eq 17)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Surface Scanning progress"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Initial Scan Surface Conditions</label>
+                                                <div>
+                                                    <lightning:select value="{!v.current_line.jobLineItem.ETT_Initial_Activity_State__c}" variant="label-hidden">
+                                                        <aura:iteration items="{!v.matchedNotValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Initial_Activity_State__c}"/>
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Matched',not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                                                <br/>
+                                                <div class="slds-form-element tool_Secondsec">
+                                                    <ul type="a">
+                                                        <lightning:input type="checkbox" checked="{!v.current_line.relatedJobWrapper.validJobCardList[0].ETT_Buffing_Check_buffing_template__c}" label="Choose right buffing template"/>
+                                                    </ul>
+                                                </div>
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Choose Precured Tread line (in mm)</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.relatedJobWrapper.validJobCardList[0].ETT_Buffing_precured_tread_line__c}" name="" label="Choose Precured Tread line (in mm)" variant="label-hidden">
+                                                            <aura:iteration items="{!v.precuredTreadLineValues}" var="inv" indexVar="key">
+                                                                <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.relatedJobWrapper.validJobCardList[0].ETT_Buffing_Ini_Surface_Scan_Condtiion__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Final Scan Surface Condition</label>
+                                                    <div>
+                                                        <lightning:select value="{!v.current_line.jobLineItem.ETT_Final_Activity_State__c}" variant="label-hidden">
+                                                            <aura:iteration items="{!v.notMatchedValues}" var="inv" indexVar="key">
+                                                                <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.jobLineItem.ETT_Final_Activity_State__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </div>
+                                                </div>
+                                            </aura:if> 
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 18,v.current_line.jobLineItem.Sequence__c eq 18)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Side Crown buffing progress"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            <aura:if isTrue="{!not(v.tyreMaster.Id eq 'null')}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Tyre Actual Width (in mm)</label>
+                                                    <div>
+                                                        <lightning:input type="number" value="{!v.tyreMaster.ETT_Actual_Width__c}"/>
+                                                    </div>
+                                                </div>
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Tyre Actual Length (in mm)</label>
+                                                    <div>
+                                                        <lightning:input type="number" value="{!v.tyreMaster.ETT_Length__c}"/>
+                                                    </div>
+                                                </div>
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">Tyre Actual OD (in mm)</label>
+                                                    <div>
+                                                        <lightning:input type="number" value="{!v.tyreMaster.ETT_Tyre_Outer_Diameter_OD__c}"/>
+                                                    </div>
+                                                </div>
+                                                <aura:set attribute="else">
+                                                    Unable to find related tyre master in the system in order to update width, length, OD value
+                                                </aura:set>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Tread Master</label>
+                                                <div>
+                                                     <lightning:select value="{!v.current_line.relatedJobWrapper.validJobCardList[0].ETT_Tread_Master_Allocation__c}" name="TreadMaster" label="Select Tread Master" variant="label-hidden">
+                                                         <aura:iteration items="{!v.treadMasterListValues}" var="inv" indexVar="key">
+                                                             <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.relatedJobWrapper.validJobCardList[0].ETT_Tread_Master_Allocation__c}"/>
+                                                         </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!and(v.current_sequence eq 19,v.current_line.jobLineItem.Sequence__c eq 19)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Verify Tyre Cuts"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                                <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                    <b>Error:&nbsp;</b>{!v.step_error}
+                                                </div>
+                                            </aura:if>
+                                            <div class="slds-form-element textboxdiv">
+                                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Buffing Status</label>
+                                                <div>
+                                                     <lightning:select value="{!v.current_line.relatedJobWrapper.validJobCardList[0].ETT_Buffing_Status__c}" name="Status" label="Select Buffing Status" variant="label-hidden">
+                                                         <aura:iteration items="{!v.statusValues}" var="inv" indexVar="key">
+                                                             <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.current_line.relatedJobWrapper.validJobCardList[0].ETT_Buffing_Status__c}"/>
+                                                         </aura:iteration>
+                                                    </lightning:select>
+                                                </div>
+                                            </div>
+                                            <div style="clear: both;">
+                                                <div class="textboxdiv">
+                                                    <lightning:dualListbox aura:id="selectGenre"
+                                                                           name="CutsNTC"
+                                                                           label="Cuts / NTC "
+                                                                           sourceLabel="Available Cuts / NTC "
+                                                                           selectedLabel="Selected Cuts / NTC "
+                                                                           options="{!v.tyreCutList}"
+                                                                           value="{!v.selectedCutsNTC}"
+                                                                           onchange="{!c.handleGenreChange}"/>
+                                                </div>
+                                            </div>
+                                            
+                                            <aura:iteration items="{!v.selectedCutsNTCList}" var="CutsNTC" indexVar="i">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-m-right_none" for="default1">{!CutsNTC.label}</label>
+                                                    <div class="slds-form-element__control">
+                                                        <lightning:buttonIcon disabled="{!CutsNTC.selectedValue == 0}" value="{!i}" class="slds-button slds-button_icon slds-button_icon-small slds-input__button_decrement" name="{!CutsNTC}" iconName="utility:ban"   title="Decrement" alternativeText="Close window" onclick="{!c.handleOnDecrement}"/>
+                                                        <input type="number" id="default1" placeholder="1" class="slds-input slds-input_counter" value="{!CutsNTC.selectedValue}"/>
+                                                        <lightning:buttonIcon value="{!i}" class="slds-button slds-button_icon slds-button_icon-small slds-input__button_increment" name="{!CutsNTC}" iconName="utility:new"   title="Increment" alternativeText="Close window" onclick="{!c.handleOnIncrement}"/>
+                                                    </div>
+                                                </div>
+                                            </aura:iteration>
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if> 
+                            <aura:if isTrue="{!and(v.current_sequence eq 20,v.current_line.jobLineItem.Sequence__c eq 20)}">
+                                <aura:if isTrue="{!!v.confirmHoldVar}">
+                                    <lightning:card  title="Notes:"> 
+                                        <div style="width:60%;margin:auto;margin-bottom:15px">
+                                            <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                No more steps pending for this job card under buffing stage.
+                                            </div>
+                                        </div>
+                                    </lightning:card>
+                                </aura:if>
+                            </aura:if>
+                            
+                            <aura:if isTrue="{!v.confirmHoldVar}">
+                                <lightning:card  title="Confirm Hold Actvity"> 
+                                    <div style="width:60%;margin:auto;margin-bottom:15px">
+                                        <aura:if isTrue="{!and(not(v.step_error eq null),not(v.step_error eq ''))}">
+                                            <div class="slds-col slds-size_12-of-12" style="color:red">
+                                                <b>Error:&nbsp;</b>{!v.step_error}
+                                            </div>
+                                        </aura:if>
+                                        
+                                        <div class="slds-col slds-size_12-of-12">
+                                            <aura:if isTrue="{!not(v.current_line.jobLineItem.Id eq null)}">
+                                                <div class="slds-form-element textboxdiv">
+                                                    <label class="slds-form-element__label slds-m-right_none">Reason for hold</label>
+                                                    <lightning:select value="{!v.lineItemForHold.workTracker.ETT_Reason_for_hold__c}" label="Reason for hold" title="Reason for hold" variant="label-hidden" class="holdReason">
+                                                        <aura:iteration items="{!v.holdReasonValues}" var="inv" indexVar="key">
+                                                            <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.lineItemForHold.workTracker.ETT_Reason_for_hold__c}"/>
+                                                        </aura:iteration>
+                                                    </lightning:select>&nbsp;
+                                                </div>
+                                                <lightning:button variant="brand" label="Hold" title="Hold" onclick="{!c.confirmOnHold}"/>
+                                                <lightning:button variant="brand" label="Cancel" title="Cancel" onclick="{!c.continueActivities}"/>
+                                            </aura:if>
+                                        </div>
+                                    </div>
+                                </lightning:card>
+                            </aura:if>
+                            
+                            <aura:set attribute="else">
+                                <h2 style="text-align:center;font-weight: 600;font-size: 16px;color: #ce4242;">No Record Found! </h2> 
+                            </aura:set> 
+                        </aura:if>
+                     </div>  
+                </div>
+                
+            <!--Modal/Popup Box Footer Starts here-->
+            <footer class="slds-modal__footer">
+                <aura:if isTrue="{!v.isOnHold}">
+                	<lightning:button variant="brand" label="Resume" title="Resume" onclick="{!c.resumeActivity}"/>
+                </aura:if>
+                
+                <aura:if isTrue="{!and(!v.isOnHold,!v.confirmHoldVar)}">
+                    <aura:if isTrue="{!not(v.current_line.jobLineItem.Id eq null)}">
+                        <!--<lightning:select value="{!v.lineItemForHold.workTracker.ETT_Reason_for_hold__c}" label="Reason for hold" title="Reason for hold" variant="label-hidden" class="holdReason">
+                            <aura:iteration items="{!v.holdReasonValues}" var="inv" indexVar="key">
+                                <option text="{!inv.value}" value="{!inv.key}" selected="{!inv.key == v.lineItemForHold.workTracker.ETT_Reason_for_hold__c}"/>
+                            </aura:iteration>
+                        </lightning:select>&nbsp;-->
+                        <lightning:button variant="brand" label="Hold" title="Hold" onclick="{!c.showHoldDialog}"/>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 1,v.current_line.jobLineItem.Sequence__c eq 1)}">
+                        <lightning:button variant="brand" label="Proceed" title="Proceed" onclick="{!c.goToStep2}"/>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 2,v.current_line.jobLineItem.Sequence__c eq 2)}">
+                        <aura:if isTrue="{!and(!v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                        	<lightning:button variant="brand" label="Create New Request(s)" title="Create New Tool Request" onclick="{!c.createToolRequest}" name="iniToolReq"/>
+                        </aura:if>
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Refresh Request Status(s)" title="Refresh" onclick="{!c.refreshSection}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!v.toolsCheckFinal}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep3}"/>
+                        </aura:if>                        
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 3,v.current_line.jobLineItem.Sequence__c eq 3)}">             	
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                            <lightning:button variant="brand" label="Start Floor Cleaning" title="Start Floor Cleaning" onclick="{!c.startFloorCleaning}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good'),not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep4}"/>
+                        </aura:if>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 4,v.current_line.jobLineItem.Sequence__c eq 4)}">             	
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                            <lightning:button variant="brand" label="Start Light Adjustment" title="Start Light Adjustment" onclick="{!c.startLightWorks}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good'),not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep5}"/>
+                        </aura:if>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 5,v.current_line.jobLineItem.Sequence__c eq 5)}">  
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',!v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Create New Request(s)" title="Create New Tool Request" onclick="{!c.createToolRequest}" name="bladeReq"/>
+                        </aura:if>
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Refresh Request Status(s)" title="Refresh" onclick="{!c.refreshSection}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good'),v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep6}"/>
+                        </aura:if>
+                    </aura:if>  
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 6,v.current_line.jobLineItem.Sequence__c eq 6)}">  
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',!v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Create New Request(s)" title="Create New Tool Request" onclick="{!c.createToolRequest}" name="sideBufferReq"/>
+                        </aura:if>
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Refresh Request Status(s)" title="Refresh" onclick="{!c.refreshSection}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good'),v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep7}"/>
+                        </aura:if>
+                    </aura:if>  
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 7,v.current_line.jobLineItem.Sequence__c eq 7)}">             	
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                            <lightning:button variant="brand" label="Start Powder Replacement" title="Start Powder Replacement" onclick="{!c.startPowderReplacementWorks}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good'),not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep8}"/>
+                        </aura:if>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 8,v.current_line.jobLineItem.Sequence__c eq 8)}">             	
+                        <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep9}"/>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 9,v.current_line.jobLineItem.Sequence__c eq 9)}">             	
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                            <lightning:button variant="brand" label="Start Job" title="Start Job" onclick="{!c.startSuctionLineWork}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good'),not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep10}"/>
+                        </aura:if>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 10,v.current_line.jobLineItem.Sequence__c eq 10)}">  
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Low',!v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Create New Request(s)" title="Create New Tool Request" onclick="{!c.createToolRequest}" name="suctionPipelineReq"/>
+                        </aura:if>
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Low',v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Refresh Request Status(s)" title="Refresh" onclick="{!c.refreshSection}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Low'),v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep11}"/>
+                        </aura:if>
+                    </aura:if>  
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 11,v.current_line.jobLineItem.Sequence__c eq 11)}">  
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Low',!v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Create New Request(s)" title="Create New Tool Request" onclick="{!c.createToolRequest}" name="suctionFilterReq"/>
+                        </aura:if>
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Low',v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Refresh Request Status(s)" title="Refresh" onclick="{!c.refreshSection}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Low'),v.current_line.jobLineItem.ETT_Tool_Material_Request_Raised__c)}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep12}"/>
+                        </aura:if>
+                    </aura:if>  
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 12,v.current_line.jobLineItem.Sequence__c eq 12)}">             	
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                            <lightning:button variant="brand" label="Start Job" title="Start Job" onclick="{!c.startInflationCheck}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good'),not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep13}"/>
+                        </aura:if>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 13,v.current_line.jobLineItem.Sequence__c eq 13)}">             	
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'No',v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                            <lightning:button variant="brand" label="Start Job" title="Start Job" onclick="{!c.startRaspHubCheck}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'No'),not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep14}"/>
+                        </aura:if>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 14,v.current_line.jobLineItem.Sequence__c eq 14)}">             	
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good',v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                            <lightning:button variant="brand" label="Start Job" title="Start Job" onclick="{!c.startTyreStoneCheck}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Good'),not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep15}"/>
+                        </aura:if>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 15,v.current_line.jobLineItem.Sequence__c eq 15)}">    
+                        <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep16}"/>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 16,v.current_line.jobLineItem.Sequence__c eq 16)}">    
+                        <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep17}"/>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 17,v.current_line.jobLineItem.Sequence__c eq 17)}">             	
+                        <aura:if isTrue="{!and(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Matched',v.current_line.workTracker.ETT_Start_time__c eq null)}">
+                            <lightning:button variant="brand" label="Start Job" title="Start Job" onclick="{!c.startScanSurfaceCheck}"/>
+                        </aura:if>
+                        <aura:if isTrue="{!or(not(v.current_line.jobLineItem.ETT_Initial_Activity_State__c eq 'Not Matched'),not(v.current_line.workTracker.ETT_Start_time__c eq null))}">
+                            <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep18}"/>
+                        </aura:if>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 18,v.current_line.jobLineItem.Sequence__c eq 18)}">    
+                        <lightning:button variant="brand" label="Next" title="Next" onclick="{!c.goToStep19}"/>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.current_sequence eq 19,v.current_line.jobLineItem.Sequence__c eq 19)}">    
+                        <lightning:button variant="brand" label="Complete" title="Complete" onclick="{!c.goToStep20}"/>
+                    </aura:if>
+                </aura:if>
+            </footer>
+        </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+</aura:component>

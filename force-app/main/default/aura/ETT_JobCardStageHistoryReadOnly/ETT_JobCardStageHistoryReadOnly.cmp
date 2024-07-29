@@ -1,0 +1,215 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome" access="global" controller="ETT_JobCardStageHistoryController">
+	<aura:attribute name="jobCardId" type="String"/>
+    <aura:attribute name="inspectionCardId" type="String"/>
+    <aura:attribute name="currentStageName" type="String"/>
+    <aura:attribute name="currentRevisionNumber" type="Integer"/>
+    <aura:attribute name="jobCardDetials" type="Object"/>
+    <aura:attribute name="sequenceNumber" type="Integer"/>
+    <aura:attribute name="history" type="ETT_JobCardStageHistoryController.JobCardHistoryWrapper[]"/>
+    
+    <!--all handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.initAction}"/>
+     <h1 style="text-decoration:underline;font-weight:bold">Job Card History:</h1>
+    <br/>
+    <lightning:accordion aura:id="accordion" activeSectionName="A">
+        
+        <aura:if isTrue="{!lessthan(0,v.sequenceNumber)}">
+            <lightning:accordionSection name="A" label="Buffing">
+                <b>{!v.jobCardDetials.ETT_Buffing_Technician_Rejection_Remarks__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+       <aura:if isTrue="{!lessthan(1,v.sequenceNumber)}">
+            <lightning:accordionSection name="B" label="Skiving">
+                <b> {!v.jobCardDetials.ETT_Skiving_Technician_Rejection_Remarks__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+        
+        <aura:if isTrue="{!lessthan(2,v.sequenceNumber)}">
+            <lightning:accordionSection name="C" label="Repair">
+                <b> {!v.jobCardDetials.ETT_Skiving_Technician_Rejection_Remarks__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+        <aura:if isTrue="{!lessthan(3,v.sequenceNumber)}"> 
+            <lightning:accordionSection name="D" label="Cementing">
+                <b> {!v.jobCardDetials.ETT_Skiving_Technician_Rejection_Remarks__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+        <aura:if isTrue="{!lessthan(4,v.sequenceNumber)}"> 
+            <lightning:accordionSection name="E" label="Filling">
+                <b> {!v.jobCardDetials.ETT_Filling_Technician_Rejection_Remarks__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+        <aura:if isTrue="{!lessthan(5,v.sequenceNumber)}"> 
+            <lightning:accordionSection name="F" label="Thread Preparation">
+                <b> {!v.jobCardDetials.ETT_Thread_Technician_Rejection_Remarks__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+        <aura:if isTrue="{!lessthan(6,v.sequenceNumber)}"> 
+            <lightning:accordionSection name="G" label="Building">
+                <b> {!v.jobCardDetials.ETT_Building_Technician_Reject_Remarks__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+        <aura:if isTrue="{!lessthan(7,v.sequenceNumber)}"> 
+            <lightning:accordionSection name="H" label="Rimming &amp; Enveloping">
+                <b> {!v.jobCardDetials.ETT_Rimming_Env_Technician_Reject_Remark__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+        <aura:if isTrue="{!lessthan(8,v.sequenceNumber)}"> 
+            <lightning:accordionSection name="I" label="Curing">
+                <b> {!v.jobCardDetials.ETT_Curing_Technician_Rejection_Remarks__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+        <aura:if isTrue="{!lessthan(9,v.sequenceNumber)}"> 
+            <lightning:accordionSection name="J" label="Removal of RIM Tube Flap">
+                <b> {!v.jobCardDetials.ETT_Rimming_Env_Technician_Reject_Remark__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+        <aura:if isTrue="{!lessthan(10,v.sequenceNumber)}"> 
+            <lightning:accordionSection name="K" label="Final Inspection">
+                <b> {!v.jobCardDetials.ETT_Final_Inspection_Technician_Remarks__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+         <aura:if isTrue="{!lessthan(11,v.sequenceNumber)}"> 
+            <lightning:accordionSection name="L" label="Painting">
+                <b> {!v.jobCardDetials.ETT_Painting_Technician_Remarks__c}</b>
+            </lightning:accordionSection>
+        </aura:if>
+        <!--aura:if isTrue="{!lessthan(12,v.sequenceNumber)}"> 
+            <lightning:accordionSection name="G" label="Quality Control">
+                <b> {!v.jobCardDetials.ETT_Curing_Technician_Rejection_Remarks__c}</b>
+            </lightning:accordionSection>
+        </aura:if-->
+        
+        
+    </lightning:accordion>
+    
+    <h1 style="text-decoration:underline;font-weight:bold">Inspection History:</h1>
+    <br/>
+    <aura:if isTrue="{!not(empty(v.history))}">
+        <lightning:accordion allowMultipleSectionsOpen="true" activeSectionName="{!v.history[0].stageName+' (Revision: '+v.history[0].versionNumber+')'}">
+            <aura:iteration items="{!v.history}" var="h" indexVar="i">       
+                <lightning:accordionSection name="{!h.stageName+' (Revision: '+h.versionNumber+')'}" label="{!h.stageName+' (Revision: '+h.versionNumber+')'}">
+                    <aura:set attribute="body">
+                        <div class="slds-grid slds-wrap">                            
+                            <div class="slds-col slds-size_3-of-12">
+                                <b>Status:&nbsp;&nbsp;</b>
+                            </div>
+                            <div class="slds-col slds-size_3-of-12">
+                                {!h.stageStatus}
+                            </div>
+                            <!--<div class="slds-col slds-size_3-of-12">
+                                <b>Overall Start time:&nbsp;&nbsp;</b>
+                            </div>-->
+                           <!-- <div class="slds-col slds-size_3-of-12">
+                                <ui:outputDateTime aura:id="oDateTime" value="{!h.stageStartTime}"/>
+                            </div> -->
+                            <!--<div class="slds-col slds-size_3-of-12">
+                                <b>Overall End time:&nbsp;&nbsp;</b>
+                            </div>-->
+                           <!-- <div class="slds-col slds-size_3-of-12">
+                                <ui:outputDateTime aura:id="oDateTime" value="{!h.stageEndTime}"/>
+                            </div> -->
+                            <div class="slds-col slds-size_3-of-12">
+                                <b>Defect(s) Found:&nbsp;&nbsp;</b>
+                            </div>
+                            <div class="slds-col slds-size_3-of-12">
+                                {!h.defectsStr}
+                            </div>
+                            <div class="slds-col slds-size_3-of-12">
+                                <b>Technician Remarks:&nbsp;&nbsp;</b>
+                            </div>
+                            <div class="slds-col slds-size_3-of-12">
+                                <ui:outputTextArea aura:id="techieRemarks" value="{!h.techRemarks}"/>
+                            </div>
+                            <div class="slds-col slds-size_3-of-12">
+                                <b>Supervisor Remarks:&nbsp;&nbsp;</b>
+                            </div>
+                            <div class="slds-col slds-size_3-of-12">
+                                <ui:outputTextArea aura:id="managerRemarks" value="{!h.managerRemarks}"/>
+                            </div>
+                        </div>
+                        <aura:if isTrue="{!and(not(h.stageData eq null),not(empty(h.stageData.complaintLists)))}">
+                            <lightning:accordion allowMultipleSectionsOpen="true">
+                                <aura:iteration items="{!h.stageData.complaintLists}" var="line" indexVar="j">       
+                                    <lightning:accordionSection name="{!line.tyreRejectionName}" label="{!line.tyreRejectionName}">
+                                        <aura:set attribute="body">
+                                            <aura:if isTrue="{!line.tyreRejectionName eq 'CrownArea'}">
+                                                <div class="slds-grid slds-wrap">                            
+                                                    <div class="slds-col slds-size_6-of-12">
+                                                        <b>No of Cuts(0-10mm):&nbsp;&nbsp;</b>
+                                                        <aura:if isTrue="{!and(not(line.cuts_0_to_10 eq null),not(empty(line.cuts_0_to_10)))}">
+                                                            {!line.cuts_0_to_10[0].selectedValue}
+                                                            <aura:if isTrue="{!and(not(line.cuts_0_to_10[0].file eq null),not(empty(line.cuts_0_to_10[0].file)))}">
+                                                            	&nbsp;<a href="{!line.cuts_0_to_10[0].file[0].fileContent}" target="_blank">{!line.cuts_0_to_10[0].file[0].strFileName}</a>
+                                                            </aura:if>
+                                                        </aura:if>
+                                                    </div>
+                                                    <div class="slds-col slds-size_6-of-12">
+                                                        <b>No of Cuts (11 to 25mm):&nbsp;&nbsp;</b>
+                                                        <aura:if isTrue="{!and(not(line.cuts_11_to_25 eq null),not(empty(line.cuts_11_to_25)))}">
+                                                            {!line.cuts_11_to_25[0].selectedValue}
+                                                            <aura:if isTrue="{!and(not(line.cuts_11_to_25[0].file eq null),not(empty(line.cuts_11_to_25[0].file)))}">
+                                                            	&nbsp;<a href="{!line.cuts_11_to_25[0].file[0].fileContent}" target="_blank">{!line.cuts_11_to_25[0].file[0].strFileName}</a>
+                                                            </aura:if>
+                                                        </aura:if>
+                                                    </div>
+                                                    <div class="slds-col slds-size_6-of-12">
+                                                        <b>No of Cuts (26 to 38mm):&nbsp;&nbsp;</b>
+                                                        <aura:if isTrue="{!and(not(line.cuts_26_to_38 eq null),not(empty(line.cuts_26_to_38)))}">
+                                                            {!line.cuts_26_to_38[0].selectedValue}
+                                                            <aura:if isTrue="{!and(not(line.cuts_26_to_38[0].file eq null),not(empty(line.cuts_26_to_38[0].file)))}">
+                                                            	&nbsp;<a href="{!line.cuts_26_to_38[0].file[0].fileContent}" target="_blank">{!line.cuts_26_to_38[0].file[0].strFileName}</a>
+                                                            </aura:if>
+                                                        </aura:if>
+                                                    </div>
+                                                    <div class="slds-col slds-size_6-of-12">
+                                                        <b>No of Cuts (39 to 50mm):&nbsp;&nbsp;</b>
+                                                        <aura:if isTrue="{!and(not(line.cuts_39_to_50 eq null),not(empty(line.cuts_39_to_50)))}">
+                                                            {!line.cuts_39_to_50[0].selectedValue}
+                                                            <aura:if isTrue="{!and(not(line.cuts_39_to_50[0].file eq null),not(empty(line.cuts_39_to_50[0].file)))}">
+                                                            	&nbsp;<a href="{!line.cuts_39_to_50[0].file[0].fileContent}" target="_blank">{!line.cuts_39_to_50[0].file[0].strFileName}</a>
+                                                            </aura:if>
+                                                        </aura:if>
+                                                    </div>
+                                                    <div class="slds-col slds-size_6-of-12">
+                                                        <b>No of Cuts (51mm and above):&nbsp;&nbsp;</b>
+                                                        <aura:if isTrue="{!and(not(line.cuts_51 eq null),not(empty(line.cuts_51)))}">
+                                                            {!line.cuts_51[0].selectedValue}
+                                                            <aura:if isTrue="{!and(not(line.cuts_51[0].file eq null),not(empty(line.cuts_51[0].file)))}">
+                                                            	&nbsp;<a href="{!line.cuts_51[0].file[0].fileContent}" target="_blank">{!line.cuts_51[0].file[0].strFileName}</a>
+                                                            </aura:if>
+                                                        </aura:if>
+                                                    </div>
+                                                    <br/><br/>
+                                                </div>
+                                            </aura:if>
+                                            <ol class="slds-list_ordered" type="a">
+                                                <aura:iteration items="{!line.lstTyreRejectionSubLineItems}" var="subLine" indexVar="k">       
+                                                	<li>
+                                                        {!subLine.strRejectionName} <br/>
+                                                    	<!--- <b>Status:</b>&nbsp;{!subLine.strStatus}<br/>
+                                                        - <b>Cause:</b>&nbsp;{!subLine.strCauseOfRejection}<br/>
+                                                        - <b>Recommendation:</b>&nbsp;{!subLine.strRecommendations}<br/> -->
+                                                        - <b>Technician  Remarks:</b>&nbsp;{!subLine.strOtherComments}<br/>
+                                                        <aura:if isTrue="{!and(not(subLine.lstFileWrapperDetails eq null),not(empty(subLine.lstFileWrapperDetails)))}">
+                                                            - <b>Attached Photo Link:</b>&nbsp;<a href="{!subLine.lstFileWrapperDetails[0].fileContent}" target="_blank">{!subLine.lstFileWrapperDetails[0].strFileName}</a><br/>
+                                                        </aura:if>
+                                                        <br/>
+                                                    </li>
+                                                </aura:iteration>
+                                            </ol>
+                                        </aura:set>
+                                    </lightning:accordionSection>    
+                                </aura:iteration>
+                            </lightning:accordion>
+                        </aura:if>
+                    </aura:set>
+                </lightning:accordionSection>    
+            </aura:iteration>
+        </lightning:accordion>
+        <aura:set attribute="else">
+            No History Available. Please continue to next step.
+        </aura:set>
+    </aura:if>
+    
+</aura:component>

@@ -1,0 +1,245 @@
+<apex:page standardController="ETT_Delivery_Note__c" extensions="ETT_DeliveryNote_PDF_Controller" renderAs="pdf" applyBodyTag="false">
+    
+    <head>
+        <style> 
+            body { 
+            font-family: 'Arial Unicode MS'; 
+            font: 12px; 
+            }
+            
+            .companyName { 
+            font-size: 14px; 
+            font-weight:bold !important;
+            color: black; 
+            }
+            
+            p {
+            text-align:left;
+            }
+            
+            @page {
+            size:A4 portrait;
+            /*border: 2px solid black;    */
+            }
+            table, th{
+            border: 1px solid black;
+            border-collapse: collapse;
+            text-align: left;
+            padding:6px;
+            } 
+            td{
+            border: 1px solid black;
+            border-collapse: collapse;
+            text-align: left;
+            padding:6px;
+            } 
+            #pdftable td{
+            border: 0px solid black!important;
+            border-right:1px solid black!important;
+            border-collapse: collapse;
+            text-align: left;
+            padding:6px;
+            }  
+            tr th{
+            font-weight:bold !important;
+            }
+        </style>
+    </head>
+    <body>
+        
+        <center>
+            
+            <table style="width: 100%;">
+                <tr>
+                    <td style="border:none;">
+                        <apex:image url="{!$Resource.ETT_Logo}" width="180" height="120"/>
+                    </td>
+                    <td style="border:none;text-align:center;">
+                        <h1 style="text-decoration: underline;">Delivery Note</h1>
+                    </td>
+                    <td style="border:none;">
+                        <div style="text-align:right;font-size:10px;">
+                            Toll Free: 800 6006<br/>
+                            P.O. Box : 5757, Dubai, UAE<br/>
+                            Tel: 04-233 0680,Fax: 04-2872475<br/>
+                            retreadenquiries@et.ae<br/>
+                            www.et.gov.ae<br/>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            
+
+           <table style="width: 100%;">
+                    <tr>
+                        <apex:outputText rendered="{!dnl[0].ETT_Delivery_Note__r.Party_Type__c == 'Internal'}">
+                            <th class="companyName">Internal :</th>
+                        </apex:outputText>
+                        <apex:outputText rendered="{!dnl[0].ETT_Delivery_Note__r.Party_Type__c != 'Internal'}">
+                            <th class="companyName">Customer:</th>
+                        </apex:outputText>
+                       
+                        <td colspan="3">
+                            <apex:outputText rendered="{!dnl[0].ETT_Delivery_Note__r.Party_Type__c == 'Internal'}">
+                                {!dnl[0].ETT_Delivery_Note__r.SubInventory__r.Name}
+                            </apex:outputText>
+                            <apex:outputText rendered="{!dnl[0].ETT_Delivery_Note__r.Party_Type__c != 'Internal'}">
+                                {!dnl[0].ETT_Delivery_Note__r.ETT_Account__r.Name}
+                            </apex:outputText>
+                        </td>
+                        <th class="companyName">Delivery No:</th>
+                        <td>{!dnl[0].ETT_Delivery_Note__r.Name}</td>                   
+                    </tr>
+                    <tr>
+                        <th class="companyName">Address:</th>
+                        <td colspan="3">{!dnl[0].ETT_Delivery_Note__r.ETT_Address__c}</td>
+                        <th class="companyName">Date:</th>
+                        <td>
+                            <apex:outputText value="{0,date,dd'/'MM'/'yyyy}">
+                                <apex:param value="{!dnl[0].ETT_Delivery_Note__r.ETT_Date__c}" />
+                            </apex:outputText>
+                        </td>                   
+                    </tr>
+                    <tr>
+                        <th class="companyName">Telephone:</th>
+                        <td>{!dnl[0].ETT_Delivery_Note__r.ETT_Phone__c}</td>
+                        <th class="companyName">Casing:</th>
+                        <td>
+                            <apex:outputPanel rendered="{!NOT(ISBLANK(dnl[0].ETT_Delivery_Note__r.Tyre_Estimation__c))}">
+                                <apex:outputText value="{!dnl[0].ETT_Delivery_Note__r.ETT_Casing__c}"/> Casing
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!ISBLANK(dnl[0].ETT_Delivery_Note__r.Tyre_Estimation__c)}">
+                                <apex:outputText value="{!dnl[0].ETT_Delivery_Note__r.Party_Type__c}"/> Casing
+                            </apex:outputPanel>
+                        </td>
+                        <th class="companyName">Reference:</th>
+                        <td>{!dnl[0].ETT_Delivery_Note__r.ETT_Reference__c}</td>                   
+                    </tr>
+                    <tr>
+                        <th class="companyName">Remarks:</th>
+                        <td colspan="5">
+                            {!dnl[0].ETT_Delivery_Note__r.ETT_Remark__c}
+                        </td>
+                    
+                    </tr>
+                 <apex:outputPanel rendered="{!ISBLANK(dnl[0].ETT_Delivery_Note__r.Tyre_Estimation__c)}">
+                 <tr>
+                    
+                   <th class="companyName">CollectionCard:</th>
+                            <td colspan="5">{!collectionCards}</td>
+                   
+                </tr>
+                      </apex:outputPanel>
+                </table>
+            <br/><br/>
+            
+            <table id="pdftable"  style="width: 100%;" class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered ">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="SNo">SNo</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Tyre Size">Tyre Size</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Brand Name">Brand Name</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Orig.Pattern">Orig.Pattern</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Serial Number">Serial Number</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Tread Pattern">Tread Pattern</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Job Type">Job Type</div>
+                        </th>
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    <apex:variable var="rowNum" value="{!0}"/>
+                    <apex:repeat value="{!dnl}" var="item">
+                        <tr>
+                            <td>
+                                <apex:variable var="rowNum" value="{!rowNum + 1}"/>
+                                {!rowNum}
+                            </td>
+                            <td>{!item.ETT_Tyre_size_Integration__c}</td>
+                            <!--<td>{!item.Tyre_Inventory__r.ETT_Tyre_Size_Master__r.Name}</td>-->
+                            <td>{!item.Tyre_Inventory__r.ETT_Brand__r.Name}</td>
+                            <td>{!item.Tyre_Inventory__r.ETT_Pattern__r.Name}</td>
+                            <td>{!item.Tyre_Inventory__r.Serial_Number__c}</td>
+                            <td>{!item.Thred_Pattern__c}</td>
+                            <!--<td>{!item.ETT_Inspection_Card__r.ETT_Status__c}</td>-->
+                            <td>
+                                <!-- Conditional rendering for Job_Type__c and Tyre_Type__c -->
+                                <apex:outputText rendered="{!item.Tyre_Inventory__r.Job_Type__c == 'Retread' && item.Tyre_Inventory__r.Job_Type__c != 'Send Back'}">
+                                    {!item.Tyre_Inventory__r.Job_Type__c}
+                                </apex:outputText>
+                                <apex:outputText rendered="{!item.Tyre_Inventory__r.Tyre_Type__c == 'Send Back' &&  item.Tyre_Inventory__r.Job_Type__c != 'Retread'}">
+                                    {!item.Job_type__c}
+                                </apex:outputText>
+                            </td>
+                        </tr>
+                    </apex:repeat>
+                   	 <tr >
+                        <td height="300px">
+                            &nbsp;
+                        </td>
+                        <td> &nbsp;</td>
+                        <td> &nbsp;</td>
+                        <td> &nbsp;</td>
+                        <td> &nbsp;</td>
+                        <td> &nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            
+            
+            <br/> <br/>            
+            <table style="width: 100%;">
+                <tr>
+                    <th class="companyName" colspan="4">Prepared By: {!dnl[0].createdBy.Name }</th>
+                    <th class="companyName" colspan="4">Confirmed By: {!dnl[0].ETT_Delivery_Note__r.Approved_By__c}</th>
+                </tr>
+                <tr>
+                    <th class="companyName" colspan="4" style="border: 0px solid black!important;border-left: 1px solid black!important;border-right: 1px solid black!important;">Received the above Goods:</th>
+                    <th class="companyName" colspan="4" style="border: 0px solid black!important;border-right: 1px solid black!important;">Delivered By :</th>
+                </tr>                
+                <tr>
+                    <th class="companyName"  colspan="2" style="border: 0px solid black!important;border-left: 1px solid black!important;">Name:</th>
+                    <th class="companyName"  colspan="2" style="border: 0px solid black!important;border-right: 1px solid black!important;">Signature :</th>
+                    <th class="companyName"  colspan="2" style="border: 0px solid black!important;border-left: 0px solid black!important;">Driver Name: {!ETT_Delivery_Note__c.Driver_Name__c}</th>
+                    <th class="companyName"  colspan="2" style="border: 0px solid black!important;border-right: 1px solid black!important;">Vehicle No: {!ETT_Delivery_Note__c.Vehicle_Number__c}</th>
+                </tr> 
+                          <tr>
+                    <th class="companyName"  colspan="2" style="border: 0px solid black!important;border-left: 1px solid black!important;">Designation:</th>
+                    <th class="companyName"  colspan="2" style="border: 0px solid black!important;border-right: 1px solid black!important;">Date :</th>
+                    <th class="companyName"  colspan="2" style="border: 0px solid black!important;border-left: 0px solid black!important;">Signature:</th>
+                    <th class="companyName"  colspan="2" style="border: 0px solid black!important;border-right: 1px solid black!important;">Date :</th>
+                </tr> 
+               <!-- <tr>
+                    <th class="companyName" colspan="2">Designation:</th>
+                    <th class="companyName" colspan="2">Date :</th>
+                    <th class="companyName" colspan="2">Signature:</th>
+                    <th class="companyName" colspan="2">Date :</th>            
+                </tr>  -->   
+                <tr>
+                    <td colspan="8">
+                        PO Box: 5757, Al Warsan, Dubai, UAE, Tel: 04-2330680, Fax: 04-2872475, Email: Retreadenquiries@et.ae, Call Center: 8006006
+                   
+                    </td>
+                </tr>
+            </table>
+            
+      </center>
+        
+    </body>
+    
+</apex:page>

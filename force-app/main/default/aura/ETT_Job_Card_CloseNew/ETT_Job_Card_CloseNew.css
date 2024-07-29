@@ -1,0 +1,193 @@
+.THIS .slds-modal__close {
+    position: absolute;
+    right: 15px;
+    top: 14px;
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+    font-weight: 300;
+    border-radius: 100%;
+    z-index: 4;
+    color: #fff;
+    line-height: 3rem;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    outline: none;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+}
+.THIS .tableTd{
+    padding: 5px;
+}
+.THIS .inactive{
+    background-color: lightgray;
+    padding: 5px;
+    border-radius: 2px;
+
+}
+.THIS .active{
+    background-color: #00C099;
+    padding: 5px;
+    border-radius: 6px;
+}
+.THIS .slds-modal__close svg{
+    color: #000;
+    width: 13px;
+    height: 13px;
+}
+.THIS .slds-modal__header{
+    background: #f3f2f2;    border-bottom: 1px solid #dddbda;
+}
+.THIS .slds-modal__footer{
+    border-top: 1px solid #dddbda;
+}
+.THIS .slds-modal__header .slds-text-heading_medium, .THIS .slds-modal__header .slds-text-heading--medium{
+    font-weight: 400;
+}
+.THIS .outer-div {
+    position: relative;
+}
+
+.THIS .spinner2 {
+    position: absolute;
+}
+.THIS .slds-card__body{
+    padding: 0 1rem;
+}
+.THIS .heading{
+    display: block;
+    float: left;
+    width: 100%;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    padding-left: 4px;
+    font-size: 20px;
+    padding: 0.5rem 0;
+}
+.THIS .reponsive_table {
+    width: 99.6%;
+    overflow: auto;
+    margin-left: .4%;
+}
+.THIS .reponsive_table tr th, .THIS .reponsive_table tr td {
+    text-align: left;
+    padding: 4px;
+    /* border:1px solid #ddd;*/
+}
+.THIS .reponsive_table tr th {
+    background: #f2f2f2;
+    font-size: 15px;
+    padding: 8px 4px;
+}
+.THIS div#no-records {
+    text-align: center;
+    font-size: 16px;
+    color: red;
+    padding: 1rem;
+}
+.THIS .submitdiv{
+    position: relative;
+    display: block;
+    width: 100%;
+    clear: both;
+    margin: 1rem 0;
+    text-align: right;
+}
+.THIS span.slds-text-heading_small.slds-truncate {
+    font-size: 20px;
+    padding: 0.5rem 0;
+}
+.THIS label.slds-form-element__label {
+    font-weight: bold;
+}
+
+.THIS .slds-form-element__control, .THIS lightning-lookup-desktop{
+    margin-right: 1rem;
+}
+.THIS caption, .THIS th, .THIS td{
+    vertical-align: top;
+}
+
+.THIS .headerColor, .THIS .slds-card__header-title{
+    color: #5a6e91;
+    font-size: 16px;
+    font-weight: 600;
+    display: block;
+}
+.THIS .uiInput--checkbox input, .THIS input.uiInput--checkbox{
+    display: inline-block;
+    margin-left: 10px;
+}
+.THIS .borderTable{
+    margin: 1rem 0;
+    border: 1px solid #ccc;
+    padding: 1rem;
+}
+
+.THIS .borderTableNoMargin{
+    border: 1px solid #ccc;
+    padding: 1rem;
+}
+.THIS lightning-tab-bar ul li{
+    background: #f3f3f3;
+    color: #000;
+    text-decoration: none;
+}
+.THIS lightning-tab-bar ul li a{
+    text-decoration: none !important;
+}
+
+.THIS lightning-tab-bar ul li.slds-is-active{
+    background: #5a6e91;
+    color: #fff;
+}
+.THIS lightning-tab-bar ul li.slds-is-active:after, .THIS lightning-tab-bar ul li:hover:after{
+    height: 0 !important;
+}
+.THIS .rightTable{
+    width: 69%;
+    display: inline-block;
+    border: 1px solid #ccc;
+    padding: 1rem;
+}
+.THIS .leftTable{
+    width: 29%;
+    display: inline-block;
+    vertical-align: top;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    margin-right: 2%;
+}
+.THIS .rightTable td .slds-form-element__label, .THIS .leftTable td .slds-form-element__label{
+    display: none !important;
+}
+.THIS .rightTable td .slds-form-element__control, .THIS .leftTable td .slds-form-element__control{
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+.THIS .RejAnalysis .checkboxSection{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.THIS .RejAnalysis .headerColor{
+    margin-bottom: .5rem;
+}
+.THIS .RejAnalysis .uiInput.uiInputCheckbox.uiInput--default.uiInput--checkbox {
+    display: inline-block;
+    flex: 1 0 200px;
+}
+
+.THIS .RejAnalysis .uiInput--checkbox input, .THIS .RejAnalysis input.uiInput--checkbox {
+    display: inline-block;
+    margin-right: 10px;
+    float: left;
+    margin-top: 3px;
+    margin-left: 0;
+}
+.THIS.slds-spinner_container {  
+  z-index: 10000;
+  position: fixed;   
+}

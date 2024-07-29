@@ -1,0 +1,768 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" controller="ETT_CollectionLineItemController" access="global">
+    
+    <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+    </aura:html>
+    
+    <ltng:require styles="{!$Resource.ModalWidthCSS}" />
+    <aura:attribute name="noOfTyresCollection" type="Integer" />
+    <aura:attribute name="noOfTyresCombineCollection" type="Integer" />
+    
+    <aura:attribute name="objCollectionCard" type="ETT_Collection_Card__c" default="{'sobjectType': 'ETT_Collection_Card__c','Id':''}" />
+    
+    <aura:attribute name="lstCollectionLineItem" type="WorkOrderLineItem[]" />
+    <aura:attribute name="lstCollectionLineItem_Internal" type="WorkOrderLineItem[]" />    
+    <aura:attribute name="Recordsave" type="Boolean" />
+    <aura:attribute name="collectionWrapper" type="ETT_CollectionLineItemWrapper" />
+    <aura:attribute name="CollectionCardRecord" type="Object" />
+    <aura:attribute name="CollectionCardLoadError" type="String" />
+    <aura:attribute name="isMapEmpty" type="Boolean" default="false" />
+    <aura:attribute name="isStop" type="Boolean" default="false" />
+    <aura:attribute name="isStart" type="Boolean" default="false" />
+    <aura:attribute name="isPriceAccess" type="Boolean" default="false" />
+    <aura:attribute name="oldRelatedWorkOrderLineItemsMap" type="object" />
+    <aura:attribute name="activeSections" type="List" default="" />
+    <aura:attribute name="activeSectionsMessage" type="String" default="" />
+    <aura:attribute name="indexStgQuotation" type="Integer" />            
+    <aura:attribute name="showTyreSize" type="Boolean" default="false" />        
+    <aura:attribute name="showBrand" type="Boolean" default="false" />        
+    <aura:attribute name="showCountry" type="Boolean" default="false" />        
+    <aura:attribute name="showPattern" type="Boolean" default="false" />        
+    
+    <aura:attribute name="isSelectAll" type="boolean"/>
+    
+    <aura:attribute name="TyreSizeName" type="String" />
+    <aura:attribute name="BrandName" type="String" />
+    <aura:attribute name="PatternName" type="String" />
+    <aura:attribute name="CountryName" type="String" />
+    
+    <aura:attribute name="TyreSizeId" type="String" />
+    <aura:attribute name="BrandId" type="String" />
+    <aura:attribute name="PatternId" type="String" />
+    <aura:attribute name="CountryId" type="String" />
+    
+    <aura:attribute name="lstCollectionLineItemSize" type="Integer" />
+    
+    
+    <aura:attribute name="deleteIds" type="Id[]"/>    
+    
+    <aura:attribute name="partyType" type="String" />    
+    <aura:attribute name="TyreLifeMap" type="Map"/>    
+    <aura:attribute name="JobTypeMap" type="Map"/>        
+    <aura:attribute name="ClaimProcessMap" type="Map"/>            
+    
+    <aura:attribute name="isUserFM" type="boolean" default="false" />
+    <aura:attribute name="isUserHOO" type="boolean" default="false" />
+    <aura:attribute name="isUserReceptionist" type="boolean" default="false" />    
+    
+    
+    <aura:handler name="updateLookupIdEvent" event="c:ETT_DynamicEvent" action="{!c.handleComponentEvent}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <!--
+    <force:recordData aura:id="CollectionCardLoader" recordId="{!v.recordId}" 
+                      fields="Id,Name,ETT_Location__c, 
+                              ETT_Service_Appointment__r.Account.Party_Type__c,
+                              ETT_Contact__c,Tyre_Request_Number__c,
+                              Request_Number__c,ETT_Phone__c,
+                              Contact_Person_Name__c,ETT_Account__c,ETT_Account_Id__c,
+                              ETT_Work_Order__c,Number_of_Tyre__c,ETT_VAT_TRN_No_c__c,
+                              ETT_Service_Appointment__c,ETT_Work_Order__r.ETT_Process__c,  
+                              ETT_Collection_Date__c,ETT_Inspector__c,Supplier_Contact__c,
+                              Driver_Name__c,Supplier_Number__c" 
+                      targetFields="{!v.CollectionCardRecord}" 
+                      targetError="{!v.CollectionCardLoadError}" />-->
+    
+    <force:recordData aura:id="CollectionCardLoader" recordId="{!v.recordId}" 
+                      fields="Id,Name,ETT_Location__c,ETT_Check_In__c,
+                              ETT_Accounts__r.Party_Type__c,
+                              ETT_Contact__c,Tyre_Request_Number__c,
+                              Request_Number__c,ETT_Phone__c,
+                              Contact_Person_Name__c,ETT_Account__c,ETT_Account_Id__c,
+                              ETT_Work_Order__c,Number_of_Tyre__c,ETT_VAT_TRN_No_c__c,
+                              ETT_Service_Appointment__c,ETT_Work_Order__r.ETT_Process__c,  
+                              ETT_Collection_Date__c,ETT_Inspector__c,Supplier_Contact__c,
+                              Driver_Name__c,Supplier_Number__c,ETT_Submitted_For_Approval__c" 
+                      targetFields="{!v.CollectionCardRecord}" 
+                      targetError="{!v.CollectionCardLoadError}" />
+    
+    
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Collection Details</h4>
+    </div>
+    
+    <div class="slds-modal__content">
+        
+        <div class="slds-box">
+            
+            <lightning:accordion allowMultipleSectionsOpen="true" onsectiontoggle="{! c.handleSectionToggle }" activeSectionName="{! v.activeSections }">
+                
+                
+                <lightning:accordionSection name="A" label="Collection Card">
+                    
+                    <div class="">
+                        <div class="slds-box  warehouse_con">
+                            <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"><b>Collection Card Number</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.Name}
+                                    </div>
+                                </div>
+                                
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>Tyre Request Number</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.Tyre_Request_Number__c}
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"><b> Driver</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.Driver_Name__c}
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"><b>Collection Date</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.ETT_Collection_Date__c}
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>Request Number</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.Request_Number__c}
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>Inspector Name</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.ETT_Inspector__c}
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>No of Tyres Collected</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.Number_of_Tyre__c}
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>Request Date</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.ETT_Collection_Date__c}
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>Status</b></label>
+                                    <div class="slds-form-element__control">
+                                        New
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>Supplier Name</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.ETT_Account__c}
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>TRN Number</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.ETT_VAT_TRN_No_c__c}
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>Supplier Number</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.Supplier_Number__c}
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>Contact Person Name</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.Contact_Person_Name__c}
+                                    </div>
+                                </div>
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>Contact Number</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.Supplier_Contact__c}
+                                    </div>
+                                </div>
+                                
+                                <div class="slds-m-top_x-small slds-p-horizontal--small slds-size--1-of-1 slds-medium-size--1-of-3 slds-large-size--1-of-3 text_field">
+                                    <label class="slds-m-right--xx-large slds-form-element__label"> <b>Location</b></label>
+                                    <div class="slds-form-element__control">
+                                        {!v.CollectionCardRecord.ETT_Location__c}
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                </lightning:accordionSection>
+                
+                <lightning:accordionSection name="B" label="Collection Card Line Items">
+                    <div class="slds-scrollable collectionitemdiv" >
+                        
+                        <aura:if isTrue="{!v.isStop==false}">
+                            <aura:if isTrue="{!v.isMapEmpty==false}">
+                                <aura:if isTrue="{!v.isStart}">                                    
+                                    <table class="slds-border--left slds-border--right slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                                        <thead>
+                                            <tr class="slds-text-title_caps">
+                                                <th></th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="SLNO" class="line_tit"><b>SLNO</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Quantity" class="line_tit"><b>Quantity</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Tyre Size" class="line_tit"><b>Tyre Size</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Brand" class="line_tit"><b>Brand</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Pattern" class="line_tit"><b>Pattern </b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Country Of Origion" class="line_tit"><b>Country Of Origion</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Tyre Life" class="line_tit"><b>Tyre Life</b> </div>
+                                                </th>
+                                                <!--<th scope="col">
+                                            <div title="Load Index" class="line_tit"><b>Load Index </b> </div>
+                                        </th>
+                                        <th scope="col">
+                                            <div title="S Index" class="S Index"><b>S Index </b> </div>
+                                        </th>
+                                        <th scope="col">
+                                            <div title="PR" class="PR"><b>PR </b> </div>
+                                        </th>-->
+                                                <aura:if isTrue="{!v.isPriceAccess}">
+                                                    <th scope="col" class="slds-text-align--center">
+                                                        <div title="Price" class="Price"><b>Price </b> </div>
+                                                    </th>
+                                                </aura:if>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Tyre SLNO" class="Status"><b>Tyre SLNo </b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Job Type" class="Job Type"><b>Job Type </b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Claim Process" class="Claim Process"><b>Claim Process</b> </div>
+                                                </th>                                            
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Remarks" class="Remarks"><b>Remarks </b> </div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div title="Add / Delete" class="line_tit"><b>Action </b> </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <aura:iteration items="{!v.lstCollectionLineItem}" var="item" indexVar="index">
+                                                <tr id="{!index}">
+                                                    <td></td>
+                                                    <td data-label="SLNO" class="slds-cell-wrap">
+                                                        <div>{!index + 1}</div>
+                                                    </td>
+                                                    <td data-label="Quantity" class="slds-cell-wrap">
+                                                        <div>
+                                                            <lightning:input variant="label-hidden" type="text" value="{!item.ETT_Quantity__c}" label="{!index}" onchange="{!c.onComplteCombineRowCollectionLineItem}"  /> 
+                                                        </div>
+                                                        <aura:if isTrue="{!v.indexStgQuotation==index}">
+                                                            <br/><br/><br/>
+                                                        </aura:if>
+                                                    </td>
+                                                    <td data-label="TYRE SIZE" class="slds-cell-wrap">
+                                                        <div style="width: 140px;">
+                                                            <!--<c:ETT_DynamicLookupSearchComponent objectName="ETT_Tyre_Size_Master__c" fieldName="Name" selectRecordId="{!item.ETT_Tyre_Size__c}" selectRecordName="{!item.ETT_Tyre_Size_Name__c}" rowNo="{!index}" required="true" iconName="standard:stage_collection" />-->
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Tyre_Size_Master__c" 
+                                                                                                     fieldName="ETT_Tyre_Size__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!item.ETT_Tyre_Size__c}" 
+                                                                                                     selectRecordName="{!item.ETT_Tyre_Size_Name__c}" 
+                                                                                                     rowNo="{!index}"
+                                                                                                     required="true" iconName="standard:stage_collection"/>
+                                                            
+                                                            
+                                                            <aura:if isTrue="{!and(v.showTyreSize==false, v.indexStgQuotation==index)}">
+                                                                <br/><br/><br/>
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!and(v.showTyreSize, v.indexStgQuotation==index)}">
+                                                                
+                                                                <lightning:input aura:id="tyreSizeText" 
+                                                                                 name="tyreSizeText"
+                                                                                 value="{!item.ETT_New_Tyre_Size__c}" placeholder="Enter Tyre Size" required="true"
+                                                                                 /> 
+                                                            </aura:if>  
+                                                            
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="BRAND" class="slds-text-align--center ">
+                                                        <div style="width: 140px;">
+                                                            <!--<c:ETT_DynamicLookupSearchComponent objectName="ETT_Brand_Master__c" fieldName="Name" selectRecordId="{!item.ETT_Brand__c}" selectRecordName="{!item.ETT_Brand_Name__c}" rowNo="{!index}" required="true" iconName="standard:brand" />-->
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Brand_Master__c" 
+                                                                                                     fieldName="ETT_Brand_Name__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!item.ETT_Brand__c}" 
+                                                                                                     selectRecordName="{!item.ETT_Brand_Name__c}" rowNo="{!index}"
+                                                                                                     required="true" iconName="standard:brand"/> 
+                                                            
+                                                            <aura:if isTrue="{!and(v.showBrand==false, v.indexStgQuotation==index)}">
+                                                                <br/><br/><br/>
+                                                            </aura:if>
+                                                            
+                                                            <aura:if isTrue="{!and(v.showBrand, v.indexStgQuotation==index)}">
+                                                                <lightning:input aura:id="brandText" 
+                                                                                 name="brandText"
+                                                                                 value="{!item.ETT_New_Brand__c}" placeholder="Enter Brand" required="true"
+                                                                                 /> 
+                                                            </aura:if>
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="PATTERN	" class="slds-text-align--center">
+                                                        <div style="width: 140px;">
+                                                            <!--<c:ETT_DynamicLookupSearchComponent objectName="ETT_Pattern_Master__c" fieldName="Name" selectRecordId="{!item.ETT_Pattern__c}" selectRecordName="{!item.ETT_Pattern_Name__c}" rowNo="{!index}" required="true" iconName="standard:steps" />-->
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Pattern_Master__c" 
+                                                                                                     fieldName="ETT_Original_Pattern__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!item.ETT_Pattern__c}" 
+                                                                                                     selectRecordName="{!item.ETT_Pattern_Name__c}" rowNo="{!index}"
+                                                                                                     required="true" iconName="standard:steps"/> 
+                                                            
+                                                            <aura:if isTrue="{!and(v.showPattern==false, v.indexStgQuotation==index)}">
+                                                                <br/><br/><br/>
+                                                            </aura:if>                                
+                                                            
+                                                            <aura:if isTrue="{!and(v.showPattern, v.indexStgQuotation==index)}">
+                                                                <lightning:input aura:id="patternText" 
+                                                                                 name="patternText"
+                                                                                 value="{!item.ETT_New_Pattern__c}" placeholder="Enter Pattern" required="true"
+                                                                                 />  
+                                                            </aura:if>
+                                                            
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="COUNTRY OF ORIGION" class="slds-text-align--center">
+                                                        <div style="width: 140px;">
+                                                            <!--<c:ETT_DynamicLookupSearchComponent objectName="ETT_Country_Master__c" fieldName="Name" selectRecordId="{!item.ETT_Country_of_Origin__c}" selectRecordName="{!item.ETT_Country_of_Origin_Name__c}" rowNo="{!index}" required="true" iconName="standard:service_territory_location" />-->
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Country_Master__c" 
+                                                                                                     fieldName="ETT_Country_Name__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!item.ETT_Country_of_Origin__c}" 
+                                                                                                     selectRecordName="{!item.ETT_Country_of_Origin_Name__c}" rowNo="{!index}"
+                                                                                                     required="true" iconName="standard:service_territory_location"/> 
+                                                            
+                                                            
+                                                            <aura:if isTrue="{!and(v.showCountry==false, v.indexStgQuotation==index)}">                                    
+                                                                <br/><br/><br/>
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!and(v.showCountry, v.indexStgQuotation==index)}">                                    
+                                                                <lightning:input aura:id="countryText" 
+                                                                                 name="countryText"
+                                                                                 value="{!item.ETT_New_Country__c}" placeholder="Enter Country" required="true"
+                                                                                 />  
+                                                                
+                                                            </aura:if>
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="TYRE LIFE" class="slds-text-align--center">
+                                                        <lightning:select class="mrgn" aura:id="TyreLife" value="{!item.ETT_Tyre_Life__c}" onchange="{!c.handleCompanyOnChange}" name="TyreLifePicklist" required="true">
+                                                            <aura:iteration items="{!v.TyreLifeMap}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Tyre_Life__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </td>
+                                                    <aura:if isTrue="{!v.isPriceAccess}">
+                                                        <td data-label="Quantity" class="slds-cell-wrap">
+                                                            {!item.ETT_Price__c}
+                                                            <aura:if isTrue="{!v.indexStgQuotation==index}">
+                                                                <br/><br/><br/>
+                                                            </aura:if>
+                                                        </td>
+                                                    </aura:if>
+                                                    <td data-label="TYRE SLNO" class="slds-text-align--center">
+                                                        <div>
+                                                            <lightning:input variant="label-hidden" type="text" value="{!item.ETT_Tyre_Serial_Number__c}" label="{!index}" onchange="{!c.prePopulateValues}"  required="true" />
+                                                        </div>
+                                                        <aura:if isTrue="{!v.indexStgQuotation==index}">
+                                                            <br/><br/><br/>
+                                                        </aura:if>
+                                                    </td>
+                                                    <td data-label="JOB TYPE" class="slds-text-align--center">
+                                                        
+                                                        <!--<aura:if isTrue="{!v.CollectionCardRecord.ETT_Service_Appointment__r.Account.Party_Type__c=='Supplier'}">-->
+                                                        <lightning:select class="mrgn" aura:id="JobType" value="{!item.ETT_Job_Type__c}" onchange="{!c.handleCompanyOnChange}" name="JobTypePicklist" required="true" disabled="true">
+                                                            <aura:iteration items="{!v.JobTypeMap}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Job_Type__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                        <!--</aura:if>-->
+                                                        
+                                                        <!-- <aura:if isTrue="{!or(v.CollectionCardRecord.ETT_Service_Appointment__r.Account.Party_Type__c=='Customer',
+                                                                     v.CollectionCardRecord.ETT_Service_Appointment__r.Account.Party_Type__c=='Internal Project',
+                                                                     v.CollectionCardRecord.ETT_Service_Appointment__r.Account.Party_Type__c=='Internal Private Project')}">
+                                                        
+--><!--
+<lightning:select class="mrgn" aura:id="JobType" value="{!item.ETT_Job_Type__c}" onchange="{!c.handleCompanyOnChange}" name="JobTypePicklist" required="true">
+                                                            <option value="">None</option>
+                                                            <aura:iteration items="{!v.JobTypeMap}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Job_Type__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>-->
+                                                        <!--</aura:if>-->
+                                                        
+                                                        
+                                                        <aura:if isTrue="{!v.indexStgQuotation==index}">
+                                                            <br/><br/><br/>
+                                                        </aura:if>
+                                                    </td>
+                                                    <td data-label="CLAIM PROCESS" class="slds-text-align--center">
+                                                        <lightning:select class="mrgn" aura:id="ClaimProcessMap" value="{!item.ETT_Claim_Process__c}" onchange="{!c.handleCompanyOnChange}" name="ClaimProcessMap" required="true" disabled="true">
+                                                            <aura:iteration items="{!v.ClaimProcessMap}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key=='Normal'}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </td>
+                                                    <td data-label="REMARKS" class="slds-text-align--center">
+                                                        <div>
+                                                            <lightning:input type="text" value="{!item.ETT_Remarks__c}" />
+                                                        </div>
+                                                        <aura:if isTrue="{!v.indexStgQuotation==index}">
+                                                            <br/><br/><br/>
+                                                        </aura:if>
+                                                    </td>
+                                                    <td data-label="Action" class="slds-cell-wrap">
+                                                        <aura:if isTrue="{!index == 0}">
+                                                            <a onclick="{!c.addNewRowCollectionLineItem}">
+                                                                <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add" />
+                                                                <span class="slds-assistive-text">Add Icon</span>
+                                                            </a>
+                                                            <aura:set attribute="else">
+                                                                <a onclick="{!c.removeRowCollectionLineItem}" id="{!index}">
+                                                                    <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon" />
+                                                                    <span class="slds-assistive-text">Delete Icon</span>
+                                                                </a>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>
+                                        </tbody>
+                                    </table>       
+                                </aura:if>
+                                <aura:set attribute="else">
+                                    <table class="slds-border--left slds-border--right slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                                        <thead>
+                                            <tr class="slds-text-title_caps">
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="SLNO" class="line_tit"><b>SLNO</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Quantity" class="line_tit"><b>Quantity</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Tyre Size" class="line_tit"><b>Tyre Size</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Brand" class="line_tit"><b>Brand</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Pattern" class="line_tit"><b>Pattern </b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Country Of Origion" class="line_tit"><b>Country Of Origion</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="TyreLife" class="line_tit"><b>Tyre Life</b> </div>
+                                                </th>                                            
+                                                <aura:if isTrue="{!v.isPriceAccess}">
+                                                    <th scope="col" class="slds-text-align--center">
+                                                        <div title="Price" class="Price"><b>Price </b> </div>
+                                                    </th>
+                                                </aura:if>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Tyre SLNO" class="Status"><b>Tyre SLNo </b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Job Type" class="Job Type"><b>Job Type </b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Claim Process" class="Claim Process"><b>Claim Process</b> </div>
+                                                </th>                                            
+                                                <th scope="col" class="slds-text-align--center">
+                                                    <div title="Remarks" class="Remarks"><b>Remarks </b> </div>
+                                                </th>                                            
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <aura:iteration items="{!v.lstCollectionLineItem_Internal}" var="mapKey" indexVar="key">
+                                                <tr id="{!key}">
+                                                    <td data-label="SLNO" class="slds-cell-wrap">
+                                                        <div>{!key + 1}</div>
+                                                    </td>
+                                                    <td data-label="Quantity" class="slds-cell-wrap">
+                                                        <div>
+                                                            <lightning:input variant="label-hidden" type="text" value="{!mapKey.ETT_Quantity__c}" label="{!key}" disabled="true" />
+                                                        </div>
+                                                        <aura:if isTrue="{!v.keyStgQuotation==key}">
+                                                            <br/><br/><br/>
+                                                        </aura:if>
+                                                    </td>
+                                                    <td data-label="TYRE SIZE" class="slds-cell-wrap">
+                                                        <div style="width: 140px;">
+                                                            <!--<c:ETT_DynamicLookupSearchComponent objectName="ETT_Tyre_Size_Master__c" fieldName="Name" selectRecordId="{!mapKey.ETT_Tyre_Size__c}" selectRecordName="{!mapKey.ETT_Tyre_Size_Name__c}" rowNo="{!key}" required="true" iconName="standard:stage_collection" />-->
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Tyre_Size_Master__c" 
+                                                                                                     fieldName="ETT_Tyre_Size__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!mapKey.ETT_Tyre_Size__c}" 
+                                                                                                     selectRecordName="{!mapKey.ETT_Tyre_Size_Name__c}" 
+                                                                                                     rowNo="{!key}"
+                                                                                                     required="true" iconName="standard:stage_collection"/>
+                                                            
+                                                            
+                                                            <aura:if isTrue="{!and(v.showTyreSize==false, v.keyStgQuotation==key)}">
+                                                                <br/><br/><br/>
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!and(v.showTyreSize, v.keyStgQuotation==key)}">
+                                                                
+                                                                <lightning:input aura:id="tyreSizeText" 
+                                                                                 name="tyreSizeText"
+                                                                                 value="{!mapKey.ETT_New_Tyre_Size__c}" placeholder="Enter Tyre Size" required="true"
+                                                                                 /> 
+                                                            </aura:if>  
+                                                            
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="BRAND" class="slds-text-align--center ">
+                                                        <div style="width: 140px;">
+                                                            <!--<c:ETT_DynamicLookupSearchComponent objectName="ETT_Brand_Master__c" fieldName="Name" selectRecordId="{!mapKey.ETT_Brand__c}" selectRecordName="{!mapKey.ETT_Brand_Name__c}" rowNo="{!key}" required="true" iconName="standard:brand" />-->
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Brand_Master__c" 
+                                                                                                     fieldName="ETT_Brand_Name__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!mapKey.ETT_Brand__c}" 
+                                                                                                     selectRecordName="{!mapKey.ETT_Brand_Name__c}" rowNo="{!key}"
+                                                                                                     required="true" iconName="standard:brand"/> 
+                                                            
+                                                            <aura:if isTrue="{!and(v.showBrand==false, v.keyStgQuotation==key)}">
+                                                                <br/><br/><br/>
+                                                            </aura:if>
+                                                            
+                                                            <aura:if isTrue="{!and(v.showBrand, v.keyStgQuotation==key)}">
+                                                                <lightning:input aura:id="brandText" 
+                                                                                 name="brandText"
+                                                                                 value="{!mapKey.ETT_New_Brand__c}" placeholder="Enter Brand" required="true"
+                                                                                 /> 
+                                                            </aura:if>
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="PATTERN	" class="slds-text-align--center">
+                                                        <div style="width: 140px;">
+                                                            <!--<c:ETT_DynamicLookupSearchComponent objectName="ETT_Pattern_Master__c" fieldName="Name" selectRecordId="{!mapKey.ETT_Pattern__c}" selectRecordName="{!mapKey.ETT_Pattern_Name__c}" rowNo="{!key}" required="true" iconName="standard:steps" />-->
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Pattern_Master__c" 
+                                                                                                     fieldName="ETT_Original_Pattern__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!mapKey.ETT_Pattern__c}" 
+                                                                                                     selectRecordName="{!mapKey.ETT_Pattern_Name__c}" rowNo="{!key}"
+                                                                                                     required="true" iconName="standard:steps"/> 
+                                                            
+                                                            <aura:if isTrue="{!and(v.showPattern==false, v.keyStgQuotation==key)}">
+                                                                <br/><br/><br/>
+                                                            </aura:if>                                
+                                                            
+                                                            <aura:if isTrue="{!and(v.showPattern, v.keyStgQuotation==key)}">
+                                                                <lightning:input aura:id="patternText" 
+                                                                                 name="patternText"
+                                                                                 value="{!mapKey.ETT_New_Pattern__c}" placeholder="Enter Pattern" required="true"
+                                                                                 />  
+                                                            </aura:if>
+                                                            
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="COUNTRY OF ORIGION" class="slds-text-align--center">
+                                                        <div style="width: 140px;">
+                                                            <!--<c:ETT_DynamicLookupSearchComponent objectName="ETT_Country_Master__c" fieldName="Name" selectRecordId="{!mapKey.ETT_Country_of_Origin__c}" selectRecordName="{!mapKey.ETT_Country_of_Origin_Name__c}" rowNo="{!key}" required="true" iconName="standard:service_territory_location" />-->
+                                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Country_Master__c" 
+                                                                                                     fieldName="ETT_Country_Name__c"  
+                                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                                     brandName="{!v.BrandName}"
+                                                                                                     patternName="{!v.PatternName}"
+                                                                                                     countryName="{!v.CountryName}"
+                                                                                                     selectRecordId="{!mapKey.ETT_Country_of_Origin__c}" 
+                                                                                                     selectRecordName="{!mapKey.ETT_Country_of_Origin_Name__c}" rowNo="{!key}"
+                                                                                                     required="true" iconName="standard:service_territory_location"/> 
+                                                            
+                                                            
+                                                            <aura:if isTrue="{!and(v.showCountry==false, v.keyStgQuotation==key)}">                                    
+                                                                <br/><br/><br/>
+                                                            </aura:if>
+                                                            <aura:if isTrue="{!and(v.showCountry, v.keyStgQuotation==key)}">                                    
+                                                                <lightning:input aura:id="countryText" 
+                                                                                 name="countryText"
+                                                                                 value="{!mapKey.ETT_New_Country__c}" placeholder="Enter Country" required="true"
+                                                                                 />  
+                                                                
+                                                            </aura:if>
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="TYRE LIFE" class="slds-text-align--center">
+                                                        <lightning:select class="mrgn" aura:id="TyreLife" value="{!mapKey.ETT_Tyre_Life__c}" onchange="{!c.handleCompanyOnChange}" name="TyreLifePicklist" required="true">
+                                                            <aura:iteration items="{!v.TyreLifeMap}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==mapKey.ETT_Tyre_Life__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </td>
+                                                    <aura:if isTrue="{!v.isPriceAccess}">
+                                                        <td data-label="Quantity" class="slds-cell-wrap">
+                                                            {!mapKey.ETT_Price__c}
+                                                            <aura:if isTrue="{!v.keyStgQuotation==key}">
+                                                                <br/><br/><br/>
+                                                            </aura:if>
+                                                        </td>
+                                                    </aura:if>
+                                                    <td data-label="TYRE SLNO" class="slds-text-align--center">
+                                                        <div>
+                                                            <lightning:input variant="label-hidden" type="text" value="{!mapKey.ETT_Tyre_Serial_Number__c}" label="{!key}" onchange="{!c.prePopulateValues}"  required="true" />
+                                                        </div>
+                                                        <aura:if isTrue="{!v.keyStgQuotation==key}">
+                                                            <br/><br/><br/>
+                                                        </aura:if>
+                                                    </td>
+                                                    <td data-label="JOB TYPE" class="slds-text-align--center">
+                                                        
+                                                        <!--<aura:if isTrue="{!v.CollectionCardRecord.ETT_Service_Appointment__r.Account.Party_Type__c=='Supplier'}">-->
+                                                        <lightning:select class="mrgn" aura:id="JobType" value="{!mapKey.ETT_Job_Type__c}" onchange="{!c.handleCompanyOnChange}" name="JobTypePicklist" required="true" disabled="true">
+                                                            <aura:iteration items="{!v.JobTypeMap}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==mapKey.ETT_Job_Type__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                        <!--</aura:if>-->
+                                                        
+                                                        <!-- <aura:if isTrue="{!or(v.CollectionCardRecord.ETT_Service_Appointment__r.Account.Party_Type__c=='Customer',
+                                                                     v.CollectionCardRecord.ETT_Service_Appointment__r.Account.Party_Type__c=='Internal Project',
+                                                                     v.CollectionCardRecord.ETT_Service_Appointment__r.Account.Party_Type__c=='Internal Private Project')}">
+                                                        
+--><!--
+<lightning:select class="mrgn" aura:id="JobType" value="{!mapKey.ETT_Job_Type__c}" onchange="{!c.handleCompanyOnChange}" name="JobTypePicklist" required="true">
+                                                            <option value="">None</option>
+                                                            <aura:iteration mapKeys="{!v.JobTypeMap}" var="ind" keyVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==mapKey.ETT_Job_Type__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>-->
+                                                        <!--</aura:if>-->
+                                                        
+                                                        
+                                                        <aura:if isTrue="{!v.keyStgQuotation==key}">
+                                                            <br/><br/><br/>
+                                                        </aura:if>
+                                                    </td>
+                                                    <td data-label="CLAIM PROCESS" class="slds-text-align--center">
+                                                        <lightning:select class="mrgn" aura:id="ClaimProcessMap" value="{!mapKey.ETT_Claim_Process__c}" onchange="{!c.handleCompanyOnChange}" name="ClaimProcessMap" required="true" disabled="true">
+                                                            <aura:iteration items="{!v.ClaimProcessMap}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key=='Normal'}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </td>
+                                                    <td data-label="REMARKS" class="slds-text-align--center">
+                                                        <div>
+                                                            <lightning:input type="text" value="{!mapKey.ETT_Remarks__c}" />
+                                                        </div>
+                                                        <aura:if isTrue="{!v.keyStgQuotation==key}">
+                                                            <br/><br/><br/>
+                                                        </aura:if>
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>                                                                                                    
+                                        </tbody>
+                                    </table>
+                                </aura:set>
+                            </aura:if>
+                        </aura:if>
+                        
+                        <br/><br/>
+                            
+                        </div>
+                    </lightning:accordionSection>
+                    
+                    
+                </lightning:accordion>
+                
+            </div>
+        </div>
+        
+        <div class="modal-footer slds-modal__footer">
+            
+            <!--button groups-->
+            <div class="slds-no-flex">
+                <lightning:buttonGroup>
+                    
+                    <aura:if isTrue="{!v.isMapEmpty==false}"> 
+                        <aura:if isTrue="{!v.isStart==false}"> 
+                            <lightning:button class="" variant="brand" label="Start" onclick="{!c.Start}" iconName="action:add_file" disabled="{!v.Recordsave ==false}" aura:id="start" />
+                        </aura:if>
+                        
+                        <aura:if isTrue="{!v.isStart==true}"> 
+                            <lightning:button class="" variant="brand" label="Save" onclick="{!c.Save}" iconName="action:add_file" disabled="{!v.Recordsave ==false}" aura:id="save" />
+                        </aura:if>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!and(v.isMapEmpty==true,v.isStop==false)}"> 
+                        <lightning:button class="" variant="brand" label="Update" onclick="{!c.Update}" iconName="action:add_file" disabled="{!v.Recordsave == false}" aura:id="Update" />
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!v.isStop}">
+                        <lightning:button class="" variant="brand" label="Stop" onclick="{!c.Stop}" iconName="action:add_file" disabled="{!v.Recordsave ==false}" aura:id="stop" />
+                    </aura:if>
+                                        
+                    <!--
+<lightning:button class="" variant="brand" label="Delete" onclick="{!c.Delete}" iconName="action:add_file" disabled="{!v.Recordsave == false}" aura:id="Update" />
+-->                    
+                    
+                    <aura:if isTrue="{!v.isUserReceptionist}">                
+                        <lightning:button class="" variant="brand" label="Receptionist Acceptance" onclick="{!c.ReceptionistAcceptanceFunction}" iconName="action:add_file"  aura:id="start" />
+                    </aura:if>
+                    <!--                
+                <aura:if isTrue="{!v.isUserHOO}">
+                    <lightning:button class="" variant="brand" label="Head Of Operation Acceptance" onclick="{!c.HOOAcceptanceFunction}" iconName="action:add_file"  aura:id="start" />                                                        
+                </aura:if>
+                
+                <aura:if isTrue="{!v.isUserFM}">
+                    <lightning:button class="" variant="brand" label="Factory Manager Acceptance" onclick="{!c.FMAcceptanceFunction}" iconName="action:add_file"  aura:id="start" />
+                </aura:if>
+-->                
+                </lightning:buttonGroup>
+            </div>
+            
+        </div>
+        
+    </aura:component>

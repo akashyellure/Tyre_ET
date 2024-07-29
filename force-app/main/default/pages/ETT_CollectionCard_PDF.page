@@ -1,0 +1,180 @@
+<apex:page standardController="ETT_Collection_Card__c" extensions="ETT_Collection_Card_Pdf_Controller" renderAs="pdf" applyBodyTag="false">
+    <head>
+        <style> 
+          body { 
+            font-family: 'Arial Unicode MS'; 
+            font: 12px; 
+            }
+            
+            .companyName { 
+            font-size: 14px; 
+            font-weight:bold !important;
+            color: black; 
+            }
+            
+            p {
+            text-align:left;
+            }
+            
+            @page {
+            size:A4 portrait;
+             
+            }
+            table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            text-align: left;
+            padding:6px;
+            }  
+            tr th{
+            font-weight:bold !important;
+            }   
+        </style>
+    </head>
+    <body>
+         <center>
+            
+            <table style="width: 100%;">
+                <tr>
+                    <td style="border:none;">
+                        <apex:image url="{!$Resource.ETT_Logo}" width="180" height="120"/>
+                    </td>
+                    
+                    
+                    <td style="border:none;text-align:right;">
+                        <h1 style="text-decoration: underline;">Tyre Collection Card</h1>
+                    </td>
+                    <td style="border:none;">
+                        <div style="text-align:right;font-size:10px;">
+                            Toll Free: 800 6006<br/>
+                            P.O. Box : 5757, Dubai, UAE<br/>
+                            Tel: 04-233 0680,Fax: 04-2872475<br/>
+                            retreadenquiries@et.ae<br/>
+                            www.et.gov.ae<br/>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+             
+             <table style="width: 100%;">
+                <tr>
+                    <th class="companyName">Collection Card No:&nbsp;{!objCollectioncard.Name} </th>
+                    <td class="companyName">Driver:&nbsp;{!objCollectioncard.Driver_Name__c}</td>
+                 </tr>
+                 
+                 <tr>
+                    <th class="companyName">Collection card Date:&nbsp;<apex:outputText value="{0,date,dd'/'MM'/'yyyy}">
+                                            <apex:param value="{!objCollectioncard.ETT_Collection_Date__c}" />
+                                        </apex:outputText></th> 
+
+                     <th class="companyName">Tyre Ins:&nbsp;{!objCollectioncard.ETT_Inspector__r.name}</th>
+                                        </tr>
+             </table>
+                  <br/><br/>
+                 
+                  <table style="width: 100%;">
+                 <tr>
+                       <th class="companyName">Customer: &nbsp;{!account.Name}  </th>
+                    
+                    <th class="companyName">Location:&nbsp; {!account.BillingStreet}</th>
+                     
+                    </tr>
+                 <tr>
+                    <th class="companyName"  >Reference:&nbsp;</th>
+                    
+               
+                    <th class="companyName">Contact Person:&nbsp;{!account.contacts[0].lastname}</th>
+                  </tr>
+                      <tr>
+                    <th class="companyName">Tel-:&nbsp;{!account.Phone}</th>
+                     <th class="companyName">Fax:&nbsp;{!account.Fax}</th>     
+                 </tr>
+                              
+             </table>
+             <br/><br/>
+            
+             <p style="font-size:100%;" >
+                 Special Instructions.....................
+             </p>
+                <table>
+            <thead>
+            <tr>
+                <th class="companyName">No.</th>
+                 <th class="companyName">Tyre Size</th>
+                <th class="companyName">Brand</th>
+                <th class="companyName">Pattern</th>
+                 <th class="companyName">Tyre SerialNo</th>
+                 <th class="companyName">PR</th>
+                 <th class="companyName">Load Index</th>
+                 <th class="companyName">S  Index</th>
+                <th class="companyName"> Country of Origin</th>
+                <th class="companyName">Remarks</th>
+            </tr>
+            </thead>
+            <tbody>
+                <apex:variable var="rowNum" value="{!0}"/>
+                    <apex:repeat value="{!tyreInventInfo}" var="item">
+                         
+            <tr>
+                 <td class="companyName">{!rowNum+1}</td>
+                 <td class="companyName">{!item.ETT_Tyre_Size_Master__r.name}</td>
+                 <td class="companyName">{!item.ETT_Brand__r.Name}</td>
+                <td class="companyName">{!item.ETT_Pattern__r.name}</td>
+                <td class="companyName">{!item.Serial_Number__c}</td>
+                <td class="companyName">{!item.Ply_Rate__c}</td>
+                 <td class="companyName">{!item.Load_Index__c}</td>
+                 <td class="companyName">{!item.S_Index__c}</td>
+                <td class="companyName">{!item.ETT_Country__r.name}</td>
+                <td class="companyName">{!item.Remarks__c}</td>
+                         
+        
+            </tr>
+                </apex:repeat>
+           <tr >
+                        <td height="290px">
+                            &nbsp;
+                        </td>
+                        <td> &nbsp;</td>
+                        <td> &nbsp;</td>
+                        <td> &nbsp;</td>
+                        <td> &nbsp;</td>
+                        <td> &nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td> &nbsp;</td>
+                        <td> &nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>     
+                
+</tbody>
+        </table>
+         &nbsp;
+           
+        <p style="font-size:100%;" >
+            Terms And Conditions:
+           1)The above tyre case collected subject to approval for retrading by the factory.
+The casing found unfit will be returned to the customer even after the Buffing
+2)Delivery within 7 days from the date of collection.
+             </p>
+       <table style="width: 100%;">
+           
+                 
+      <tr>
+          <th class="companyName">Customer Sign: &nbsp; &nbsp;</th>
+          <th class="companyName"> For Emirates Transport: &nbsp; &nbsp;</th>
+           </tr>
+            
+            
+             
+        </table> 
+        
+        
+     </center>    
+        
+    </body>
+    <footer>
+    <p style="text-align:center;font-size:12px;">
+     PO Box: 5757, Al Warsan, Dubai, UAE, Tel: 04-2330680, Fax: 04-2872475, Email: Retreadenquiries@et.ae, Call Center: 8006006
+  
+    </p>
+    </footer>
+</apex:page>

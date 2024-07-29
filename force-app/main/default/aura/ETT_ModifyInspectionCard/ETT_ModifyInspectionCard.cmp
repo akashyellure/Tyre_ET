@@ -1,0 +1,242 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" controller="ETT_TyreInspectionCardController" access="global">
+    
+    <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}" />
+    <aura:attribute name="TyreSizeName" type="String" />
+    <aura:attribute name="BrandName" type="String" />
+    <aura:attribute name="PatternName" type="String" />
+    <!--aura:attribute name="serialNoVal" type="String" /-->
+    <aura:attribute name="CountryName" type="String" />
+    <aura:attribute name="lstStgQuotation" type="ETT_Staging_Quotation_Request__c[]" />    
+    <aura:attribute name="lstTyreInventory" type="ETT_Tyre_Inventory__c[]" />
+    <aura:attribute name="isUserFM" type="boolean" default="false" />
+    <aura:attribute name="isUserHOO" type="boolean" default="false" />
+    <aura:attribute name="Price" type="Integer" />    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="updateLookupIdEvent" event="c:ETT_DynamicEvent" action="{!c.handleComponentEvent}" />
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Update Collection Details</h4>
+    </div>
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">
+            
+            <aura:if isTrue="{!v.isUserHOO==false}"> 
+                <table class="slds-border--left slds-border--right slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                    <thead>
+                        <tr class="slds-text-title_caps">
+                            <th scope="col" class="slds-text-align--center">
+                                <div title="Tyre Size" class="line_tit"><b>Tyre Size</b> </div>
+                            </th>
+                            <th scope="col" class="slds-text-align--center">
+                                <div title="Brand" class="line_tit"><b>Brand</b> </div>
+                            </th>
+                            <th scope="col" class="slds-text-align--center">
+                                <div title="Pattern" class="line_tit"><b>Pattern </b> </div>
+                            </th>
+                            <th scope="col" class="slds-text-align--center">
+                                <div title="Country Of Origion" class="line_tit"><b>Country Of Origion</b> </div>
+                            </th>
+                            <th scope="col" class="slds-text-align--center">
+                                <div title="Tyre Serial Number" class="line_tit"><b>Tyre Serial Number</b> </div>
+                            </th>
+                              <th scope="col" class="slds-text-align--center">
+                                <div title="Tyre Serial Number" class="line_tit"><b>Job type</b> </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.lstTyreInventory}" var="item" indexVar="index">
+                            <tr id="{!index}">
+                                <td data-label="TYRE SIZE" class="slds-cell-wrap">
+                                    <div style="width: 220px;">
+                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Tyre_Size_Master__c" 
+                                                                                 fieldName="ETT_Tyre_Size__c"  
+                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                 brandName="{!v.BrandName}"
+                                                                                 patternName="{!v.PatternName}"
+                                                                                 countryName="{!v.CountryName}"
+                                                                                 selectRecordId="{!item.ETT_Tyre_Size_Master__c}" 
+                                                                                 selectRecordName="{!item.ETT_Tyre_Size_Master__r.Name}" 
+                                                                                 rowNo="{!index}"
+                                                                                 required="true" iconName="standard:stage_collection"/>
+                                        
+                                    </div>
+                                </td>
+                                <td data-label="BRAND" class="slds-text-align--center ">
+                                    <div style="width: 220px;">
+                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Brand_Master__c" 
+                                                                                 fieldName="ETT_Brand_Name__c"  
+                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                 brandName="{!v.BrandName}"
+                                                                                 patternName="{!v.PatternName}"
+                                                                                 countryName="{!v.CountryName}"
+                                                                                 selectRecordId="{!item.ETT_Brand__c}" 
+                                                                                 selectRecordName="{!item.ETT_Brand__r.Name}" rowNo="{!index}"
+                                                                                 required="true" iconName="standard:brand"/> 
+                                    </div>
+                                </td>
+                                <td data-label="PATTERN	" class="slds-text-align--center">
+                                    <div style="width: 220px;"> <!--280px-->
+                                        
+                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Pattern_Master__c" 
+                                                                                 fieldName="ETT_Original_Pattern__c"  
+                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                 brandName="{!v.BrandName}"
+                                                                                 patternName="{!v.PatternName}"
+                                                                                 countryName="{!v.CountryName}"
+                                                                                 selectRecordId="{!item.ETT_Pattern__c}" 
+                                                                                 selectRecordName="{!item.ETT_Pattern__r.Name}" rowNo="{!index}"
+                                                                                 required="true" iconName="standard:steps"/> 
+                                        
+                                    </div>
+                                </td>
+                                <td data-label="COUNTRY OF ORIGION" class="slds-text-align--center">
+                                    <div style="width: 220px;">
+                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Country_Master__c" 
+                                                                                 fieldName="ETT_Country_Name__c"  
+                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                 brandName="{!v.BrandName}"
+                                                                                 patternName="{!v.PatternName}"
+                                                                                 countryName="{!v.CountryName}"
+                                                                                 selectRecordId="{!item.ETT_Country__c}" 
+                                                                                 selectRecordName="{!item.ETT_Country__r.Name }" rowNo="{!index}"
+                                                                                 required="true" iconName="standard:service_territory_location"/> 
+                                        
+                                        
+                                    </div>
+                                </td>
+                                <td data-label="Serial Number" class="slds-text-align--center">
+                                    <div style="width: 220px; margin-top:-19px">
+                                        <lightning:input
+                                                         name="serialNumber"
+                                                         type="text"
+                                                         value="{!item.Serial_Number__c}" placeholder="Tyre Serial No"
+                                                         />
+                                    </div>
+                                </td>
+                                <td data-label="Serial Number" class="slds-text-align--center">
+                                    <div style="width: 220px; margin-top:-19px">
+                                        <lightning:input
+                                                         name="serialNumber"
+                                                         type="text"
+                                                         value="{!item.Job_Type__c}" placeholder="Job type"
+                                                         />
+                                    </div>
+                                </td>
+                                
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>
+            </aura:if>
+            
+            <aura:if isTrue="{!v.isUserHOO}"> 
+                <table class="slds-border--left slds-border--right slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                    <thead>
+                        <tr class="slds-text-title_caps">
+                            <th>
+                                <b>Tyre Size</b>
+                            </th>
+                            <th>
+                                <b>Brand</b>
+                            </th>
+                            <th>
+                                <b>Pattern </b>
+                            </th>
+                            <th>
+                                <b>Country Of Origion</b>
+                            </th>
+                            <th>
+                                <b>Price</b>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.lstTyreInventory}" var="item" indexVar="index">
+                            <tr id="{!index}">
+                                <td>
+                                    {!item.ETT_Tyre_Size_Master__r.Name}
+                                </td>
+                                <td>
+                                    {!item.ETT_Brand__r.Name}
+                                </td>
+                                <td>
+                                    {!item.ETT_Pattern__r.Name}
+                                </td>
+                                <td>
+                                    {!item.ETT_Country__r.Name}
+                                </td>
+                                <td>
+                                    <lightning:input variant="label-hidden" type="text" value="{!v.Price}" />
+                                </td>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>
+            </aura:if>
+            
+            <aura:if isTrue="{!v.isUserFM}">  
+                
+                <table style="border:1px solid black;" class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                    <thead>
+                        <tr>
+                            <th>TYRE SIZE</th>
+                            <th>PURCHASE PRICE</th>
+                            <th>Min Price</th>	
+                            <th>Max Price</th>
+                            <aura:if isTrue="{!v.isUserFM}">
+                                <th>Action</th>
+                            </aura:if>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.lstStgQuotation}" var="item" indexVar="index">
+                            <tr>
+                                <td>{!item.ETT_Tyre_Size_Master__r.Name}</td>
+                                <td><lightning:input value="{!item.ETT_Purchase_Price__c}" required="true" /></td>
+                                <td>{!item.ETT_Min_Range__c}</td>
+                                <td>{!item.ETT_Max_Range__c}</td>
+                                <aura:if isTrue="{!v.isUserFM}">
+                                    <td>
+                                        <lightning:select  aura:id="approvalStage" value="{!item.ETT_Approve_Stage__c}" name="approvalList">
+                                            <option text="Select" value="" />    
+                                            <option text="Accept" value="Qualified" />
+                                        </lightning:select>
+                                    </td>
+                                </aura:if>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>
+                
+            </aura:if>
+            
+        </div>
+    </div>
+    
+    <div class="modal-footer slds-modal__footer">
+        <!--button groups-->
+        <div class="slds-no-flex">
+            <lightning:buttonGroup>
+                <lightning:button class="" variant="brand" label="Update" onclick="{!c.Update}" iconName="action:add_file" aura:id="start" />
+                
+                <aura:if isTrue="{!v.isUserHOO}">              
+                    <lightning:button class="" variant="brand" label="Request for Approval" onclick="{!c.requestForApproval}" iconName="action:add_file" aura:id="start" />
+                </aura:if>
+                
+                <aura:if isTrue="{!v.isUserFM}">              
+                    <lightning:button class="" variant="brand" label="Approve" onclick="{!c.priceApproval}" iconName="action:add_file" aura:id="start" />
+                </aura:if>
+                
+            </lightning:buttonGroup>
+        </div>
+    </div>
+    
+</aura:component>

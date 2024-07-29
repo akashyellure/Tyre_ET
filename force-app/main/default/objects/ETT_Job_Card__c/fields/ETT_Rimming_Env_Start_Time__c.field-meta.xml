@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ETT_Rimming_Env_Start_Time__c</fullName>
+    <externalId>false</externalId>
+    <label>Rimming &amp; Env Start Time</label>
+    <summarizedField>ETT_Job_Card_Line_Item__c.ETT_Overall_Start_time__c</summarizedField>
+    <summaryFilterItems>
+        <field>ETT_Job_Card_Line_Item__c.RecordTypeId</field>
+        <operation>equals</operation>
+        <value>Rimming &amp; Enveloping</value>
+    </summaryFilterItems>
+    <summaryForeignKey>ETT_Job_Card_Line_Item__c.ETT_Job_Card__c</summaryForeignKey>
+    <summaryOperation>min</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

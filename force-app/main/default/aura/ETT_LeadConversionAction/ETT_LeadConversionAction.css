@@ -1,0 +1,21 @@
+.THIS h2#modal-heading-01 {
+    border-bottom: 1px solid #f2f2f2;
+    font-size: 16px;
+    font-weight: 500!important;
+    padding: 1rem;
+}
+.THIS .outer-div {
+    position: relative;
+}
+
+.THIS .spinner2 {
+   position: absolute;
+}
+.THIS .spinner2::after {
+    position: absolute;
+    content: 'Lead Conversion in progress';
+    width: 100%;
+    text-align: center;
+    top: calc(50% + 3em);
+    font-weight: bold;
+}

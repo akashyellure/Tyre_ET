@@ -1,0 +1,68 @@
+.THIS .slds-leftpad{
+    padding-left: 2rem;
+}
+
+.THIS .leftspace input {
+    padding-left:2rem;
+}
+.THIS .slds-listbox .slds-media__figure{
+    margin-top: 0px;
+}
+.THIS .slds-listbox .slds-listbox__option-text{
+    padding-top: 5px;
+}
+.THIS .slds-icon-utility-search{
+    padding-top: 0px;
+    margin-top: 0px;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+}
+.THIS .slds-table th {
+    white-space: break-spaces;
+}
+.THIS .slds-icon-text-default{
+    line-height: normal;
+}
+.THIS .slds-combobox_container {
+    padding: .5rem 1rem!important;
+}
+.THIS .slds-form-element__control {
+    display: block;
+    float: left;
+    width: 100%;
+    padding: 0!important;
+    clear: both;
+    height: inherit!important;
+}
+.THIS label.slds-form-element__label.slds-no-flex {
+    color: #fff!important;
+}
+.THIS .slds-dropdown{
+    margin: 0rem;
+    width: 94.5%;
+    margin-top: -.5rem;
+}
+.THIS lightning-icon.slds-icon.slds-icon_small.slds-icon-text-default.slds-icon-utility-clear.slds-icon_container {
+    padding: 1rem 0;
+}
+.THIS span.slds-icon_container.slds-icon-utility-search.slds-input__icon.slds-input__icon_right.iconheight {
+    margin: 1.35rem 0.35rem;
+}
+.THIS span.slds-icon_container.slds-icon-utility-search.slds-input__icon.iconheight {
+    margin: 1.4rem 0.15rem;
+}
+.THIS button.slds-input__icon.slds-input__icon_right.slds-button.slds-button_icon.iconheight {
+    box-shadow: none;
+}
+@media only screen and (max-width: 480px) {
+    .THIS .slds-combobox_container {
+        padding: .5rem 0rem!important;
+    }
+    .THIS label.slds-form-element__label.slds-no-flex {
+        color: #364c9b!important;
+        font-size: 13px!important;
+        text-transform: capitalize!important;
+        padding-bottom: 3px;
+    }
+}

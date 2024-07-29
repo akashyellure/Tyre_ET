@@ -1,0 +1,67 @@
+.THIS .processlink{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+.THIS .skilledsec{
+    position: relative;
+    padding-top: 1rem;
+    padding-bottom: 0rem;
+    display: inline-block;
+}
+.THIS .firstsec , .THIS .Secondsec , .THIS .thirdsec{
+    position: relative;
+    display: inline-block;
+    width: 33.33%;
+    float: left;
+}
+.THIS .slds-card__footer{
+    clear:both;
+    text-align: center;
+}
+.THIS .Secondsec .slds-form-element__control {
+    clear: left;
+    position: relative;
+    padding-bottom: 5px;
+}
+.THIS ol.slds-list_ordered li {
+    padding-bottom: 5px;
+}
+.THIS .slds-modal_small .slds-modal__container {
+    min-width: 99%!important;
+}
+.THIS .selectall{
+    padding-left:40%; 
+}
+.THIS .selectall .checkdiv{
+    display: inline-block;
+    float: left;
+    margin-right:10px;
+    padding-top: 10px;
+}
+.THIS .selectall .checkdtext{
+    display: inline-block;
+    float: left;
+    padding-top: 10px;
+    margin-right:10px;
+}
+.THIS .selectall button{
+    display: inline-block;
+    float: left;
+}
+@media only screen and (max-width: 1024px) {
+    .THIS .firstsec, .THIS .Secondsec, .THIS .thirdsec {
+        width: 50%;
+    }
+    .THIS ol.slds-list_ordered li {
+        padding-bottom: 0px;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .THIS .firstsec, .THIS .Secondsec, .THIS .thirdsec {
+        width: 100%;
+    }
+    .THIS ol.slds-list_ordered li {
+        padding-bottom: 5px;
+    }
+}

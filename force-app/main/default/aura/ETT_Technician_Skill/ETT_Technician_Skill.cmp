@@ -1,0 +1,172 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+  
+   <!-- <ltng:require styles="{!$Resource.ModalWidthCSS}"/>-->
+    <aura:attribute name="options" type="List" />
+    <aura:attribute name="value" type="List" default=""/>
+<!--    <aura:attribute name="isJobDisabled" type="boolean" default="true"/> -->
+    <aura:attribute name="isJobDisabled" type="boolean" default="true"/> 
+    <aura:attribute name="WearRequiredPPT" type="boolean" default="false"/> 
+    <aura:attribute name="isTechnicianInspectionOpen" type="boolean" default="false"/> 
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="allcheckboxes" type="boolean" default="false"/> 
+    <aura:attribute name="currentTime" type="String" /> 
+    
+    <aura:attribute name="TyreInspectionRecord" type="Object" />
+    <aura:attribute name="TyreInspectionLoadError" type="String" /> 
+    
+    <force:recordData aura:id="TyreInspectionRecord" 
+                      recordId="{!v.recordId}" 
+                      fields="Id,ETT_Account__c,
+                              ETT_Brand__c,
+                              ETT_Pattern__c,
+                              ETT_Tyre_Size__c,
+                              ETT_Country__c,
+                              ETT_Collection_Card__r.ETT_Estimation_Completed_By_HOO__c,
+                              RecordTypeId,
+                              RecordType.Name,
+                              Tyre_Life__c,
+                              ETT_Status__c" 
+                      targetFields="{!v.TyreInspectionRecord}" 
+                      targetError="{!v.TyreInspectionLoadError}"
+                      /> <!-- //ETT_Collection_Line_Item__c, -->
+    <aura:handler name="sampleCmpEvent" event="c:ETI_Technician_Inspection_Event" action="{!c.closePopUp}"/>
+    <aura:handler value="{!this}" name="init" action="{!c.doInit}" />
+    
+    
+    
+    <aura:if isTrue="{!v.TyreInspectionRecord.ETT_Status__c eq 'Not Inspected'}">
+        <aura:html tag="style">
+        .slds-modal__container{
+        width: 80%;
+        max-width: 60rem;
+        }
+         .modal-body{
+        height : 500px !important;
+        max-height:500px !important;
+        }
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }       
+        .slds-modal__content{
+        overflow-y:auto !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .btnsend {
+        background: #fe864d;
+        border: 1px solid #fe864d;
+        outline: none;
+        box-shadow: none;
+        margin: 1rem;
+        }
+        .slds-border_bottom {
+        border-bottom: 1px solid #f2f2f2;
+        }
+        .slds-modal__close {
+        top: .5rem;
+        right: .5rem;
+        border: 1px solid #d4d4d4;
+        }
+        .slds-modal__close svg.slds-button__icon.slds-button_icon-inverse {
+        fill: #000;
+        }    
+    </aura:html>
+
+        <lightning:card  title="Technician Skill" class="">
+            
+            
+            <lightning:recordEditForm aura:id="inspRec" recordId="{!v.recordId}" objectApiName="ETT_Inspection_Card__c">
+                
+                <lightning:inputField style="display:none" fieldName="ETT_Start_Time__c" value="{!v.currentTime}" />
+            </lightning:recordEditForm>
+           
+            <a target="_blank" class="processlink" href="{!$Resource.ETI_Inspection_Process}" title="Process Tutorial">Process Tutorial</a>
+            
+            <div class="skilledsec">
+                <div class="firstsec">
+                    <div class="slds-form-element ">
+                        <div class="slds-form-element__control">
+                            <div class="slds-checkbox">
+                                <abbr class="slds-required" title="required">*</abbr>
+                                <input type="checkbox" name="options" id="WearRequiredPPT" value="WearRequiredPPT" checked="{!v.allcheckboxes}" aria-describedby="error_01" onclick="{!c.onCheck}"/>
+                                
+                                <label class="slds-checkbox__label" for="WearRequiredPPT">
+                                    <span class="slds-checkbox_faux"></span>
+                                    <span class="slds-form-element__label">Wear Required PPT</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__help slds-hide" id="error_01">This field is required</div>
+                    </div>
+                    <img src="{!$Resource.Technician_Skill}" width="400" height="200" style="padding-left: 5%;"/>
+                </div>
+                <aura:iteration items="{!v.options}" var="sf" indexVar="i">
+                    <div class="slds-form-element Secondsec">
+                        <div class="slds-form-element__control">
+                            <div class="slds-checkbox">
+                                <abbr class="slds-required" title="required">*</abbr>
+                                <input value="{!i}" type="checkbox" name="options" aura:id="{!sf.label}" id="{!sf.label}" checked="{!v.allcheckboxes}"  aria-describedby="error_01" onclick="{!c.onCheck}"/>
+                                 <!-- lightning:input aura:id="{!sf.label}" type="checkbox" value="{!i}"/ -->
+                                <label class="slds-checkbox__label" for="{!sf.label}">
+                                    <span class="slds-checkbox_faux"></span>
+                                    <span class="slds-form-element__label">{!sf.label}</span>
+                                </label>
+                            </div>
+                        </div>
+                        <ol class="slds-list_ordered" type="a">
+                            <aura:iteration items="{!sf.subitem}" var="item" >
+                                <li>{!item.label}</li>
+                            </aura:iteration>
+                        </ol>
+                        <div class="slds-form-element__help slds-hide" id="error_01">This field is required</div>
+                    </div>
+                </aura:iteration>
+                
+            </div>
+            <aura:set attribute="footer" >
+                <div class="selectall">                    
+                    <div class="checkdiv"><input type="checkbox" name="options" id="allCheckBox" value="" aria-describedby="error_01" onclick="{!c.handleCheckAllBox}"/></div>
+                    <div class="checkdtext">Select All </div>
+                    <lightning:button disabled="{!v.isJobDisabled}" class="uiButton--brand" variant="success" label="Start Job" title="Start Job" onclick="{! c.startJob }"/>
+                </div>
+            </aura:set>
+            
+            
+            <aura:if isTrue="{!v.isTechnicianInspectionOpen}">
+                <c:ETT_Technician_Inspection recordId="{!v.recordId}" tyreLife="{!v.TyreInspectionRecord.Tyre_Life__c}" />
+            </aura:if>      
+            
+        </lightning:card>
+      
+    </aura:if> 
+
+
+    <aura:if isTrue="{!v.TyreInspectionRecord.ETT_Collection_Card__r.ETT_Estimation_Completed_By_HOO__c}">
+        <div style="font-size: 18px;color: red;text-align: center;margin-top: 25px;">
+            You can not update this Inspection Card.
+        </div>
+        <aura:set attribute="else">
+            
+            
+            <aura:if isTrue="{!v.TyreInspectionRecord.ETT_Status__c eq 'Accept' ||
+                             v.TyreInspectionRecord.ETT_Status__c eq 'Send Back' ||
+                             v.TyreInspectionRecord.ETT_Status__c eq 'Scrap' ||
+                             v.TyreInspectionRecord.ETT_Status__c eq 'Accepted'}">
+                <div style="font-size: 18px;color: red;text-align: center;margin-top: 25px;">
+                    This Inspection Card is already inspected by the Inspection Team.
+                </div>
+                <lightning:card  title="Technician Skill" class="">
+                  <!--  
+                    <c:ETT_Technician_Inspection_Update recordId="{!v.recordId}" tyreLife="{!v.TyreInspectionRecord.ETT_Tyre_Life__c}" />
+                    -->
+                </lightning:card>
+            </aura:if> 
+        </aura:set>
+    </aura:if>
+    
+    
+    
+</aura:component>

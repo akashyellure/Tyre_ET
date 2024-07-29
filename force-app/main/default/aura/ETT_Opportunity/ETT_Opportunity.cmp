@@ -1,0 +1,36 @@
+<aura:component controller="ETT_opportunity_RecordType_Controller"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="availableRecordTypes" type="List" />
+    <aura:attribute name="recordTypeId" type="String" default=""/>
+    <aura:attribute name="loading" type="Boolean"/>
+    <aura:attribute name="retrievedTypes" type="Boolean"/>
+    <aura:renderIf isTrue="{!v.retrievedTypes}">
+        <fieldset class="slds-form-element">
+            <aura:if isTrue="{!v.loading}">
+                <lightning:spinner variant="brand"  size="large" />
+            </aura:if>
+            <table>
+                <tr><td width="25%">
+                    <legend class="slds-form-element__legend slds-form-element__label"><b>Select a Record Type</b></legend></td>
+                    <div class="slds-form-element__control">
+                        <aura:iteration items="{!v.availableRecordTypes}" var="type" indexVar="key">
+                            <span class="slds-radio">
+                                <input id="{!'radio-'+type.value}" value="{!type.value}" name="options" type="radio" onchange="{!c.optionSelected}"/>
+                                <label class="slds-radio__label" for="{!'radio-'+type.value}">
+                                    <span class="slds-radio_faux"></span>
+                                    <span class="slds-form-element__label"><b>{!type.name}</b></span><br></br>
+                                    <!--<div class="slds-p-left_xx-large">
+                                        <span class="slds-form-element__label"><b>{!type.value}</b></span><br></br>
+                                    </div>-->
+                                </label>
+                            </span>
+                            <br></br> 
+                        </aura:iteration>
+                    </div>
+                </tr>
+            </table>
+        </fieldset>
+    </aura:renderIf>
+</aura:component>

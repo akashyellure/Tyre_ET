@@ -1,0 +1,67 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" controller="ETT_CollectionLineItemController" access="global">
+    
+    <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}" />
+    
+    <aura:attribute name="lstJobCard" type="List"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Close Job Card</h4>
+    </div>
+    
+    <div class="slds-modal__content">
+        <div class="slds-scrollable_x">
+            <table style="border:1px solid black;" class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                <thead>
+                    <tr>
+                        <th><ui:inputCheckbox aura:id="checkEstimation" value="true"/></th>
+                        <th>Job Card</th>
+                        <th>Item Code</th>
+                        <th>Item Description</th>
+                        <th>UOM</th>
+                        <th>Factory Stock</th>
+                        <th>Allocated Stock</th>
+                        <th>Unallocated Stock</th>                    
+                        <th>Issued Qty</th>
+                        <th>JC Stage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.lstJobCard}" var="item" indexVar="index">
+                        <tr>
+                            <td><ui:inputCheckbox aura:id="checkEstimation" value="true"/></td>
+                            <td>{!item.jobCardName}</td>
+                            <td>{!item.materialName}</td>
+                            <td>{!item.itemDescription}</td>
+                            <td>{!item.unitType}</td>
+                            <td>{!item.factoryStock}</td>
+                            <td>{!item.allocatedStock}</td>
+                            <td>{!item.unAllocatedStock}</td>                        
+                            <td><lightning:input name="input1" value="{!item.UsageValue}" /></td>
+                            <td>{!item.jobStageName}</td>
+                        </tr>
+                        
+                        
+                    </aura:iteration>
+                </tbody>
+            </table>        
+        </div>
+    </div>
+    
+    
+    <div class="modal-footer slds-modal__footer">
+        
+        <lightning:button variant="Brand" class="slds-button" label="Submit" onclick="{!c.submit}"/>
+        <lightning:button variant="Neutral" class="slds-button" label="Cancel" onclick="{!c.handleClose}"/>
+
+    </div>
+    
+    
+</aura:component>

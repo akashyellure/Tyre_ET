@@ -1,0 +1,189 @@
+.THIS#parentDIV{
+    border: 5px solid;
+    border-radius: 6px;
+    background: beige;
+    height: 50px;
+    margin: 5px;
+    padding: 2px;
+}
+.THIS * {
+    box-sizing: border-box; 
+}
+.THIS .btn_next button {
+    min-width: 120px;
+}
+.THIS .input-group .lightningInput {
+    display: inline-block;
+    margin-right: 10px;
+}
+.THIS .slds-modal__container {
+    width: 85%;
+    max-width: 90%;
+    min-width: 85%;
+    margin:auto;
+}
+.THIS .slds-card__body {
+    height: auto;
+    margin-bottom: 0;
+    /*overflow:auto;*/
+    padding:0rem .75rem;
+}
+.THIS .slds-modal__close {
+    width: 2rem;
+    height: 2rem;
+    position: absolute;
+    top: -15px;
+    right: -10px;
+    background-color: transparent;
+    border-radius: 50%;
+    float: right;
+    z-index: 15;
+}
+.THIS .slds-p-around_medium, .THIS .slds-p-around--medium {
+    padding: 0px; 
+}
+.THIS .slds-button_icon-inverse{
+    background: #004487;
+    color: #fff;
+}
+.THIS .slds-backdrop {
+    background: transparent;
+}
+.THIS .processlink{
+    position: absolute;
+    text-align: right;
+    float: right;
+    display: inline-block;
+    background: #f2f2f2;
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #000;
+    border-radius: 5px;
+    line-height: 1;
+    top: 5px;
+    right: 10px;
+}
+.THIS .requiredskillsetlink{
+    position: absolute;
+    text-align: right;
+    float: right;
+    margin-right: 10px;
+    display: inline-block;
+    background: #f2f2f2;
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #000;
+    border-radius: 5px;
+    line-height: 1;
+    top: 5px;
+    right: 120px;
+}
+.THIS .skilledsec{
+    position: relative;
+    padding-top: 1rem;
+    padding-bottom: 0rem;
+    text-align: -webkit-center;
+    text-align: center;
+}
+.THIS .firstsec , .THIS .Secondsec , .THIS .thirdsec{
+    position: relative;
+    width: 40%;
+    display: inline-block;
+    vertical-align: top;
+}
+.THIS .slds-card__footer{
+    clear:both;
+    text-align: center;
+}
+.THIS .Secondsec .slds-form-element__control {
+    clear: left;
+    position: relative;
+    padding-bottom: 5px;
+}
+.THIS ol.slds-list_ordered li {
+    padding-bottom: 5px;
+}
+.THIS .slds-modal_small .slds-modal__container {
+    min-width: 99%!important;
+}
+.THIS .selectall{
+    padding-left:40%; 
+}
+.THIS .selectall .checkdiv{
+    display: inline-block;
+    float: revert;
+    margin-right:10px;
+    padding-top: 10px;
+}
+.THIS .selectall .checkdtext{
+    display: inline-block;
+    float: revert;
+    padding-top: 10px;
+    margin-right:10px;
+}
+.THIS .selectall button{
+    display: inline-block;
+    float: right;
+}
+.THIS .holdReason{
+    width:200px;
+}
+.THIS .check_section .slds-col {
+    width: 50%;
+    display: inline-block;
+}
+.THIS .check_section .Station{
+    display: block;
+    width: 100%;
+    margin-bottom: .5rem;
+}
+.THIS .nextcheck .Secondsec{
+    width:100%;
+}
+.THIS .nextcheck .Secondsec li {
+    padding-left: 2.1rem;
+}
+@media only screen and (max-width: 1024px) {
+    .THIS .firstsec, .THIS .Secondsec, .THIS .thirdsec {
+        width: 50%;
+    }
+    .THIS ol.slds-list_ordered li {
+        padding-bottom: 0px;
+    }
+}
+@media only screen and (max-width: 992px) {
+    .THIS .slds-card__header-title{
+        width:50%;
+    }
+    .THIS .check_section .slds-col {
+        width: 100%;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .THIS .firstsec, .THIS .Secondsec, .THIS .thirdsec {
+        width: 100%;
+    }
+    .THIS ol.slds-list_ordered li {
+        padding-bottom: 5px;
+    }
+    .THIS .slds-card__header-title{
+        width:100%;
+    }
+    .THIS .slds-grid.slds-wrap.check_section {
+        display: block;
+        width: 100%;
+        clear: both;
+        padding-top: 0rem;
+    }
+    .THIS .processlink{
+        position: relative;
+        top: 0px;
+    }
+    .THIS .requiredskillsetlink{
+        position: relative;
+        top: 0px;
+        right: 5px;
+    }
+}

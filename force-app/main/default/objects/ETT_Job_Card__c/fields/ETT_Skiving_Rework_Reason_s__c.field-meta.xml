@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ETT_Skiving_Rework_Reason_s__c</fullName>
+    <externalId>false</externalId>
+    <label>Defect(s) Identified On Skiving</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Rm Not Correct</fullName>
+                <default>false</default>
+                <label>Rm Not Correct</label>
+            </value>
+            <value>
+                <fullName>Doubtful RMA Perfection</fullName>
+                <default>false</default>
+                <label>Doubtful RMA Perfection</label>
+            </value>
+            <value>
+                <fullName>Rm Not Correct(Temp)</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Rm Not Correct(Temp)</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

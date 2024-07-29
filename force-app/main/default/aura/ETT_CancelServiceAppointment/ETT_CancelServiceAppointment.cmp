@@ -1,0 +1,38 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global">
+
+     <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}" />
+   
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Cancel the Service Appointment</h4>
+    </div>
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">
+            
+            <table>
+                <tr>
+                    <td>
+                        <lightning:textarea aura:id="rejectionReason" required="true" value="" label="Please enter the Service Appointment Rejection Reason..." />
+                    </td>
+                </tr>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="modal-footer slds-modal__footer">
+        <lightning:button variant="Brand"
+                          class="slds-button"
+                          label="Cancel Service Appointment"
+                          onclick="{!c.submit}"
+                          />
+    </div>
+	
+</aura:component>

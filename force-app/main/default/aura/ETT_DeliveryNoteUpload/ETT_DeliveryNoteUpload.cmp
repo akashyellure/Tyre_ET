@@ -1,0 +1,48 @@
+<aura:component controller="ETT_DeliveryAppointmentController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global" >
+    
+    <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+    </aura:html>
+    <!--<ltng:require styles="{!$Resource.ModalWidthCSS}" />    -->
+    <aura:attribute name="fileToBeUploaded" type="Object[]"/>
+    <aura:attribute name="accept" type="List" default="['.png', '.jpg', '.jpeg','.pdf,.doc']"/>
+    
+    <aura:attribute name="fileUploadWrapper" type="ETT_FileUploadWrapper[]"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="fileNames" type="string[]"  />
+    <aura:attribute name="isfileNamesPresent" type="boolean" default="false"  />
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Upload Delivery Note</h4>
+    </div>
+    
+    <div class="slds-modal__content">
+        
+        <div class="slds-box">
+            <lightning:input aura:id="uploadSigneDeliveryNote" 
+                             type="file"
+                             files="{!v.fileToBeUploaded}"
+                             onchange="{!c.onFileUploaded}"
+                             accept="{!v.accept}"
+                             label="Upload Signed Delivery Note"
+                             name="uploadSigneDeliveryNote" 
+                             multiple="true"/> 
+            <aura:if isTrue="{!v.isfileNamesPresent}">
+                 <aura:iteration items="{!v.fileNames}" var="filename">
+                         
+                     <span>{!filename}</span><br/>
+                           
+                </aura:iteration>
+           
+            </aura:if>
+            <span id="uploadSigneDeliveryNoteErr" style="color:red;"></span>
+        </div>
+    </div>
+    
+    <div class="modal-footer slds-modal__footer">
+        <lightning:button class="submit" variant="brand" label="Submit" title="Submit" onclick="{! c.submit }" />
+    </div>
+    
+</aura:component>

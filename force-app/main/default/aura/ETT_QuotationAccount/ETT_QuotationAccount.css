@@ -1,0 +1,21 @@
+.THIS .title{
+    font-size:30px;
+    text-align: center;
+    margin-top: 2%;
+}
+
+.THIS .boxcss{
+    border: 1px solid black !important;
+    padding: 2% !important;
+}
+
+.THIS th{
+    font-weight:bold;
+}
+.THIS .outer-div {
+    position: relative;
+}
+
+.THIS .spinner2 {
+   position: absolute;
+}

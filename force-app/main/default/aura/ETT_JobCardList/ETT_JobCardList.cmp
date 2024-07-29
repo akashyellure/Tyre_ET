@@ -1,0 +1,669 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" controller="ETT_JobCardListController">
+    <aura:attribute name="validJobCardWrapper" type="ETT_JobCardListController.JobWrapper"/> 
+    <aura:attribute name="recordError" type="String"/>
+    <aura:attribute name="showJobView_Buffing" type="Boolean" default="false"/>
+    <aura:attribute name="showJobView_Skiving" type="Boolean" default="false"/>
+    <aura:attribute name="showJobView_Repair" type="Boolean" default="false"/>   
+    <aura:attribute name="showJobView_Cementing" type="Boolean" default="false"/>       
+    <aura:attribute name="showJobView_Filling" type="Boolean" default="false"/>    
+    <aura:attribute name="showJobView_ThreadPreparation" type="Boolean" default="false"/>
+    <aura:attribute name="showJobView_Building" type="Boolean" default="false"/>
+    <aura:attribute name="showJobView_RimmingEnveloping" type="Boolean" default="false"/>    
+    <aura:attribute name="showJobView_Curing" type="Boolean" default="false"/>        
+    <aura:attribute name="showJobView_FinalInspection" type="Boolean" default="false"/>        
+    <aura:attribute name="showJobView_RemovalOfRIMTubeFlap" type="Boolean" default="false"/>            
+    <aura:attribute name="showJobView_Painting" type="Boolean" default="false"/>            
+    <aura:attribute name="showJobView_QualityControl" type="Boolean" default="false"/>            
+    
+    
+    
+    <aura:attribute name="selectedJobCardId" type="String"/>
+    <aura:attribute name="jobCardRecord" type="Object"/>
+    <aura:attribute name="recordLoadError" type="String"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>    
+    <aura:handler event="c:ETT_JobCardUpdate" action="{!c.doInit}" name="refreshJobCardList"/>
+    
+    <div class="slds-page-header">
+        <div class="slds-page-header__row">
+            <div class="slds-page-header__col-title">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <span class="slds-icon_container" title="Job Cards">
+                            <lightning:icon iconName="standard:employee_job_position" alternativeText="Job Cards" title="Job Cards" />
+                            <span class="slds-assistive-text">Job Cards</span>
+                        </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-page-header__name">
+                            <div class="slds-page-header__name-title">
+                                <h1><span class="slds-page-header__title slds-truncate" title="Job Cards belongs to Current Work Station">Display Job Cards related to Current Work Station</span></h1>
+                            </div>
+                        </div>
+                        <p class="slds-page-header__name-meta">Job Card lists will get refresh every 20s to update the queue.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <lightning:card>        
+        <aura:if isTrue="{!v.validJobCardWrapper.currentWorkSchedule.Name eq null}">
+            No Work Schedule Allocated. Please check with Supervisor for help.
+            <aura:set attribute="else">
+                <div class="c-container" style="padding-left:10px;padding-right:10px">
+                    <lightning:layout horizontalAlign="spread">
+                        <lightning:layoutItem flexibility="auto">
+                            <div class="header-column">
+                                <p class="field-title" title="Station Code"><b>Station Code:</b>&nbsp;&nbsp;{!v.validJobCardWrapper.currentWorkSchedule.ETT_Work_Station__r.ETT_Station_Code__c}</p>
+                            </div>
+                        </lightning:layoutItem>
+                        <lightning:layoutItem flexibility="auto">
+                            <div class="header-column">
+                                <p class="field-title" title="Station Type"><b>Station Type:</b>&nbsp;&nbsp;{!v.validJobCardWrapper.currentWorkSchedule.ETT_Work_Station__r.ETT_Station_Type__c}</p>
+                            </div>
+                        </lightning:layoutItem>
+                        <lightning:layoutItem flexibility="auto">
+                            <div class="header-column">
+                                <p class="field-title" title="Technician Name"><b>Technician Name</b>:&nbsp;&nbsp;{!v.validJobCardWrapper.currentWorkSchedule.ETT_Technician__r.Name}</p>
+                            </div>
+                        </lightning:layoutItem>
+                        <lightning:layoutItem flexibility="auto">
+                            <div class="header-column">
+                                <p class="field-title" title="Work Schedule"><b>Work Schedule:</b>&nbsp;&nbsp;<ui:outputDateTime value="{!v.validJobCardWrapper.currentWorkSchedule.ETT_Start_time__c}"/> - <ui:outputDateTime value="{!v.validJobCardWrapper.currentWorkSchedule.ETT_End_time__c}"/></p>
+                            </div>
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                </div>
+            </aura:set>
+            <br/>
+        </aura:if>
+    </lightning:card>
+    
+    <aura:if isTrue="{!empty(v.validJobCardWrapper.validJobCardList)}">
+        <lightning:card>
+            No Job Cards To Display
+        </lightning:card>
+    </aura:if>
+    
+    <aura:iteration items="{!v.validJobCardWrapper.validJobCardList}" var="item" indexVar="i">            
+        <lightning:card title="{!item.ETT_Main_Job_Card__r.Name eq null ? item.Name : item.ETT_Main_Job_Card__r.Name}">
+            <aura:set attribute="actions">
+                <lightning:button variant="brand" label="Open" title="Open to view" onclick="{!c.openJobDetail}" name="{!item.Id}"/>
+            </aura:set>
+            <p class="slds-p-horizontal_small">
+                <lightning:recordViewForm recordId="{!item.Id}" objectApiName="ETT_Job_Card__c">
+                    <div class="slds-grid slds-wrap">
+                        <aura:if isTrue="{!item.ETT_Stages__c eq 'Thread Preparation'}">
+                            <div class="slds-col slds-size_2-of-12">
+                                <ui:outputText value="Job Card Number" class="slds-form-element__label"/>	
+                            </div>
+                            <div class="slds-col slds-size_2-of-12">
+                                <ui:outputText value="{!item.ETT_Main_Job_Card__r.Name}"/>
+                            </div>
+                            <aura:set attribute="else">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="Name" />
+                                </div>  
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Stages__c" />
+                                </div>
+                            </aura:set>
+                        </aura:if>
+                        <div class="slds-col slds-size_4-of-12">
+                            <lightning:outputField fieldName="ETT_Priority__c" />
+                        </div> 
+                        <aura:if isTrue="{!and(not(item.ETT_Previous_Job_Stage__c eq null),not(item.ETT_Previous_Job_Stage__c eq ''))}">
+                            <div class="slds-col slds-size_4-of-12">
+                                <lightning:outputField fieldName="ETT_Previous_Job_Stage__c" />    
+                            </div>
+                        </aura:if>
+                        <aura:if isTrue="{!item.ETT_Stages__c eq 'Buffing'}">
+                            <div class="slds-col slds-size_4-of-12">
+                                <lightning:outputField fieldName="ETT_Buffing_Status__c" /> 
+                            </div>
+                            <aura:if isTrue="{!item.ETT_No_of_Buffing_revisions__c > 1}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_No_of_Buffing_revisions__c" /> 
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Buffing_Technician_Rejection_Remarks__c" />
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Buffing_Rejection_Manager_Remarks__c" />
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Skiving'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Skiving_Rework_Reason_s__c" />    
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Repair'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Repair_Rework_Reason_s__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Cementing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Cementing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Filling'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Filling__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Building'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Building__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Rimming &amp; Enveloping'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Rimming_Env__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Curing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Curing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Final Inspection'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_Identified_Final_Inspection__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Painting'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Painting__c" /> 
+                                </div>
+                            </aura:if>
+                        </aura:if>
+                        <aura:if isTrue="{!item.ETT_Stages__c eq 'Skiving'}">
+                            <div class="slds-col slds-size_4-of-12">
+                                <lightning:outputField fieldName="ETT_Skiving_Status__c" /> 
+                            </div>
+                            <aura:if isTrue="{!item.ETT_No_of_Skiving_revisions__c > 1}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_No_of_Skiving_revisions__c" /> 
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Skiving_Technician_Rejection_Remarks__c" />
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Skiving_Rejection_Manager_Remarks__c" />
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Skiving'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Skiving_Rework_Reason_s__c" />    
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Repair'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Repair_Rework_Reason_s__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Cementing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Cementing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Filling'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Filling__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Building'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Building__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Rimming &amp; Enveloping'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Rimming_Env__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Curing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Curing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Final Inspection'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_Identified_Final_Inspection__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Painting'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Painting__c" /> 
+                                </div>
+                            </aura:if>
+                        </aura:if>
+                        
+                        <aura:if isTrue="{!item.ETT_Stages__c eq 'Repair'}">
+                            <div class="slds-col slds-size_4-of-12">
+                                <lightning:outputField fieldName="ETT_Repair_Status__c" /> 
+                            </div>
+                            <aura:if isTrue="{!item.ETT_No_of_Repair_Revisions__c > 1}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_No_of_Repair_Revisions__c" /> 
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Repair_Technician_Rejection_Remarks__c" />
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Repair_Rejection_Manager_Remarks__c" />
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Skiving'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Skiving_Rework_Reason_s__c" />    
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Repair'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Repair_Rework_Reason_s__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Cementing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Cementing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Filling'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Filling__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Building'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Building__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Rimming &amp; Enveloping'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Rimming_Env__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Curing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Curing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Final Inspection'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_Identified_Final_Inspection__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Painting'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Painting__c" /> 
+                                </div>
+                            </aura:if>
+                        </aura:if>
+                        <aura:if isTrue="{!item.ETT_Stages__c eq 'Cementing'}">
+                            <div class="slds-col slds-size_4-of-12">
+                                <lightning:outputField fieldName="ETT_Cementing_Status__c" /> 
+                            </div>
+                            <aura:if isTrue="{!item.ETT_No_of_Cementing_Revisions__c > 1}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_No_of_Cementing_Revisions__c" /> 
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Cementing_Technici_Rejection_Remarks__c" />
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Cementing_Rejection_Manager_Remarks__c" />
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Skiving'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Skiving_Rework_Reason_s__c" />    
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Repair'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Repair_Rework_Reason_s__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Cementing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Cementing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Filling'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Filling__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Building'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Building__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Rimming &amp; Enveloping'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Rimming_Env__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Curing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Curing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Final Inspection'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_Identified_Final_Inspection__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Painting'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Painting__c" /> 
+                                </div>
+                            </aura:if>
+                        </aura:if>
+                        
+                        <aura:if isTrue="{!item.ETT_Stages__c eq 'Filling'}">
+                            <div class="slds-col slds-size_4-of-12">
+                                <lightning:outputField fieldName="ETT_Filling_Status__c" /> 
+                            </div>
+                            <aura:if isTrue="{!item.ETT_No_of_Filling_Revisions__c > 1}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_No_of_Filling_Revisions__c" /> 
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Filling_Technician_Rejection_Remarks__c" />
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Filling_Rejection_Manager_Remarks__c" />
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Skiving'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Skiving_Rework_Reason_s__c" />    
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Repair'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Repair_Rework_Reason_s__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Cementing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Cementing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Filling'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Filling__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Building'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Building__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Rimming &amp; Enveloping'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Rimming_Env__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Curing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Curing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Final Inspection'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_Identified_Final_Inspection__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Painting'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Painting__c" /> 
+                                </div>
+                            </aura:if>
+                        </aura:if>
+                        <aura:if isTrue="{!item.ETT_Stages__c eq 'Thread Preparation'}">
+                            <!-- this 2 below containers are specific to thread stage and not applies to other stages-->   
+                            <div class="slds-col slds-size_2-of-12">
+                                <ui:outputText value="Current Job Card Stage" class="slds-form-element__label"/>	
+                            </div>
+                            <div class="slds-col slds-size_2-of-12">
+                                <ui:outputText value="{!item.ETT_Main_Job_Card__r.ETT_Stages__c}"/>
+                            </div>
+                            <div class="slds-col slds-size_4-of-12">
+                                <lightning:outputField fieldName="ETT_Thread_Preparation_Status__c" /> 
+                            </div>                             
+                            <aura:if isTrue="{!item.ETT_No_of_Thread_Preparation_revisions__c > 1}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_No_of_Thread_Preparation_revisions__c" /> 
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Thread_Technician_Rejection_Remarks__c" />
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Thread_Rejection_Manager_Remarks__c" />
+                                </div>
+                            </aura:if>
+                            <div class="slds-col slds-size_4-of-12">
+                                <lightning:outputField fieldName="ETT_Thread_Least_Available_Time__c" /> 
+                            </div>
+                            <aura:if isTrue="{!item.ETT_Main_Job_Card__r.ETT_Previous_Job_Stage__c eq 'Skiving'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Main_Job_Card__r.ETT_Skiving_Rework_Reason_s__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Main_Job_Card__r.ETT_Previous_Job_Stage__c eq 'Repair'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Main_Job_Card__r.ETT_Repair_Rework_Reason_s__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Main_Job_Card__r.ETT_Previous_Job_Stage__c eq 'Cementing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Main_Job_Card__r.ETT_Defect_s_Identified_On_Cementing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Filling'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Main_Job_Card__r.ETT_Defect_s_Identified_On_Filling__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Main_Job_Card__r.ETT_Previous_Job_Stage__c eq 'Building'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Main_Job_Card__r.ETT_Defect_s_Identified_On_Building__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Main_Job_Card__r.ETT_Previous_Job_Stage__c eq 'Rimming &amp; Enveloping'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Main_Job_Card__r.ETT_Defect_s_Identified_On_Rimming_Env__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Main_Job_Card__r.ETT_Previous_Job_Stage__c eq 'Curing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Main_Job_Card__r.ETT_Defect_s_Identified_On_Curing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Main_Job_Card__r.ETT_Previous_Job_Stage__c eq 'Final Inspection'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Main_Job_Card__r.ETT_Defect_Identified_Final_Inspection__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Main_Job_Card__r.ETT_Previous_Job_Stage__c eq 'Painting'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Main_Job_Card__r.ETT_Defect_s_Identified_On_Painting__c" /> 
+                                </div>
+                            </aura:if>
+                        </aura:if>
+                        
+                        <aura:if isTrue="{!item.ETT_Stages__c eq 'Building'}">
+                            <div class="slds-col slds-size_4-of-12">
+                                <lightning:outputField fieldName="ETT_Building_Status__c" /> 
+                            </div>
+                            <aura:if isTrue="{!item.ETT_No_of_Building_Revisions__c > 1}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_No_of_Building_Revisions__c" /> 
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Building_Technician_Reject_Remarks__c" />
+                                </div>
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Building_Rejection_Manager_Remarks__c" />
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Skiving'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Skiving_Rework_Reason_s__c" />    
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Repair'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Repair_Rework_Reason_s__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Cementing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Cementing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Filling'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Filling__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Building'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Building__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Rimming &amp; Enveloping'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Rimming_Env__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Curing'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Curing__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Final Inspection'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_Identified_Final_Inspection__c" /> 
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.ETT_Previous_Job_Stage__c eq 'Painting'}">
+                                <div class="slds-col slds-size_4-of-12">
+                                    <lightning:outputField fieldName="ETT_Defect_s_Identified_On_Painting__c" /> 
+                                </div>
+                            </aura:if>
+                        </aura:if>
+                        
+                        <div class="slds-col slds-size_4-of-12">
+                            <lightning:outputField fieldName="CreatedDate" />
+                        </div>
+                        <div class="slds-col slds-size_4-of-12">
+                            <lightning:outputField fieldName="LastModifiedDate" />
+                        </div>
+                    </div>
+                </lightning:recordViewForm>
+            </p> 
+        </lightning:card>
+    </aura:iteration>
+    
+    <!--individual job card progress view-->
+    <aura:if isTrue="{!v.showJobView_Buffing}">
+        <c:ETT_Retreading_Buffing recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Buffing}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}" 
+                                  workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}"
+                                  dustCollectorReasonValues="{!v.validJobCardWrapper.buffing_dustCollectorReasonValues}" precuredTreadLineValues="{!v.validJobCardWrapper.buffing_precuredTreadLineValues}"
+                                  holdReasonValues="{!v.validJobCardWrapper.holdReasons}"  availableStations="{!v.validJobCardWrapper.availableNextStationList}" buffingSettingsReasonValues="{!v.validJobCardWrapper.buffingSettingsReasonValues}"
+                                  jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showJobView_Skiving}">
+        <c:ETT_Retreading_Skiving recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Skiving}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}" 
+                                  workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}" holdReasonValues="{!v.validJobCardWrapper.holdReasons}" availableDefects="{!v.validJobCardWrapper.availableDefectsForStation}"
+                                  jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showJobView_Repair}"> 
+        <c:ETT_Retreading_Repair recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Repair}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}"
+                                 workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}" holdReasonValues="{!v.validJobCardWrapper.holdReasons}" availableDefects="{!v.validJobCardWrapper.availableDefectsForStation}"
+                                 availableStations="{!v.validJobCardWrapper.availableNextStationList}" 
+                                 jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showJobView_Cementing}"> 
+        <c:ETT_Retreading_Cementing recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Cementing}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}"
+                                 workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}" holdReasonValues="{!v.validJobCardWrapper.holdReasons}" availableDefects="{!v.validJobCardWrapper.availableDefectsForStation}"
+                                 availableStations="{!v.validJobCardWrapper.availableNextStationList}" 
+                                 jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showJobView_Filling}">
+        <c:ETT_Retreading_Filling recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Filling}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}" 
+                                  workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}" holdReasonValues="{!v.validJobCardWrapper.holdReasons}" availableDefects="{!v.validJobCardWrapper.availableDefectsForStation}"
+                                  jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showJobView_ThreadPreparation}">
+        <c:ETT_Retreading_Thread_Preparation recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_ThreadPreparation}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}" 
+                                             workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}" holdReasonValues="{!v.validJobCardWrapper.holdReasons}" availableStations="{!v.validJobCardWrapper.availableNextStationList}" availableDefects="{!v.validJobCardWrapper.availableDefectsForStation}"
+                                             jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showJobView_Building}">
+        <c:ETT_Retreading_Building recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Building}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}" 
+                                             workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}" holdReasonValues="{!v.validJobCardWrapper.holdReasons}" availableStations="{!v.validJobCardWrapper.availableNextStationList}" availableDefects="{!v.validJobCardWrapper.availableDefectsForStation}"
+                                             jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showJobView_RimmingEnveloping}"> 
+        <c:ETT_Retreading_Enveloping recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_RimmingEnveloping}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}"
+                                 workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}" holdReasonValues="{!v.validJobCardWrapper.holdReasons}" availableDefects="{!v.validJobCardWrapper.availableDefectsForStation}"
+                                 availableStations="{!v.validJobCardWrapper.availableNextStationList}" 
+                                 jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+
+    <aura:if isTrue="{!v.showJobView_Curing}"> 
+        <c:ETT_Retreading_Curing recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Curing}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}"
+                                 workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}" holdReasonValues="{!v.validJobCardWrapper.holdReasons}" availableDefects="{!v.validJobCardWrapper.availableDefectsForStation}"
+                                 availableStations="{!v.validJobCardWrapper.availableNextStationList}" 
+                                 jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+
+    <aura:if isTrue="{!v.showJobView_FinalInspection}">
+        <c:ETT_Retreading_Final_Inspection recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_FinalInspection}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}" 
+                                  workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}"
+                                  dustCollectorReasonValues="{!v.validJobCardWrapper.buffing_dustCollectorReasonValues}" precuredTreadLineValues="{!v.validJobCardWrapper.buffing_precuredTreadLineValues}"
+                                  holdReasonValues="{!v.validJobCardWrapper.holdReasons}"  availableStations="{!v.validJobCardWrapper.availableNextStationList}" buffingSettingsReasonValues="{!v.validJobCardWrapper.buffingSettingsReasonValues}"
+                                  jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showJobView_RemovalOfRIMTubeFlap}">
+        <c:ETT_Retreading_Removal_Of_Rim_Tube_Flap recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_RemovalOfRIMTubeFlap}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}" 
+                                  workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}"
+                                  dustCollectorReasonValues="{!v.validJobCardWrapper.buffing_dustCollectorReasonValues}" precuredTreadLineValues="{!v.validJobCardWrapper.buffing_precuredTreadLineValues}"
+                                  holdReasonValues="{!v.validJobCardWrapper.holdReasons}"  availableStations="{!v.validJobCardWrapper.availableNextStationList}" buffingSettingsReasonValues="{!v.validJobCardWrapper.buffingSettingsReasonValues}"
+                                  jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showJobView_Painting}">
+        <c:ETT_Retreading_Painting recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Painting}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}" 
+                                   workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}"
+                                   dustCollectorReasonValues="{!v.validJobCardWrapper.buffing_dustCollectorReasonValues}" precuredTreadLineValues="{!v.validJobCardWrapper.buffing_precuredTreadLineValues}"
+                                   holdReasonValues="{!v.validJobCardWrapper.holdReasons}"  availableStations="{!v.validJobCardWrapper.availableNextStationList}" buffingSettingsReasonValues="{!v.validJobCardWrapper.buffingSettingsReasonValues}"
+                                   jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>
+    
+    
+    <aura:if isTrue="{!v.showJobView_QualityControl}">
+        <c:ETT_Retreading_QualityControl recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_QualityControl}" skillSets="{!v.validJobCardWrapper.requiredSkillSets}" 
+                                   workStationSchedule="{!v.validJobCardWrapper.currentWorkSchedule}"
+                                   dustCollectorReasonValues="{!v.validJobCardWrapper.buffing_dustCollectorReasonValues}" precuredTreadLineValues="{!v.validJobCardWrapper.buffing_precuredTreadLineValues}"
+                                   holdReasonValues="{!v.validJobCardWrapper.holdReasons}"  availableStations="{!v.validJobCardWrapper.availableNextStationList}" buffingSettingsReasonValues="{!v.validJobCardWrapper.buffingSettingsReasonValues}"
+                                   jobCardSetup="{!v.validJobCardWrapper.jobCardSetup}"/>
+    </aura:if>    
+    
+    
+</aura:component>

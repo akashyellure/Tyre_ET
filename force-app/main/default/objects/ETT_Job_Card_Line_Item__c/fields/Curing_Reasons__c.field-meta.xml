@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Curing_Reasons__c</fullName>
+    <externalId>false</externalId>
+    <label>Curing Reasons</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Safety Valve Complaint</fullName>
+                <default>false</default>
+                <label>Safety Valve Complaint</label>
+            </value>
+            <value>
+                <fullName>Pressure Relay Complaint</fullName>
+                <default>false</default>
+                <label>Pressure Relay Complaint</label>
+            </value>
+            <value>
+                <fullName>Vacuum Relay Complaint</fullName>
+                <default>false</default>
+                <label>Vacuum Relay Complaint</label>
+            </value>
+            <value>
+                <fullName>Heating Coil Complaint</fullName>
+                <default>false</default>
+                <label>Heating Coil Complaint</label>
+            </value>
+            <value>
+                <fullName>Pressure Pipe Leak</fullName>
+                <default>false</default>
+                <label>Pressure Pipe Leak</label>
+            </value>
+            <value>
+                <fullName>Vacuum Pipe Leak</fullName>
+                <default>false</default>
+                <label>Vacuum Pipe Leak</label>
+            </value>
+            <value>
+                <fullName>Curing Tube Leak</fullName>
+                <default>false</default>
+                <label>Curing Tube Leak</label>
+            </value>
+            <value>
+                <fullName>Envelop Leak</fullName>
+                <default>false</default>
+                <label>Envelop Leak</label>
+            </value>
+            <value>
+                <fullName>Electrical Motor Complaint</fullName>
+                <default>false</default>
+                <label>Electrical Motor Complaint</label>
+            </value>
+            <value>
+                <fullName>Others</fullName>
+                <default>false</default>
+                <label>Others</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

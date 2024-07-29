@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Skiving</fullName>
+    <active>true</active>
+    <compactLayoutAssignment>Job_Card_Line_Item</compactLayoutAssignment>
+    <label>Skiving</label>
+    <picklistValues>
+        <picklist>Approval_Status__c</picklist>
+        <values>
+            <fullName>Approve by HOO</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Approve by Supervisor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Approved</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Submitted</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending from FM</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending from HOO</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending from Supervisor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected by HOO</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Curing_Reasons__c</picklist>
+        <values>
+            <fullName>Curing Tube Leak</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Electrical Motor Complaint</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Envelop Leak</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Heating Coil Complaint</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Others</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pressure Pipe Leak</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pressure Relay Complaint</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Safety Valve Complaint</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Vacuum Pipe Leak</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Vacuum Relay Complaint</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Activity_Performed__c</picklist>
+        <values>
+            <fullName>Buffer Settings Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Building Rim Status Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cementing First Half</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cementing Missing Repair</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cementing Patches</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cementing Production Plate Area</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cementing Second Half</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Check Onside down filling</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Check Tread width%2C Pattern</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Complaints</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cutting Found</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Defect Checks</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Display History</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Expandable Building Rim pressure check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Filling Sholders Strip Availability Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Filling Work Check on Skived Areas%2FGSO%2FPlate</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Filling machine temperature check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Stage Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Floor Conditions</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Instructions Agreement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Light Conditions</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Motorized Inspection Spread Work</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Nail hole check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Nail hole missing%2FCrack on Sidewall Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>OnHold</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Painting Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Power Swicth Operation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any Inner Line Cracking</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Removal of plastic sheet check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Repaired Skived Area</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Review Thread Specifications</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Reviewing Job History</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rust Not Remove%2C Crack Missing%2C Steel Note Remove</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Shoulder Strip check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Aluminum oxide Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Ball shaped carbide Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Burr Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Cement tool Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Counter wheel Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Cutting Stone Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Other tools Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - RMA Perfection Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Rasps Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Router carbide Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Rubber hogs Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Start</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving spot filling check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Stitching adjustment check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Stitching check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Stitching pressure check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Stitching wheel condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Terms Read</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Thread - Cutting Machine Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Thread Cemented Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tread centering sensor condition check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tread width with Cushion gum match</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tyre Cementing Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tyre Cementing Dryness Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Wearing%2C Workstation%2C Skills Set %26 Tools Check</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Cementing_Tool__c</picklist>
+        <values>
+            <fullName>Brush</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sprayer</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Defect_s_found__c</picklist>
+        <values>
+            <fullName>Crack Missing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Envelope %26 Tube Leaking</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Improper Cement solution Coting</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Improper One Side Filling</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Improper Tread stitching</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Inner Liner Separation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Length%2C Tread Pattern %26 Width mismatch</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Missing Skiving Spot</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Nail Hole Missing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Patch Air</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Patch Missing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Re Buffing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rm Not Correct</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rust Not Clear</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Spot Curing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Steel Not Remove</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Dust_Collector_Reason__c</picklist>
+        <values>
+            <fullName>Maintenance Required</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other reasons</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Repair%2FFault identified</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Incorrect_Buffing_Settings_Reason__c</picklist>
+        <values>
+            <fullName>Adjustment needed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other issues</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Is_Cementing_Completed__c</picklist>
+        <values>
+            <fullName>No</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Yes</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Pause_Reason__c</picklist>
+        <values>
+            <fullName>Break</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Break down</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Maintenance</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tyre Receiving</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Rim_Type__c</picklist>
+        <values>
+            <fullName>Rim</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sure Lock</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Side_Buffer_Condition_Reasons__c</picklist>
+        <values>
+            <fullName>Blade Change</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Wire Brush Change</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Status__c</picklist>
+        <values>
+            <fullName>Completed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>In-Progress</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Started</fullName>
+            <default>true</default>
+        </values>
+        <values>
+            <fullName>OnHold</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Type__c</picklist>
+        <values>
+            <fullName>Actual Work</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pause</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pre-Requisite Work</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Reason__c</picklist>
+        <values>
+            <fullName>Bag Full</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Bag damage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Others</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Rim_Sure_Lock_Values__c</picklist>
+        <values>
+            <fullName>Rim</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sure Lock</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

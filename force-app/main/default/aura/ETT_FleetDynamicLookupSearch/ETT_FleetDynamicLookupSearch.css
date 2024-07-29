@@ -1,0 +1,31 @@
+.THIS {
+}.THIS {
+    
+}
+/*.THIS .slds-leftpad{
+padding-left: 2rem;
+}
+.THIS .iconheight{
+top: 65%;
+}
+
+.THIS .leftspace input {
+padding-left:2rem;
+}*/
+
+.THIS span.slds-icon_container.slds-input__icon.iconheight {
+    margin-top: -12px;
+    margin-left: 4px;
+}
+.THIS .slds-icon-text-default {
+    vertical-align: -webkit-baseline-middle;
+}
+.THIS .leftspace .slds-input{
+    min-height: calc(2.125rem + 2px);
+    padding-left:2rem;
+}
+.THIS div#listbox-id-1 {
+    box-shadow: none;
+    padding: 0;
+    border: none;
+}

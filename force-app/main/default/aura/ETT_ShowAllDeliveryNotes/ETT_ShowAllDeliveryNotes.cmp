@@ -1,0 +1,66 @@
+<aura:component controller="ETT_ShowAllDeliveryNotes" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="data" type="Object"/>
+    
+    <aura:html tag="style">
+        .slds-modal__container{
+        max-width: 80rem !important;
+        width:80% !important;
+        }
+    </aura:html>
+    <article class="slds-card">
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-standard-contact" title="contact">
+                       
+                        <span class="slds-assistive-text">Print - Delivery Notes</span>
+                    </span>
+                </div>
+                <aura:if isTrue="{!not(empty(v.data))}">
+                <div class="slds-media__body">
+                   
+                        <h2 class="slds-card__header-title">
+                         <div style="margin-left: -25px">Delivery Notes</div>
+                           
+                        </h2>
+                 
+                </div>
+                 </aura:if>
+                <div class="slds-no-flex">
+                    <!--<button class="slds-button slds-button_neutral">New</button>-->
+                </div>
+            </header>
+        </div>
+        <div class="slds-card__body">
+               <aura:if isTrue="{!not(empty(v.data))}">
+                    <lightning:datatable
+                                         columns="{!v.columns}"
+                                         data="{!v.data}"
+                                         keyField="id"
+                                         selectedRows=""
+                                         showRowNumberColumn="false"
+                                         maxRowSelection=""
+                                         onrowaction="{!c.handleRowAction}"
+                                         hideCheckboxColumn = "true"
+                                         />
+                    
+                    <aura:set attribute="else">
+                        <div style="margin:20px" class="slds-text-align_center slds-text-heading_medium">No records found.</div>
+                        
+                    </aura:set>
+                    
+                </aura:if>
+                
+            </div>
+       
+        <!--footer class="slds-card__footer">
+            <a class="slds-card__footer-action" href="javascript:void(0);">View All
+                <span class="slds-assistive-text">Quotations</span>
+            </a>
+        </footer-->
+    </article>
+    
+</aura:component>

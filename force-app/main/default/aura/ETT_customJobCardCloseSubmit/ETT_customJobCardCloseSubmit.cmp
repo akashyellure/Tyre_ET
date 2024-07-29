@@ -1,0 +1,55 @@
+<aura:component controller="ETT_customJobCardClsSubmitCtrl" implements="flexipage:availableForRecordHome,force:hasRecordId,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global" >
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="comments" type="string" />
+    <aura:attribute name="errFlag" type="boolean" default="false" />
+    
+     <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }       
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .btnsend {
+        background: #fe864d;
+        border: 1px solid #fe864d;
+        outline: none;
+        box-shadow: none;
+        margin: 1rem;
+        }
+        .slds-border_bottom {
+        border-bottom: 1px solid #f2f2f2;
+        }
+        .slds-modal__close {
+        top: .5rem;
+        right: .5rem;
+        border: 1px solid #d4d4d4;
+        }
+        .slds-modal__close svg.slds-button__icon.slds-button_icon-inverse {
+        fill: #000;
+        }
+    </aura:html>
+    
+    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-border_bottom slds-hyphenate slds-align_absolute-center" style="border-bottom: 1px solid #f2f2f2;font-size: 16px;font-weight: 500!important;padding: 1rem;">
+       Approval Request
+    </h2>
+    
+    <div class="slds-border_bottom">
+        <div class="slds-form-element__control slds-m-around_medium">
+           <lightning:textarea name="Comment" label="Comments" value="{!v.comments}" />
+        </div>
+    </div>
+    <div class="slds-float--right " >
+        <lightning:button variant="brand" 
+                          label="Submit"
+                          title="Submit"
+                          onclick="{!c.handleSubmit}" class="btnsend" disabled="" /> 
+        
+    </div>
+</aura:component>

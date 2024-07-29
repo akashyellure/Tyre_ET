@@ -1,0 +1,8 @@
+<aura:event type="APPLICATION" description="Event template" >
+    <aura:attribute name="index" type="Integer"/>
+    <aura:attribute name="dynamicId" type="string"/>
+    <aura:attribute name="name" type="string"/>
+    <aura:attribute name="objectName" type="string"/>
+    <!--<aura:attribute name="loadIndex" type="string"/>
+    <aura:attribute name="plyRate" type="string"/>-->
+</aura:event>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ETT_Job_Card</fullName>
+    <fields>Name</fields>
+    <fields>ETT_Job_Type__c</fields>
+    <fields>ETT_Overall_Status__c</fields>
+    <fields>ETT_Stages__c</fields>
+    <label>Job Card</label>
+</CompactLayout>

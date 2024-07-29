@@ -1,0 +1,82 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" controller="ETT_PurchaseOrderController">
+   <aura:attribute name="purchaseOrderLineItems" type="ETT_Purchase_Order_Line_Item__c[]"  /> 
+   <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+   <aura:attribute name="isSelectAll" type="boolean"/>
+   <aura:attribute name="recordId" type="String" />	
+   <aura:attribute name="isUserFM" type="boolean" default="false" />
+   <aura:attribute name="isUserHOO" type="boolean" default="false" />
+    <ltng:require styles="{!$Resource.ModalWidthCSS}"/>
+    <div class="slds-grid slds-gutters">
+                
+                <div class="slds-col">
+                    <span><h1 style="font-size:200%;text-align:left;">Purchase Order Line Item Details</h1></span>
+                </div>
+               
+     </div>
+    <table class="slds-table slds-table--bordered slds-table--striped" border="1" style="width:900px;"> 
+        <tr> 
+            <th><label class="slds-checkbox">
+                            <ui:inputCheckbox value="{!v.isSelectAll}" change="{!c.handleSelectAllPurchaseOrderLineItem}" aura:id="selectAll"/>
+                            <span class="slds-checkbox--faux" />
+                            <span class="slds-form-element__label"></span>
+                        </label></th>
+            <th>Line #</th>
+            <th>Type</th>
+            <th>Item</th>
+            <th>Description</th>
+            <th>UOM</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Delivery Date</th>
+            <th>Line Amount</th>
+            <th>VAT %</th>
+            <th>VAT Amount</th>
+            <th>Total Amount</th>
+        </tr> 
+        <aura:iteration items="{!v.purchaseOrderLineItems}" var="purchaseOrderLineItem" indexVar="index">
+            <tr class="slds-text-title_caps">
+                <aura:if isTrue="{!v.isUserHOO}">
+                <td>
+                    
+                        <label class="slds-checkbox">
+                                <ui:inputCheckbox aura:id="checkEstimation" value="{!purchaseOrderLineItem.ETT_Accepted_by_HOO__c}" text="{!purchaseOrderLineItem.Id}"/>
+                                <span class="slds-checkbox--faux" />
+                                <span class="slds-form-element__label"></span>
+                            </label>
+                </td>
+                </aura:if>
+                <aura:if isTrue="{!v.isUserHOO}">
+                <td>
+                        <label class="slds-checkbox">
+                                <ui:inputCheckbox aura:id="checkEstimation" value="{!purchaseOrderLineItem.ETT_Accepted_by_FM__c}" text="{!purchaseOrderLineItem.Id}"/>
+                                <span class="slds-checkbox--faux" />
+                                <span class="slds-form-element__label"></span>
+                            </label>
+                </td>
+                </aura:if>
+                <td>{!index}</td>
+                <td>{!purchaseOrderLineItem.ETT_Type__c}</td>
+                <td>{!purchaseOrderLineItem.ETT_Item__c}</td>
+                <td>{!purchaseOrderLineItem.ETT_Description__c}</td>
+                <td>{!purchaseOrderLineItem.ETT_UOM__c}</td>
+                <td>{!purchaseOrderLineItem.ETT_Quantity__c}</td>
+                <td><lightning:input aura:id="priceId" name="price" type="number" value="{!purchaseOrderLineItem.ETT_Unit_Price__c}"
+                                     required="true"/></td>
+                <td>{!purchaseOrderLineItem.ETT_Delivery_Date__c}</td>
+                <td>{!purchaseOrderLineItem.ETT_Line_Amount__c}</td>
+                <td>{!purchaseOrderLineItem.ETT_Vat_Percentage__c}</td>
+                <td>{!purchaseOrderLineItem.ETT_Vat_Amount__c}</td>
+                <td>{!purchaseOrderLineItem.ETT_Total_Amount__c}</td>
+            </tr>   
+        </aura:iteration>   
+    </table>   
+    <lightning:button label="FM Accpetance" 
+                                  class="slds-m-top--medium"
+                                  variant="brand"
+                                  onclick="{!c.acceptPurchaseOrders}"/>
+    
+    <lightning:button label="HOO Acceptance" 
+                                  class="slds-m-top--medium"
+                                  variant="brand"
+                                  onclick="{!c.acceptPurchaseOrders}"/>
+</aura:component>

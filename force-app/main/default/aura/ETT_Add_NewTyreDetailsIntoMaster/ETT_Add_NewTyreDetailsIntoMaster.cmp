@@ -1,0 +1,103 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" controller="ETT_CollectionLineItemController" access="global">
+    
+    <aura:attribute name="lstCollectionLineItem" type="WorkOrderLineItem[]" />
+    <aura:attribute name="lstCollectionLineItemNewTyres" type="WorkOrderLineItem[]" />
+    <aura:attribute name="selectedaccount" type="ID" />    
+    <aura:attribute name="pricedisplay" type="boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:method name="callChild" action="{!c.callChildMethod}" />
+    <aura:registerEvent name="updateNewTyreEvent" type="c:ETT_NewTyreEvent"/>
+   <!-- <aura:registerEvent name="updateNewTyreCmpEvent" type="c:ETT_NewTyreCmpEvent"/> -->
+   <!-- <aura:handler name="updateNewTyreDetailsEvent" event="c:ETT_NewTyreEvent" action="{!c.getRecordTypeName}" phase="capture"  /> -->
+    <form class="slds-form--stacked">                 
+        <!--<div><h1 class="subheading">Add New Tyre Details</h1></div>-->
+        <table class="slds-box slds-table slds-table slds-table--striped" border="1">
+            <thead>
+                <tr class="slds-text-title_caps"> 
+                    <th scope="col" class="slds-text-align--left">
+                        <div title="SLNO" class="line_tit"><b>SLNO</b> </div>
+                    </th>
+                    <th scope="col" class="slds-text-align--left">
+                        <div title="Tyre Size" class="line_tit"><b>Tyre Size</b><i class="required_field">*</i> </div>
+                    </th>
+                    <th scope="col" class="slds-text-align--left">
+                        <div title="Brand" class="line_tit"><b>Brand</b><i class="required_field">*</i> </div>
+                    </th>
+                    
+                    <th scope="col" class="slds-text-align--left">
+                        <div title="Pattern" class="line_tit"><b>Pattern</b> </div>
+                    </th>
+                    <th scope="col" class="slds-text-align--left">
+                        <div title="Country Of Origion" class="line_tit"><b>Country Of Origion</b><i class="required_field">*</i> </div>
+                    </th>
+                    <aura:if isTrue="{!v.pricedisplay}">
+                        
+                        <th scope="col" class="slds-text-align--left">
+                        <div title="Price" class="line_tit"><b>Price</b> </div>
+                    </th>
+                    </aura:if>
+                     
+                    <th scope="col">
+                        <div title="Add / Delete" class="line_tit"><b>Action </b> </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="padtb">
+                <aura:iteration items="{!v.lstCollectionLineItemNewTyres}" var="item" indexVar="index">
+                    <tr id="{!index}"> 
+                        <td data-label="SLNO" class="slds-cell-wrap">
+                            <div>{!index + 1}</div>
+                        </td>
+                        
+                        <td data-label="TYRE SIZE" class="slds-cell-wrap">
+                            <div style="width: 140px;">
+                                <lightning:input  onblur="{!c.convertCase}" required="true" variant="label-hidden" type="text" value="{!item.ETT_Tyre_Size_NewText__c}" /> 
+                            </div>
+                        </td>
+                        <td data-label="BRAND" class="slds-text-align--center ">
+                            <div style="width: 140px;">
+                                <lightning:input onblur="{!c.convertCase}" required="true" variant="label-hidden" type="text" value="{!item.ETT_Brand_NewText__c}" /> 
+                            </div>
+                        </td>
+                           
+                        <td data-label="PATTERN	" class="slds-text-align--center">
+                            <div style="width: 140px;">
+                                <lightning:input  onblur="{!c.convertCase}" variant="label-hidden" type="text" value="{!item.ETT_Pattern_NewText__c}" /> 
+                            </div>
+                        </td>
+                        <td data-label="COUNTRY OF ORIGION" class="slds-text-align--center">
+                            <div style="width: 140px;">
+                                <lightning:input  onblur="{!c.convertCase}" required="true" variant="label-hidden" type="text" value="{!item.ETT_Country_NewText__c}" /> 
+                            </div>
+                        </td>
+                        <aura:if isTrue="{!v.pricedisplay}">
+                            
+                            <td data-label="PRICE" class="slds-text-align--center ">
+                            <div style="width: 140px;">
+                                <lightning:input  variant="label-hidden" type="text" value="{!item.ETT_Price__c}" required = "true" /> 
+                            </div>
+                        </td>
+						</aura:if>
+                         
+                        <td data-label="Action" class="slds-cell-wrap">
+                            <aura:if isTrue="{!index == 0}">
+                                <a onclick="{!c.addNewRowsIntoTyreMaster}">
+                                    <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small addiconcus" size="small" alternativeText="add" />
+                                    <span class="slds-assistive-text">Add Icon</span>
+                                </a>
+                                <aura:set attribute="else">
+                                    <a onclick="{!c.removeRowsIntoTyreMaster}" id="{!index}">
+                                        <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small addiconcus" size="small" alternativeText="icon" />
+                                        <span class="slds-assistive-text">Delete Icon</span>
+                                    </a>
+                                </aura:set>
+                            </aura:if>
+                        </td>
+                    </tr>
+                </aura:iteration>
+            </tbody>                                        
+        </table>
+    </form>
+    
+    
+</aura:component>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ETT_Job_Stages_to_Perform_Ordered__c</fullName>
+    <defaultValue>&quot;Buffing;Skiving;Repair;Cementing;Filling;Thread Preparation;Building;Rimming &amp; Enveloping;Curing;Removal of RIM Tube Flap;Final Inspection;Painting;Quality Control&quot;</defaultValue>
+    <encryptionScheme>None</encryptionScheme>
+    <externalId>false</externalId>
+    <label>Job Stages to Perform (Ordered)</label>
+    <length>255</length>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

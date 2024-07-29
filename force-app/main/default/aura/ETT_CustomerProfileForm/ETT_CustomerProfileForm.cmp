@@ -1,0 +1,415 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,flexipage:availableForRecordHome" controller="ETT_LeadFormController" access="global" extensible="true">
+    
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important;
+        max-height:unset !important;
+        }
+    </aura:html>
+    
+    <ltng:require styles="{!$Resource.ModalWidthCSS}"/>
+
+    <aura:attribute name="newLead" type="Lead" default="{ 'sobjectType': 'Lead',
+                                                        'Id':'',
+                                                        'FirstName': '',
+                                                        'LastName': '',
+                                                        'Company': 'test',
+                                                        'Street':'',
+                                                        'Email': '',
+                                                        'Fax' : '',
+                                                        'ETT_Web_Address__c' :'',
+                                                        'Phone': '' }"/>
+    <aura:attribute name="objCustomerVehicleList" 
+                    type="ETT_Staging_Customer_Vehicle_Details__c"  
+                    default="{'sobjectType': 'ETT_Staging_Customer_Vehicle_Details__c',
+                             'Name': '',
+                             'ETT_Vehicle_In_Fleet__c':0,
+                             'ETT_Tyres_In_Fleet__c':0,
+                             'ETT_KMS_Covered_Yearly__c':0}" /> 
+    
+    <aura:attribute name="objAddedServices" 
+                    type="ETT_Staging_Customer_Vehicle_Details__c"  
+                    default="{'sobjectType': 'ETT_Added_service__c',
+                             'ETT_Services__c': '',
+                             'ETT_Supplier_Details__c':''}" /> 
+    
+    <aura:attribute name="objStgPurchaseInformation" 
+                    type="ETT_Staging_Purchase_Information__c"  
+                    default="{'sobjectType': 'ETT_Staging_Purchase_Information__c',
+                             'ETT_Tyre_Size_Master__c':'',
+                             'ETT_Type__c':'',
+                             'ETT_Brand_Master__c':'',
+                             'ETT_Yearly_Qty__c':'',
+                             'ETT_Price__c':'',
+                             'ETT_Payment_Terms__c':''}" /> 
+    
+    <aura:attribute name="leadFormWrapper" type="ETT_LeadFormController.ETT_LeadFormWrapper" />
+    <aura:attribute name="stagingContactList" type="ETT_Staging_Contacts__c[]"/>
+    <aura:attribute name="stagingCustomerVehicleList" type="ETT_Staging_Customer_Vehicle_Details__c[]"/> 
+    <aura:attribute name="stagingQuotationRequest" type="ETT_Staging_Quotation_Request__c[]"/>
+    <aura:attribute name="stagingPurchaseInformation" type="ETT_Staging_Purchase_Information__c[]"/>
+    <aura:attribute name="stagingAddedServices" type="ETT_Staging_Added_Service__c[]"/>
+    <aura:attribute name="recordId" type="Id" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="vehicleType" type="Map"/>    
+    <aura:attribute name="paymentTerms" type="Map"/>    
+    <aura:attribute name="services" type="Map"/>    
+    <aura:attribute name="statusMap" type="Map"/>        
+    <aura:attribute name="typeMap" type="Map"/>   
+    <aura:attribute name="applicationMap" type="Map"/>       
+    
+    
+     
+    <aura:attribute name="isError" type="boolean" default="false" />
+    <aura:attribute name="isCompanyError" type="boolean" default="false" />
+    <aura:attribute name="isAddressError" type="boolean" default="false" />
+    <aura:attribute name="isPhoneError" type="boolean" default="false" />
+    <aura:attribute name="isWebsiteError" type="boolean" default="false" />
+    <aura:attribute name="isTRNError" type="boolean" default="false" />
+    <aura:attribute name="isLNameError" type="boolean" default="false" />    
+    <aura:attribute name="isMobileError" type="boolean" default="false" />    
+    
+    <div class="modal-header slds-modal__header">
+        
+        <img src="{!$Resource.EtTyreIcons+'/etLogo.png'}" style="width: 200px;float: left;"/>
+        <h4 class="title slds-text-heading--medium" style="text-align: center;margin-right: 10%;">Customer Profile Form</h4>      
+        
+    </div>
+    
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">
+            
+            
+            <table class="slds-table" border="1"> 
+                
+                <tr>
+                    <th>Fleet Name</th>
+                    <th colspan="3"><lightning:input aura:id="leadForm"
+                                                     name="leadCompanyName"
+                                                     value="{!v.newLead.Company}"
+                                                     disabled="true"
+                                                     required="true"/></th>
+                </tr>
+                <tr> 
+                    <th>Address</th>
+                    <th><lightning:input aura:id="leadForm" 
+                                         name="leadLocation"
+                                         value="{!v.newLead.Street}" required="true" onchange="{!c.validateAddress}"
+                                         />
+                        <span id="addressErr" style="color:red;"></span>
+                    </th>
+                    <th>Phone</th>
+                    <th><lightning:input aura:id="leadForm" type="text"
+                                         name="leadPhone"
+                                         value="{!v.newLead.Phone}" required="true"
+                                         onchange="{!c.validatePhone}" />
+                        <span id="phoneErr" style="color:red;"></span>
+                    </th>                        
+                </tr> 
+                
+                <tr> 
+                    <th>Postal Code</th>
+                    <th><lightning:input aura:id="leadForm" 
+                                         name="leadPostalCode" type="number"
+                                         value="{!v.newLead.PostalCode}" required="false"
+                                         /></th>
+                    <th>Web Address</th>
+                    <th><lightning:input aura:id="leadForm" 
+                                         name="leadWebAddress" 
+                                         value="{!v.newLead.Website}" required="false"
+                                         onchange="{!c.validateWebsite}" />
+                        <span id="websiteErr" style="color:red;"></span>
+                    </th>                        
+                </tr> 
+                
+                <tr> 
+                    <th>Fax</th>
+                    <th><lightning:input aura:id="leadForm" 
+                                         name="leadFax" type="number"
+                                         value="{!v.newLead.Fax}" required="false"
+                                         /></th>
+                    <th>Email</th>
+                    <th><lightning:input aura:id="leadForm" type="email"
+                                         name="leadEmail" 
+                                         value="{!v.newLead.Email}" required="false"
+                                         /></th>                        
+                </tr> 
+                
+            </table><br/>
+            
+            
+            
+            <div><h1 style="font-size:150%;text-align:center;">Contact Details</h1></div><br/>
+            <table  class="slds-table" border="1">
+                <tr>
+                    <th>SL.No</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>                            
+                    <th scope="col">Desigination</th>
+                    <th scope="col">Mobile</th>
+                    <th scope="col">Email</th>
+                    <th>Add Row</th>
+                </tr> 
+                <aura:iteration items="{!v.stagingContactList}" var="item" indexVar="index">
+                    <tr class="slds-text-title_caps">
+                        <td scope="col">
+                            {!index + 1}
+                        </td>
+                        <td scope="col">
+                            <lightning:input aura:id="stgConFirstName" name="{!index}" value="{!item.ETT_First_Name__c}"
+                                             required="false" style="margin-top:-6px;" onchange="{!c.validateContactFName}" />
+                        <span id="conFNameErr" style="color:red;"></span>
+                        </td>
+                        <td scope="col">
+                            <lightning:input aura:id="stgConLastName" name="{!index}" value="{!item.Name}"
+                                             required="true" style="margin-top:-6px;" onchange="{!c.validateContactLName}" />
+                        <span id="conLnameErr" style="color:red;"></span>
+                        </td>                                
+                        <td scope="col">
+                            <lightning:input aura:id="stgConDesigination" name="{!index}" value="{!item.ETT_Designation__c}"
+                                             required="false" style="margin-top:-6px;" onchange="{!c.validateDesignation}" />
+                        <span id="conDesErr" style="color:red;"></span>
+                        </td>
+                        <td scope="col">
+                            <lightning:input aura:id="stgConPhone" name="{!index}" value="{!item.ETT_Phone__c}"
+                                             required="true" style="margin-top: -6px;" onchange="{!c.validateMobile}" />
+                            <span id="conPhoneErr" style="color:red;"></span>
+                        </td>
+                        <td scope="col">
+                            <lightning:input aura:id="stgConEmail" name="stgConEmail" value="{!item.ETT_Email__c}"
+                                             required="false" style="margin-top:-6px;" type="email" />
+                        </td>
+                        <td scope="col">
+                            <aura:if isTrue="{!index == 0}">
+                                <a onclick="{!c.AddNewRow}">
+                                    <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                    <span class="slds-assistive-text">Add Icon</span>
+                                </a>
+                                <aura:set attribute="else">
+                                    <a onclick="{!c.removeRow}" id="{!index}" >
+                                        <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                        <span class="slds-assistive-text">Delete Icon</span>
+                                    </a>
+                                </aura:set>
+                            </aura:if>
+                        </td>
+                    </tr>
+                </aura:iteration>
+                
+            </table><br/><br/>
+            
+            
+            
+            
+            <div><h1 style="font-size:150%;text-align:center;">Vehicle Details</h1></div><br/>
+            <table class="slds-table" border="1">
+                <tr>
+                    <th scope="col">SL.No</th>
+                    <th scope="col">Vehicle Type</th>
+                    <th scope="col">Vehicle Configuration</th>
+                    <th scope="col">Axle Configuration</th>
+                    <th scope="col">Application</th>
+                    <th scope="col">Vehicles In Fleet</th>
+                    <th scope="col">Tyres In Fleet</th>
+                    <th scope="col">KMS <br/>Covered yearly</th>
+                    <th scope="col">Add Row</th>
+                </tr>
+                <aura:iteration items="{!v.stagingCustomerVehicleList}" var="item" indexVar="index">
+                    <tr class="slds-text-title_caps">
+                        <td scope="col">{!index + 1}</td>
+                        <td scope="col">
+                            <lightning:select class="mrgn" aura:id="vehicleType" value="{!item.ETT_Vehicle_Type__c}" onchange="{!c.handleCompanyOnChange}" name="vehicleTypePicklist" required="false">
+                                <option value="">--None--</option>
+                                <aura:iteration items="{!v.vehicleType}" var="ind" indexVar="key">
+                                    <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Vehicle_Type__c}" />
+                                </aura:iteration>
+                            </lightning:select>
+                        </td>
+                        <td scope="col"><lightning:input aura:id="vehicleConfig" name="stgvehicleConfig"  value="{!item.ETT_Vehicle_Configuration__c}" required="false" /></td>
+                        <td scope="col"><lightning:input aura:id="axilConfig" name="stgaxilConfig"  value="{!item.ETT_Axil_Configuration__c}" required="true"/></td>
+                        <td scope="col">
+                            <lightning:select class="mrgn" aura:id="applicationMap" value="{!item.ETT_Application__c}" onchange="{!c.handleCompanyOnChange}" name="typePicklist" required="true">
+                                <option value="">--None--</option>
+                                <aura:iteration items="{!v.applicationMap}" var="ind" indexVar="key">
+                                    <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Application__c}" />
+                                </aura:iteration>
+                            </lightning:select>
+                        </td>
+                        <td scope="col"><lightning:input aura:id="vehicleFleet" name="stgvehicleFleet"   value="{!item.ETT_Vehicle_In_Fleet__c}" required="false"/></td>
+                        <td scope="col"><lightning:input aura:id="tyresFleet" name="stgtyresFleet"  value="{!item.ETT_Tyres_In_Fleet__c}" required="false"/></td>
+                        <td scope="col"><lightning:input aura:id="kmsCovered" name="stgkmsCovered"  value="{!item.ETT_KMS_Covered_Yearly__c}" required="true"/></td>
+                        
+                        <td scope="col">
+                            <aura:if isTrue="{!index == 0}">
+                                <a onclick="{!c.addNewRowCustomerVehicle}">
+                                    <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                    <span class="slds-assistive-text">Add Icon</span>
+                                </a>
+                                <aura:set attribute="else">
+                                    <a onclick="{!c.removeRowCustomerVehicle}" id="{!index}" >
+                                        <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                        <span class="slds-assistive-text">Delete Icon</span>
+                                    </a>
+                                </aura:set>
+                            </aura:if>
+                        </td>
+                    </tr>
+                </aura:iteration>
+            </table><br/><br/>
+            
+            
+            <div><h1 style="font-size:150%;text-align:center;">Purchase Information</h1></div><br/>
+            <table class="slds-table" border="1">
+                <tr>
+                    <th scope="col">SL. No</th>
+                    <th scope="col">Tyre Size</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Brand</th>
+                    <th scope="col">Yearly Qty</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Payment Terms</th>
+                    <th>Add Row</th>
+                </tr>
+                <aura:iteration items="{!v.stagingPurchaseInformation}" var="item" indexVar="index">
+                    <tr>
+                        <td scope="col">{!index + 1}</td>
+                        <td scope="col">
+                            <c:ETT_DynamicLookupSearchComponent objectName="ETT_Tyre_Size_Master__c" fieldName="Name"  
+                                                                selectRecordId="{!item.ETT_Tyre_Size_Master__c}" selectRecordName="" parentObjectName="ETT_Staging_Purchase_Information__c" rowNo="{!index}"
+                                                                required="true" iconName="standard:stage_collection"/> 
+                        </td>
+                        <td scope="col">
+                            <lightning:select class="mrgn" aura:id="typeMap" value="{!item.ETT_PurchaseInfo_Type__c}" onchange="{!c.handleCompanyOnChange}" name="typePicklist" required="false">
+                                <option value="">--None--</option>
+                                <aura:iteration items="{!v.typeMap}" var="ind" indexVar="key">
+                                    <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_PurchaseInfo_Type__c}" />
+                                </aura:iteration>
+                            </lightning:select>                            
+                        </td>
+                        <td scope="col">
+                            <c:ETT_DynamicLookupSearchComponent objectName="ETT_Brand_Master__c" fieldName="Name"  
+                                                                selectRecordId="{!item.ETT_Brand_Master__c}" selectRecordName="" parentObjectName="ETT_Staging_Purchase_Information__c" rowNo="{!index}"
+                                                                required="true" iconName="standard:brand"/> 
+                        </td>
+                        <td scope="col"><lightning:input aura:id="yearlyQty" name="stgYearlyQty"  value="{!item.ETT_Yearly_Qty__c}" required="false"/></td>
+                        <td scope="col"><lightning:input aura:id="price" name="stgPrice"  value="{!item.ETT_Price__c}" required="false"/></td>
+                        <td scope="col">
+                            <lightning:select class="mrgn" aura:id="paymentTerms" value="{!item.ETT_Payment_Terms__c}" onchange="{!c.handleCompanyOnChange}" name="paymentTermsPicklist" required="false">
+                                <option value="">--None--</option>
+                                <aura:iteration items="{!v.paymentTerms}" var="ind" indexVar="key">
+                                    <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Payment_Terms__c}" />
+                                </aura:iteration>
+                            </lightning:select>
+                        </td>
+                        <td scope="col">
+                            <!-- conditionally Display Add or Delete Icons if rowIndex is 0 then show Add New Row Icon else show delete Icon -->
+                            <aura:if isTrue="{!index == 0}">
+                                <a onclick="{!c.addNewRowPurchaseInformation}">
+                                    <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                    <span class="slds-assistive-text">Add Icon</span>
+                                </a>
+                                <aura:set attribute="else">
+                                    <a onclick="{!c.removeRowPurchaseInformation}" id="{!index}" >
+                                        <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                        <span class="slds-assistive-text">Delete Icon</span>
+                                    </a>
+                                </aura:set>
+                            </aura:if>
+                        </td>
+                        
+                    </tr>
+                </aura:iteration>
+            </table><br/>
+            
+            
+            <div><h1 style="font-size:150%;text-align:center;">Added Services</h1></div>  <br/>
+            <table class="slds-table" border="1">
+                <tr>
+                    <th scope="col">SL.No</th>
+                    <th scope="col">Type of Service</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Details of Supplier</th>
+                    <th>Add Row</th>
+                </tr>    
+                <aura:iteration items="{!v.stagingAddedServices}" var="item" indexVar="index">
+                    <tr>
+                        <td scope="col">{!index + 1}</td>
+                        <td scope="col">
+                            <lightning:select class="mrgn" aura:id="services" value="{!item.ETT_Services__c}" name="servicesPicklist" required="true">
+                                <option value="">--None--</option>
+                                <aura:iteration items="{!v.services}" var="ind" indexVar="key">
+                                    <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.s}" />
+                                </aura:iteration>
+                            </lightning:select>
+                        </td>
+                        <td scope="col"><lightning:select class="mrgn" aura:id="statusMap" value="{!item.ETT_Status__c}" name="EmiratePicklist" required="true">
+                            <option value="">--None--</option>
+                            <aura:iteration items="{!v.statusMap}" var="ind" indexVar="key">
+                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Status__c}" />
+                            </aura:iteration>
+                        </lightning:select></td>
+                        <td scope="col"><lightning:input aura:id="supplierDetails" name="supplierDetails"  value="{!item.ETT_Supplier_Details__c}" required="true"/></td>
+                        <td scope="col">
+                            <!-- conditionally Display Add or Delete Icons if rowIndex is 0 then show Add New Row Icon else show delete Icon -->
+                            <aura:if isTrue="{!index == 0}">
+                                <a onclick="{!c.addNewRowAddedServices}">
+                                    <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                    <span class="slds-assistive-text">Add Icon</span>
+                                </a>
+                                <aura:set attribute="else">
+                                    <a onclick="{!c.removeRowAddedServices}" id="{!index}" >
+                                        <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                        <span class="slds-assistive-text">Delete Icon</span>
+                                    </a>
+                                </aura:set>
+                            </aura:if>
+                        </td>
+                    </tr>
+                </aura:iteration>
+            </table><br/>
+            
+            
+            <div><h1 style="font-size:150%;text-align:center;">Additional Information</h1></div>  <br/>
+            <table class="slds-table" border="1">
+                <tr>
+                    <td>Reccomended Retreaded Process:  </td>
+                    <td colspan="2">
+                        <lightning:select>       
+                            <option value="choose">Choose one...</option> 
+                            <option value="Hot">Hot</option> 
+                            <option value="Cold">Cold</option>                             
+                        </lightning:select>
+                    </td>
+                </tr>
+            </table><br/>
+            
+            
+            <table class="slds-table" border="1">
+                <tr>
+                    <td>
+                        <ui:inputCheckbox aura:id="checkbox" label="Test Tyre Required &nbsp;" />
+                    </td> 
+                </tr>
+            </table>
+            
+            
+            
+        </div>
+    </div>
+    
+    
+    <div class="modal-footer slds-modal__footer">
+        <lightning:button variant="Brand" class="slds-button" label="Submit" onclick="{!c.clickCreate}"/>
+        <lightning:button variant="Neutral" class="slds-button" label="Cancel" onclick="{!c.handleClose}"/>
+    </div>
+    
+</aura:component>

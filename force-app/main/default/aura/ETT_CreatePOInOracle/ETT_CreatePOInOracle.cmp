@@ -1,0 +1,42 @@
+<aura:component controller="ETT_createPOInOracleCtrl" implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+   
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    
+     
+    <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+        .slds-modal__container{
+        max-width: 65rem !important;
+        width:65% !important;
+        }
+      
+    </aura:html>
+    
+     <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">PO Creation</h4>
+    </div>
+    <div class="mainDiv"> 
+        <div class="outer-div">
+            <aura:if isTrue="{!v.showSpinner}">
+                <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+            </aura:if>
+            <div class="slds-modal__content">
+                
+                <div class="slds-scrollable collectionitemdiv" >
+                   
+                    <div style="margin: 20px" class="slds-text-align_center slds-text-heading_medium">Do you want to create PO in Oracle?</div>
+                    
+                </div>
+            </div>
+            
+            
+            <div class="modal-footer slds-modal__footer">
+                <lightning:button variant="brand" disabled="{!v.showSpinner}" onclick="{!c.createPO}" label="Submit" iconName="utility:approval"/>
+            </div>
+        </div>
+    </div>
+</aura:component>

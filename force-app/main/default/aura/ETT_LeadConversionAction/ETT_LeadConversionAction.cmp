@@ -1,0 +1,70 @@
+<aura:component controller="ETT_LeadConversionActionCtrl" implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="leadRecord" type="Object"/>
+    <aura:attribute name="recordLoadError" type="String"/>
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    
+    <force:recordData aura:id="recordLoader"
+                      recordId="{!v.recordId}"
+                      fields="Name,Status"
+                      targetFields="{!v.leadRecord}"
+                      targetError="{!v.recordLoadError}"/>
+    
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }       
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .btnsend {
+        background: #fe864d;
+        border: 1px solid #fe864d;
+        outline: none;
+        box-shadow: none;
+        margin: 1rem;
+        }
+        .slds-border_bottom {
+        border-bottom: 1px solid #f2f2f2;
+        }
+        .slds-modal__close {
+        top: .5rem;
+        right: .5rem;
+        border: 1px solid #d4d4d4;
+        }
+        .slds-modal__close svg.slds-button__icon.slds-button_icon-inverse {
+        fill: #000;
+        }
+    </aura:html>
+    
+    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-border_bottom slds-hyphenate slds-align_absolute-center" style="border-bottom: 1px solid #f2f2f2;font-size: 16px;font-weight: 500!important;padding: 1rem;">
+        Lead Conversion
+    </h2>
+    <div class="mainDiv"> 
+        <div class="outer-div">
+            <aura:if isTrue="{!v.showSpinner}">
+                <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+            </aura:if>
+            
+            
+            <div class="slds-border_bottom">
+                <div class="slds-form-element__control slds-m-around_medium">
+                    <p>Are you want to convert Lead, if yes please clcik on <b>Convert</b> button</p>
+                </div>
+            </div>
+            <div class="slds-float--right " >
+                <lightning:button variant="brand" 
+                                  label="Convert"
+                                  title="Convert"
+                                  onclick="{!c.handleConvert}" class="btnsend" disabled="{!v.showSpinner}"/> 
+                
+            </div>
+        </div>
+    </div>
+</aura:component>

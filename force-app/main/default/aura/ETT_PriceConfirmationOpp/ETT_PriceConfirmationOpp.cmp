@@ -1,0 +1,326 @@
+<aura:component controller="ETT_PriceConfirmationCtrl" implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+<!--
+Author:Janardhan
+ -->    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    <aura:attribute name="isUserFM" type="boolean" default="false" />
+    <aura:attribute name="isUserHOO" type="boolean" default="false" />
+    <aura:attribute name="isUserRecp" type="boolean" default="false" />
+     <aura:attribute name="isUserSales" type="boolean" default="false" />
+    <aura:attribute name="stgQuoteReq" type="ETT_Staging_Quotation_Request__c[]"/> 
+     <aura:attribute name="tempData" type="List"/> 
+    <aura:attribute name="approvalStageMap" type="Map"/>
+    <aura:attribute name="reasonForPriceReductionMap" type="Map"/> 
+    <aura:attribute name="objInfo" type="ETT_Staging_Quotation_Request__c" default="{sobjectType : 'ETT_Staging_Quotation_Request__c'}" />
+    <aura:attribute name="lstTyreMasterDetails" type="ETT_Tyre_Master__c[]"/>   
+     <aura:attribute name="TyreSizeName" type="String" />
+    <aura:attribute name="BrandName" type="String" />
+    <aura:attribute name="PatternName" type="String" />
+    <aura:attribute name="CountryName" type="String" />
+    
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }       
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .btnsend {
+        background: #fe864d;
+        border: 1px solid #fe864d;
+        outline: none;
+        box-shadow: none;
+        margin: 1rem;
+        }
+        .slds-border_bottom {
+        border-bottom: 1px solid #f2f2f2;
+        }
+        .slds-modal__close {
+        top: .5rem;
+        right: .5rem;
+        border: 1px solid #d4d4d4;
+        }
+        .slds-modal__close svg.slds-button__icon.slds-button_icon-inverse {
+        fill: #000;
+        }
+        .slds-modal__container{
+        max-width: 95rem !important;
+        width:95% !important;
+        }
+    </aura:html>
+        
+    <aura:if isTrue="{!v.stgQuoteReq[0].Opportunity__r.RecordType.Name=='Tyre Refurbishing Services'}">
+        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-border_bottom slds-hyphenate slds-align_absolute-center" style="border-bottom: 1px solid #f2f2f2;font-size: 16px;font-weight: 500!important;padding: 1rem;">
+            Customer Price Confirmation
+        </h2>
+        <aura:set attribute="else">
+            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-border_bottom slds-hyphenate slds-align_absolute-center" style="border-bottom: 1px solid #f2f2f2;font-size: 16px;font-weight: 500!important;padding: 1rem;">
+                Supplier Price Confirmation
+            </h2>
+        </aura:set> 
+    </aura:if>
+    <div class="mainDiv slds-scrollable"> 
+        <div class="outer-div">
+            <aura:if isTrue="{!v.showSpinner}">
+                <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+            </aura:if>
+            
+            
+            <div class="slds-border_bottom">
+                <div class="slds-form-element__control slds-m-around_medium">
+                         <!--div><h1 class="subheading">Customer Price Approval</h1></div-->  
+                     
+                    <table class="slds-box slds-table slds-table slds-table--striped">
+                        <thead>
+                            <tr class="slds-text-title_caps">
+                                <th>TYRE SIZE</th>
+                                <th>BRAND</th>
+                                <th>PATTERN</th>
+                                <th>COUNTRY</th>
+                                <aura:if isTrue="{!v.stgQuoteReq[0].Opportunity__r.RecordType.Name=='Tyre Refurbishing Services'}">
+                                    <th>REPAIR PRICE</th> 
+                                    <th>SELLING PRICE(P)</th>
+                                    <th>SELLING PRICE(H)</th>
+                                    <th>RETREAD PRICE(P)</th>
+                                    <th>RETREAD PRICE(H)</th>
+                                </aura:if>
+                                <aura:if isTrue="{!v.stgQuoteReq[0].Opportunity__r.RecordType.Name!='Tyre Refurbishing Services'}">
+                                    
+                                    <th>PURCHASE PRICE</th>
+                                </aura:if>
+                                <th>APPROVAL STATUS</th>
+                                <aura:if isTrue="{!v.stgQuoteReq[0].Opportunity__r.RecordType.Name!='Tyre Refurbishing Services'}">
+                                    <th>MIN PRICE</th>
+                                    <th>MAX PRICE</th>
+                                </aura:if>
+                                <th>PRICE REDUCTION REASON</th>
+                                                               
+                                <aura:if isTrue="{!v.isUserHOO==true}">
+                                    <th>HOO COMMENTS</th> 
+                                </aura:if>
+                                <aura:if isTrue="{!v.isUserFM==true}">
+                                    <th>FM COMMENTS</th> 
+                                </aura:if>
+                                <th>Price Change Reason</th>
+                               
+                            </tr>
+                        </thead>
+                        <tbody class="padtb">
+                            <aura:iteration items="{!v.stgQuoteReq}" var="item" indexVar="index">
+                                <tr>
+                                    <aura:if isTrue="{!v.isUserHOO==false}">  
+                                        <td>{!item.ETT_Tyre_Size_Master__r.Name}</td>
+                                        <td>{!item.ETT_Brand__r.Name}</td>
+                                        <td>{!item.ETT_Pattern__r.Name}</td>
+                                        <td>{!item.ETT_Country__r.Name}</td>
+                                    </aura:if>
+                                   <aura:if isTrue="{!v.isUserHOO==true}"> 
+                                    <td >
+                                        <div style="width: 140px;">
+                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Tyre_Size_Master__c" 
+                                                                                     fieldName="ETT_Tyre_Size__c"  
+                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                     brandName="{!v.BrandName}"
+                                                                                     patternName="{!v.PatternName}"
+                                                                                     countryName="{!v.CountryName}"
+                                                                                     selectRecordId="{!item.ETT_Tyre_Size_Master__c}" 
+                                                                                     selectRecordName="{!item.ETT_Tyre_Size_Master__r.Name}" rowNo="{!index}"
+                                                                                     required="true" iconName="standard:stage_collection"/> </div> </td>     
+                                   
+                                     <td >
+                                         <div style="width: 140px;">
+                                             <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Brand_Master__c" 
+                                                                                      fieldName="ETT_Brand_Name__c"  
+                                                                                      tyreSizeName="{!v.TyreSizeName}"
+                                                                                      brandName="{!v.BrandName}"
+                                                                                      patternName="{!v.PatternName}"
+                                                                                      countryName="{!v.CountryName}"
+                                                                                      selectRecordId="{!item.ETT_Brand__c}" 
+                                                                                      selectRecordName="{!item.ETT_Brand__r.Name}" rowNo="{!index}"
+                                                                                      required="true" iconName="standard:brand"/> 
+                                         </div>
+                                    </td>
+                                    <td >
+                                        <div style="width: 140px;">
+                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Pattern_Master__c" 
+                                                                                     fieldName="ETT_Original_Pattern__c"  
+                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                     brandName="{!v.BrandName}"
+                                                                                     patternName="{!v.PatternName}"
+                                                                                     countryName="{!v.CountryName}"
+                                                                                     selectRecordId="{!item.ETT_Pattern__c}" 
+                                                                                     selectRecordName="{!item.ETT_Pattern__r.Name}" rowNo="{!index}"
+                                                                                     required="true" iconName="standard:steps"/> 
+                                        </div>
+                                    </td>
+                                    <td >
+                                        <div style="width: 140px;">
+                                            <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Country_Master__c" 
+                                                                                     fieldName="ETT_Country_Name__c"  
+                                                                                     tyreSizeName="{!v.TyreSizeName}"
+                                                                                     brandName="{!v.BrandName}"
+                                                                                     patternName="{!v.PatternName}"
+                                                                                     countryName="{!v.CountryName}"
+                                                                                     selectRecordId="{!item.ETT_Country__c}" 
+                                                                                     selectRecordName="{!item.ETT_Country__r.Name}" rowNo="{!index}"
+                                                                                     required="true" iconName="standard:service_territory_location"/>
+                                        </div>
+                                    </td>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.stgQuoteReq[0].Opportunity__r.RecordType.Name=='Tyre Refurbishing Services'}">
+                                         <td><lightning:input aura:id="repariPrice" 
+                                                             name="{!index}" 
+                                                             value="{!item.ETT_Repair_Price__c}" 
+                                                            
+                                                              />
+                                        </td>
+                                         <td><lightning:input aura:id="sellingProcure" 
+                                                             name="{!index}" 
+                                                             value="{!item.Selling_Procure_Price__c}" 
+                                                             />
+                                        </td>
+                                        <td><lightning:input aura:id="sellingHot" 
+                                                             name="{!index}" 
+                                                             value="{!item.Selling_Hot_Price__c}" 
+                                                             />
+                                        </td>
+                                         <td><lightning:input aura:id="RetreadProcure" 
+                                                             name="{!index}" 
+                                                             value="{!item.ETT_Retread_Procure_Price__c}" 
+                                                          
+                                                              />
+                                        </td>
+                                         <td><lightning:input aura:id="RetreadHot" 
+                                                             name="{!index}" 
+                                                             value="{!item.ETT_Retread_Hot_Price__c}" 
+                                                             
+                                                              />
+                                        </td>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.stgQuoteReq[0].Opportunity__r.RecordType.Name!='Tyre Refurbishing Services'}">
+                                        
+                                        <td><lightning:input aura:id="purchasePrice" 
+                                                             name="{!index}" 
+                                                             value="{!item.ETT_Purchase_Price__c}" 
+                                                             required="true"
+                                                             onblurr="{!c.purchasePrice}" />
+                                        </td>
+                                    </aura:if>  
+                                    <td>
+                                        <lightning:select  aura:id="approvalStage" value="{!item.Approver_Status__c}" onchange="{!c.handleCompanyOnChange}" name="approvalList" class="">
+                                            <aura:iteration items="{!v.approvalStageMap}" var="ind" indexVar="key">
+                                                <option text="{!ind.value}" value="{!ind.key}" />
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </td>
+                                    <aura:if isTrue="{!v.stgQuoteReq[0].Opportunity__r.RecordType.Name!='Tyre Refurbishing Services'}">
+                                        
+                                        <td><lightning:input disabled="true" value="{!item.ETT_Min_Range__c}"/></td>
+                                        <td><lightning:input disabled="true" value="{!item.ETT_Max_Range__c}"/></td>
+                                    </aura:if>
+                                    <td>
+                                        <lightning:select  aura:id="reasonForPriceReduction" value="{!item.ETT_Reasons_For_Price_Reduction__c}" name="reasonForPriceReductionList">
+                                            <option text="None" value="" />
+                                            <aura:iteration items="{!v.reasonForPriceReductionMap}" var="ind" indexVar="key">
+                                                <option text="{!ind.value}" value="{!ind.key}" />
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </td>
+                                    <!--aura:if isTrue="{!v.isUserSales==true}"> 
+                                        <td>
+                                            <lightning:textarea placeholder="Sales Comments" name="SalesComment" value="{!item.ETT_Rejection_Comments__c}" />
+                                        </td>
+                                    </aura:if-->
+                                    <aura:if isTrue="{!v.isUserHOO==true}"> 
+                                        <td>
+                                            <lightning:textarea placeholder="Hoo Comments" name="hooComment" value="{!item.ETT_Rejection_Comments__c}" />
+                                        </td>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.isUserFM==true}"> 
+                                        <td>
+                                            <lightning:textarea placeholder="FM Comments" name="fmComment" value="{!item.ETT_Rejection_Comments__c}" />
+                                        </td>
+                                    </aura:if>
+                                    <td>
+                                        <lightning:textarea placeholder="Price Change Reason" name="changeReason" value="{!item.Price_Change_Reason__c}" />
+                                        
+                                    </td>
+                                </tr>
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                    <br/>
+                    <!-- Draft Tyre Master Details -->
+                  <aura:if isTrue="{!not(empty(v.lstTyreMasterDetails))}">
+                    <div><h1 class="subheading">New Tyre Approval</h1></div>  
+                    <table class="slds-box slds-table slds-table slds-table--striped">
+                        <thead>
+                            <tr class="slds-text-title_caps">
+                                <th></th>
+                                <th>Tyre Size</th>
+                                <th>Brand</th>
+                                <th>Pattern</th>
+                                <th>Country</th> 
+                               
+                                <th>Select</th>
+                            </tr>
+                        </thead>
+                        <tbody class="padtb">
+                            <aura:iteration items="{!v.lstTyreMasterDetails}" var="item" indexVar="index">
+                                <tr>
+                                    <td>
+                                        <label class="slds-checkbox">
+                                            <ui:inputCheckbox aura:id="checkEstimation" value="{!item.ETT_Status__c}"/>
+                                            <span class="slds-checkbox--faux" />
+                                            <span class="slds-form-element__label"></span>
+                                        </label>
+                                    </td>
+                                    <td><lightning:input value="{!item.ETT_Tyre_Sizes__c}"  onblur="{!c.convertCase}"/></td>
+                                    <td><lightning:input value="{!item.ETT_Brand__c}"  onblur="{!c.convertCase}"/></td>
+                                    <td><lightning:input value="{!item.ETT_Pattern__c}"  onblur="{!c.convertCase}"/></td>
+                                    <td><lightning:input value="{!item.ETT_Country__c}"  onblur="{!c.convertCase}"/></td>
+                                
+                                    <td>
+                                        <lightning:select  aura:id="reasonForPriceReduction" value="{!item.RecordTypes__c}" name="reasonForPriceReductionList">
+                                            <option text="Draft" value="Draft" />
+                                            <option text="Approve" value="Approve" />
+                                            <option text="Reject" value="Reject" />
+                                        </lightning:select>
+                                    </td>
+                                </tr>
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                  </aura:if>
+                  <!-- Draft tyre master details - End -->  
+                    
+                    
+                    
+                </div>
+            </div>
+            
+            <div class="slds-float--right " >
+                
+                <aura:if isTrue="{!not(empty(v.lstTyreMasterDetails))}">
+                <lightning:button variant="Brand" class="btnsend"
+                                  label="Approve New Tyre" 
+                                  onclick="{!c.ApproveNewTyre}"/>
+                </aura:if>
+                <aura:if isTrue="{!empty(v.lstTyreMasterDetails)}">
+                <lightning:button variant="brand" 
+                                  label="Submit"
+                                  title="Submit"
+                                  onclick="{!c.handleSubmit}" class="btnsend" disabled="{!v.showSpinner}"/> 
+                </aura:if>
+            </div>
+            
+        </div>
+    </div>
+    
+</aura:component>

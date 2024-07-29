@@ -1,0 +1,37 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,lightning:actionOverride,lightning:hasPageReference,lightning:isUrlAddressable,force:appHostable" controller="ETT_LeadFormController" access="global" >
+    
+    <aura:attribute name="selectedRecordId" type="Id" />
+    <aura:attribute name="processTypeMap" type="Map"/>   
+    <aura:attribute name="newLead" type="Lead" default="{'sobjectType': 'Lead'}"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="CurrentUser" type="Object"/>
+    <force:recordData recordId="{!$SObjectType.CurrentUser.Id}"
+                      fields="Profile.Name"
+                      targetFields="{!v.CurrentUser}"/>
+    
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col">
+            <span></span>
+        </div>
+        <div class="slds-col">
+            <!--<br/><br/><br/><br/><br/>-->
+            <b>Please select ET Tyre Process:</b>
+            <!-- p>{!v.CurrentUser.Profile.Name}</p -->
+            <lightning:select class="mrgn" aura:id="processTypeMap" value="{!v.newLead.ETT_Process_Type__c}" onchange="{!c.handleProcessOnChange}" name="paymentTypePicklist" >
+                <option value="">--None--</option>
+                <aura:if isTrue="{!v.CurrentUser.Profile.Name eq 'ETT_Sales Team'}">
+                    <option value="Tyre Refurbishing Services">Tyre Refurbishing Services</option>
+                    <aura:set attribute="else">
+                        <aura:iteration items="{!v.processTypeMap}" var="ind" indexVar="key">
+                            <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==v.newLead.ETT_Process_Type__c}" />
+                        </aura:iteration>
+                    </aura:set>
+                </aura:if>
+            </lightning:select>   
+        </div>
+        <div class="slds-col">
+            <span></span>
+        </div>
+    </div>    
+</aura:component>

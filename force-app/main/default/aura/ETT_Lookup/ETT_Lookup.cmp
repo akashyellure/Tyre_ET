@@ -1,0 +1,34 @@
+<aura:component controller="ETT_LookupSearchController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global">
+    <aura:attribute Name="selItem" type="object" access="public" /> 
+        <header class="slds-modal__header">
+            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Search Tyre Serial Number</h2>
+        </header>
+        <br/>
+        <div class="slds-grid slds-wrap">
+            <div class="slds-size_1-of-1">
+                <c:ETT_LookupSearch objectName="WorkOrderLineItem"
+                          limit="5"
+                          field_API_search="ETT_Tyre_Serial_Number__c"
+                          lookupIcon="standard:WorkOrderLineItem" 
+                          selItem="{!v.selItem}" 
+                          placeholder="Search Serial Number..."
+                          />  
+                
+                <aura:if isTrue="{!not(empty(v.selItem))}"> 
+                        <br />
+                        <b>Item Selected : </b> <br />
+                        Tyre Serial Number - {#v.selItem.text}<br />
+                        Collection Card - {#v.selItem.collectionCard} <br/> 
+                    	Inspection Card - {#v.selItem.inspectionCard} <br/> 
+                        Job Card - {#v.selItem.jobCard} <br/> 
+                    	<!--Service Appointment - {#v.selItem.serviceAppointmentNumber} <br/> -->
+                    	Account Name - {#v.selItem.AccountName}
+                       
+                </aura:if> 
+                <br/>
+                <div class="slds-clearfix">
+                    <lightning:button class="slds-float_right" variant="brand" label="Link to Case" onclick="{!c.linktoCase}" />
+                </div>
+            </div>
+        </div>
+</aura:component>

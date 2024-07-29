@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Filling_Summer_Halt_Time__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( MONTH(DATEVALUE(ETT_Cementing_End_Time_new__c ))&gt;3 &amp;&amp; MONTH(DATEVALUE(ETT_Cementing_End_Time_new__c ))&lt;11 , 0, (Now()- ETT_Cementing_End_Time_new__c )*24*60)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Filling Summer Halt Time(Mins)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

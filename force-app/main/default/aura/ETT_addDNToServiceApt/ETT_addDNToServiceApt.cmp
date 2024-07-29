@@ -1,0 +1,85 @@
+<aura:component controller="ETT_addDNToServiceApt" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global" >
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    <aura:attribute name="dnList" type="ETT_Delivery_Note__c[]"/>
+     <aura:attribute name="isSelectAll" type="boolean"/>
+	 <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+        .slds-modal__container{
+        max-width: 75rem !important;
+        width:75% !important;
+        }
+        
+    </aura:html>
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Add Delivery Notes</h4>
+    </div>
+    <div class="mainDiv"> 
+        <div class="outer-div">
+            <aura:if isTrue="{!v.showSpinner}">
+                <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+            </aura:if>
+            <div class="slds-modal__content">
+                
+                <div class="slds-scrollable collectionitemdiv" >
+                    
+                                     
+                    <aura:if isTrue="{!not(empty(v.dnList))}"> 
+                        
+                        <table class="slds-table" border="1"> 
+                            <thead>
+                                <th>          
+                                    <label class="slds-checkbox">
+                                        <ui:inputCheckbox value="{!v.isSelectAll}" change="{!c.handleSelectAll}" aura:id="selectAll"/>
+                                        <span class="slds-checkbox--faux" />
+                                        <span class="slds-form-element__label"></span>
+                                    </label>
+                                </th>
+                                <th>SNo</th>
+                                <th>DN Ref No.</th>
+                                <th>Date</th>
+                            </thead>
+                            <tbody>
+                                
+                                <aura:iteration items="{!v.dnList}" var="item" indexVar="key">
+                                    <tr>
+                                        <td>
+                                            <label class="slds-checkbox">
+                                                <ui:inputCheckbox aura:id="checkEstimation" value="{!item.isChecked}" text=""/>
+                                                <span class="slds-checkbox--faux" />
+                                                <span class="slds-form-element__label"></span>
+                                            </label>
+                                        </td>
+                                        <td>{!key+1}</td>
+                                        <td>{!item.Name}</td>
+                                        <td><lightning:formattedDateTime value="{!item.ETT_Date__c}"/></td>
+                                      
+                                        
+                                        
+                                    </tr>
+                                </aura:iteration>
+                                
+                            </tbody>
+                        </table>
+                        <aura:set attribute="else">
+                            <div style="margin:20px" class="slds-text-align_center slds-text-heading_medium">No records found.</div>
+                        </aura:set>
+                        
+                    </aura:if> 
+                    
+                </div>
+            </div>
+            
+            <div class="modal-footer slds-modal__footer">
+                <aura:if isTrue="{!not(empty(v.dnList))}"> 
+                    <lightning:button variant="brand" disabled="{!v.showSpinner}" onclick="{!c.addDNProcess}" label="Add" iconName="utility:outcome"/>
+                </aura:if>
+            </div>
+        </div>
+    </div>
+</aura:component>

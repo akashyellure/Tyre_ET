@@ -1,0 +1,7 @@
+<aura:component >
+    
+    <div><h1 class="subheading">Add New Tyre Details</h1></div>                
+    <c:ETT_Add_NewTyreDetailsIntoMaster aura:id="childComp" />
+    
+    
+</aura:component>

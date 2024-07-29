@@ -1,0 +1,30 @@
+.THIS .subheading{
+    background: #f2f2f2;
+    border: 1px solid #ddd;
+    padding: .5rem;
+    text-align: left;
+    font-size: 18px;
+    position: relative;
+    border-bottom: none;
+}
+.THIS .padtb tr:first-child th, .THIS .padtb tr:first-child td{
+    padding-top:15px !important;
+}
+.THIS .padtb tr:last-child th, .THIS .padtb tr:last-child td{
+    padding-bottom:15px !important;
+}
+.THIS .outer-div {
+    position: relative;
+}
+
+.THIS .spinner2 {
+   position: absolute;
+}
+.THIS .spinner2::after {
+    position: absolute;
+    content: 'Please wait...';
+    width: 100%;
+    text-align: center;
+    top: calc(50% + 3em);
+    font-weight: bold;
+}

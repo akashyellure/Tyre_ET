@@ -1,0 +1,341 @@
+<!--
+  Created By   :G.Krishnareddy
+  Created Date :05/27/2020
+  Description  :This is for Site Registration Process for to Maintain Community User in site.
+-->
+<aura:component controller="ETT_CommunitiesSiteRegFormController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <ltng:require styles="{!$Resource.ModalWidthCSS}" />    
+    <aura:attribute name="fileToBeUploaded" type="Object[]"/>
+    <aura:attribute name="fileUploadWrapper" type="ETT_FileUploadWrapper[]"/>
+    <aura:attribute name="activeSections" type="List" default="['A','B']" />
+    <aura:attribute name="activeSectionsMessage" type="String" default="" />
+    <aura:attribute name="Password" type="String" default="" />
+    
+    <aura:attribute name="filetype" type="List" default="['.png', '.jpg', '.jpeg','.pdf,.doc']" />
+    <aura:attribute name="ConfirmPassword" type="String" default="" />
+    <aura:attribute name="CustomerType" type="string[]" default="Person,Organization" />    
+    <aura:attribute name="accept" type="List" default="['.png', '.jpg', '.jpeg','.pdf,.doc']"/>
+    <aura:attribute name="multiple" type="Boolean" default="true"/>
+    <aura:attribute name="disabled" type="Boolean" default="false"/>
+    <aura:attribute name="isError" type="Boolean" default="false"/>    
+    <aura:attribute name="today" type="Date" default=""/>
+    
+    <aura:attribute name="showThankYou" type="Boolean" default="false" />    
+    <aura:attribute name="showError" type="Boolean" default="false" />        
+    
+    <aura:attribute name="fileNames" type="List" />            
+    
+    <aura:attribute name="objAccount" type="Account" default="{'sobjectType': 'Account',
+                                                              'ETT_First_Name__c':'',
+                                                              'ETT_Last_Name__c':'',
+                                                              'ETT_VAT_TRN_No__c':'',
+                                                              'ET_Emirates_Id__c':'',
+                                                              'ETSALES_Trade_License_Number__c':'',
+                                                              'ETSALES_Trade_License_Expiry_Date__c':'',
+                                                              'BillingCity':'',
+                                                              'BillingCountry':'',
+                                                              'BillingStreet':'',
+                                                              'ShippingCity':'',
+                                                              'ShippingCountry':'',
+                                                              'ShippingStreet':''}" />
+    
+    <aura:attribute name="objUser" type="User" default="{'sobjectType': 'User',
+                                                        'Username':'',
+                                                        'Email':'',
+                                                        'MobilePhone':'',
+                                                        'ETT_Customer_Type__c':''
+                                                        }" />
+    
+    <aura:attribute name="objBank" type="ETT_Bank_Reference__c" default="{'sobjectType': 'ETT_Bank_Reference__c',
+                                                                         'ETT_Account_Name__c':'',
+                                                                         'ETT_Account_Number__c':'',
+                                                                         'ETT_IBAN__c':'',
+                                                                         'ETT_Bank_Name__c':'',
+                                                                         'ETT_Branch_Name__c':''}" />
+    
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:handler event="aura:waiting" action="{!c.jsFunction}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.jsFunction}"/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    
+    <!--loading spinner start... style=Brand Medium (blue dots)-->
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showThankYou == false}">
+        
+        <div class="slds-box">
+            
+            <div class="slds-col headingTitle">
+                Portal Registration Form <br/>
+                <span style="font-size: 14px;font-weight: normal;">(Credit/B2B Tyre Supplier)</span>
+            </div>
+            
+            <lightning:accordion allowMultipleSectionsOpen="true" onsectiontoggle="{! c.handleSectionToggle }" activeSectionName="{! v.activeSections }">
+                
+                <lightning:accordionSection name="A" label="Personal Info">
+                    <table class="slds-border--left slds-border--right slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                        <tr>
+                            <td>
+                                <lightning:select label="Customer Type" name="key" value="{!v.objUser.ETT_Customer_Type__c}" required="true">
+                                    <option value="">-None-</option>
+                                    <aura:iteration items="{!v.CustomerType}" var="key">
+                                        <option value="{!key}" text="{!key}"></option>
+                                    </aura:iteration>
+                                </lightning:select>
+                                <span id="custErr" style="color: red;"></span>
+                            </td>
+                            <td>
+                            </td>            
+                        </tr>
+                        <tr>
+                            <td>
+                                <lightning:input label="First Name" name="fname" value="{!v.objAccount.ETT_First_Name__c}" required="true" onchange="{!c.validateFirstName}" />
+                                <span id="fnameErr" style="color: red;"></span>
+                            </td>
+                            <td>
+                                <lightning:input label="Last Name" name="lname" value="{!v.objAccount.ETT_Last_Name__c}" required="true"  onchange="{!c.validateLastName}" />                
+                                <span id="lnameErr" style="color: red;"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <lightning:input label="City" name="City" value="{!v.objAccount.BillingCity}" required="true" onchange="{!c.validateCity}" />
+                                <span id="cityErr" style="color: red;"></span>
+                            </td>
+                            <td>
+                                <lightning:input label="Country" name="Country" value="{!v.objAccount.BillingCountry}" required="true" onchange="{!c.validateCountry}" />                
+                                <span id="companyErr" style="color: red;"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <lightning:textarea name="Address1" label="Address1" value="{!v.objAccount.BillingStreet}" required="true" />
+                                <span id="address1Err" style="color: red;"></span>
+                            </td>
+                            <td>
+                                <lightning:textarea name="Address2" label="Address2" value="{!v.objAccount.ShippingStreet}" />
+                                <span id="address2Err" style="color: red;"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <lightning:input label="TRN Number" name="trnNumber" value="{!v.objAccount.ETT_VAT_TRN_No__c}" required="true" onchange="{!c.validateTRN}" />            
+                                <span id="trnErr" style="color: red;"></span>
+                            </td>
+                            <td>
+                                <lightning:input label="Emirates ID" name="emiratesId" value="{!v.objAccount.ET_Emirates_Id__c}" onchange="{!c.validateEmirateId}" />            
+                                <span id="emiIdErr" style="color: red;"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <lightning:input label="Trade License Number" name="tradeLicenseNumber" value="{!v.objAccount.ETSALES_Trade_License_Number__c}" required="true"  onchange="{!c.validateTradeNumber}" />                            
+                                <span id="tradeNoErr" style="color: red;"></span>                            
+                            </td>
+                            <td>
+                                <lightning:input type="date" name="tradeLicenseDate" label="Trade License Expiry Date" value="{!v.objAccount.ETSALES_Trade_License_Expiry_Date__c}" required="true" onchange="{!c.dateUpdate}" />                
+                                <span id="tradeLicenseDateErr" style="color: red;"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <lightning:input aura:id="TradingLicense" 
+                                                 type="file"
+                                                 files="{!v.fileToBeUploaded}"
+                                                 onchange="{!c.onFileUploaded}"
+                                                 accept="{!v.accept}"
+                                                 label="Trade License"
+                                                 name="TradingLicense" 
+                                                 multiple="true"/>  
+                                <span id="TradingLicenseErr" style="color:red;"></span>
+                                <aura:iteration items="{!v.fileUploadWrapper}" var="doc"  indexVar="index">
+                                    <aura:if isTrue="{! and(doc.strFileName != '',doc.fileSourceType=='TradingLicense') }">
+                                        <div>{!doc.strFileName}&nbsp;
+                                            <a href="javascript:void(0)" style="color:blue;" data-filename="{!doc.strFileName}" data-index="{!index}" onclick="{!c.removeFile}">Remove</a>
+                                        </div>
+                                    </aura:if>
+                                    
+                                </aura:iteration>
+                                
+                                
+                            </td>
+                            <td>
+                                <lightning:input aura:id="membershipOfChamber" 
+                                                 type="file"
+                                                 files="{!v.fileToBeUploaded}"
+                                                 onchange="{!c.onFileUploaded}"
+                                                 accept="{!v.accept}"
+                                                 label="Chamber of Commerce"
+                                                 name="membershipOfChamber" 
+                                                 multiple="true"/>   
+                                <span id="membershipOfChamberErr" style="color:red;"></span>                                
+                                <aura:iteration items="{!v.fileUploadWrapper}" var="doc"  indexVar="index">
+                                    <aura:if isTrue="{! and(doc.strFileName != '',doc.fileSourceType=='membershipOfChamber') }">
+                                        <div>        {!doc.strFileName}&nbsp;
+                                            <a href="javascript:void(0)" style="color:blue;" data-filename="{!doc.strFileName}" data-index="{!index}" onclick="{!c.removeFile}">Remove</a>
+                                        </div>
+                                    </aura:if>
+                                    
+                                </aura:iteration>
+                                
+                                
+                            </td>                
+                        </tr>
+                        <tr>
+                            <td>
+                                <lightning:input aura:id="companyProfile"
+                                                 type="file"
+                                                 files="{!v.fileToBeUploaded}"
+                                                 onchange="{!c.onFileUploaded}"
+                                                 accept="{!v.accept}"
+                                                 label="Company Profile"
+                                                 name="companyProfile" 
+                                                 multiple="true"
+                                                 />                        
+                                <span id="companyProfileErr" style="color:red;"></span>                                
+                                
+                                <aura:iteration items="{!v.fileUploadWrapper}" var="doc"  indexVar="index">
+                                    <aura:if isTrue="{! and(doc.strFileName != '',doc.fileSourceType=='companyProfile') }">
+                                        <div>{!doc.strFileName}&nbsp;
+                                            <a href="javascript:void(0)" style="color:blue;" data-filename="{!doc.strFileName}" data-index="{!index}" onclick="{!c.removeFile}">Remove</a>
+                                        </div>
+                                    </aura:if>
+                                </aura:iteration>
+                                
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    </table>
+                </lightning:accordionSection>
+                
+                <lightning:accordionSection name="B" label="User Information">            
+                    <table class="slds-border--left slds-border--right slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                        <tr>
+                            <td>
+                                <lightning:input label="Username" name="username" value="{!v.objUser.Username}" required="true" onchange="{!c.validateUsername}" />            
+                                <span id="usernameErr" style="color: red;"></span>
+                            </td>
+                            <td>
+                            </td>            
+                        </tr>
+                        <tr>
+                            <td>
+                                <lightning:input label="Password" type="password" name="password" value="{!v.Password}"  required="true" onchange="{!c.validatePassword}" />
+                                <span id="passErr" style="color: red;"></span>
+                            </td>
+                            <td>
+                                <lightning:input label="Confirm Password" type="password" name="confirmPassword" value="{!v.ConfirmPassword}"  required="true" onchange="{!c.validateConfirmPassword}" />
+                                <span id="confirmPassErr" style="color: red;"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <lightning:input label="Mobile" type="tel"  value="{!v.objUser.MobilePhone}" required="true" onchange="{!c.validateMobile}" />
+                                <span id="mobileErr" style="color: red;"></span>
+                            </td>
+                            <td>
+                                <lightning:input label="Email" type="email" name="email" value="{!v.objUser.Email}" required="true" onchange="{!c.validateEmail}" />
+                                <span id="emailErr" style="color: red;"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </lightning:accordionSection>
+                
+                <lightning:accordionSection name="C" label="Organizational Information">            
+                    <table class="slds-border--left slds-border--right slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                        <tr>                       
+                            <td>
+                                <lightning:input label="Organization Name" name="orgName" value="" />
+                            </td>
+                            <td>
+                                <lightning:input label="Address" name="orgAddress" value="" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <lightning:input label="Phone" name="phn" value="" />
+                            </td>
+                            <td>
+                                <lightning:input label="Fax" name="fax" value="" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <lightning:input label="Website" name="website" value="" />
+                            </td>
+                            <td>
+                                <lightning:input label="Job Title" name="title" value="{!v.Title}" />
+                            </td>
+                        </tr>
+                    </table>
+                </lightning:accordionSection>
+                <lightning:accordionSection name="D" label="Bank Details">
+                    <table class="slds-border--left slds-border--right slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                        <tr>
+                            <td>
+                                <lightning:input label="Bank Account Name" name="bankAccName" value="{!v.objBank.ETT_Account_Name__c}" />
+                            </td>
+                            <td>
+                                <lightning:input label="Bank Account Number" name="bankAccNumber" value="{!v.objBank.ETT_Account_Number__c}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            <lightning:input label="IBAN" name="iban" value="{!v.objBank.ETT_IBAN__c}" />
+                            </td>
+                            <td>
+                            <lightning:input label="Bank Name" name="orgAddress" value="{!v.objBank.ETT_Bank_Name__c}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            <lightning:input label="Bank Branch Name" name="orgName" value="{!v.objBank.ETT_Branch_Name__c}" />
+                            </td>
+                            <td>
+                            <lightning:input label="Annual Revenue " name="orgName" value="{!v.objAccount.AnnualRevenue}" />
+                            </td>
+                        </tr>                    
+                    </table>
+                </lightning:accordionSection>
+            </lightning:accordion>
+            
+        </div><br/>
+        
+        
+        
+        
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_1-of-6"></div>
+            <div class="slds-col slds-size_1-of-6"></div>
+            <div class="slds-col slds-size_1-of-6">
+                <lightning:button class="submit" variant="brand" label="Submit" title="Brand action" onclick="{! c.handleClick }" />
+            </div>
+            <div class="slds-col slds-size_1-of-6">
+                <lightning:button class="submit" variant="brand" label="Login" title="Brand action" onclick="{! c.login }" />                            
+            </div>
+            <div class="slds-col slds-size_1-of-6"></div>
+            <div class="slds-col slds-size_1-of-6"></div>
+        </div>
+        
+        <aura:set attribute="else">
+            <div style="color: white;
+                        font-size: 50px;
+                        text-align: center;
+                        ">Thank You!</div>
+        </aura:set>
+        
+    </aura:if> 
+    
+</aura:component>

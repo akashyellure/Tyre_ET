@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>NAME</columns>
+    <columns>Customer__c</columns>
+    <columns>Collection_Card__c</columns>
+    <columns>Tyre_Inventory__c</columns>
+    <columns>ETT_Inspection_Card__c</columns>
+    <columns>ETT_Stages__c</columns>
+    <columns>ETT_Overall_Status__c</columns>
+    <columns>Customer_Type__c</columns>
+    <columns>ETT_Priority__c</columns>
+    <columns>Misc_Issue_Status__c</columns>
+    <columns>Misc_Issue_Err_Msg__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>LAST_UPDATE</columns>
+    <columns>ETT_Buffing__c</columns>
+    <columns>ETT_Job_Stages__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>All</label>
+</ListView>

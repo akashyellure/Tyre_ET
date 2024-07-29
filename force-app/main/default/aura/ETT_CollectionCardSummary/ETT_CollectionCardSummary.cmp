@@ -1,0 +1,30 @@
+<aura:component controller="ETT_CollectionCardSummaryCls" implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="lstTyreDetails" type="List[]"  />    
+    <lightning:card>
+        <aura:set attribute="title">
+            <lightning:icon iconName="standard:asset_audit" size="small"/>
+            Tyre Summary
+        </aura:set>
+        <div class="slds-m-around_medium"> 
+            <aura:if isTrue="{!not(empty(v.lstTyreDetails))}">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered"> 
+                    <thead>
+                        <th>Tyre Size</th>
+                        <th>Count</th>
+                    </thead>
+                    <aura:iteration items="{!v.lstTyreDetails}" var="item" indexVar="index">
+                        <tr>
+                            <th>{!item.ETT_Tyre_Size_Master__r.Name}</th>
+                            <th>{!item.Total}</th>                            
+                        </tr>
+                    </aura:iteration>
+                </table>
+                <aura:set attribute="else">
+                    <div class="slds-align_absolute-center" style="font-size:16px">No data to display.</div>
+                </aura:set>
+            </aura:if>
+        </div>
+    </lightning:card>
+</aura:component>

@@ -1,0 +1,206 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,lightning:isUrlAddressable,force:hasRecordId" access="global" controller="ETT_LeadFormController">
+    
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important;
+        max-height:unset !important;
+        }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}"/>
+    
+    <aura:attribute name="stagingScrapInspectionList" type="ETT_Staging_Scrap_Inspection__c[]"/>
+
+    <aura:attribute name="objStagingScrapInspection" type="ETT_Staging_Scrap_Inspection__c" 
+                    default="{'sobjectType': 'ETT_Staging_Scrap_Inspection__c',
+                             'ETT_Tyre_Size__c': null,
+                             'ETT_Date__c':'',
+                             'ETT_Casing_Brand_lookup__c': '',
+                             'ETT_Original_Tread_Design_lookup__c': '',
+                             'ETT_Serial_Number__c':'',
+                             'ETT_Tyre_Status__c':'',
+                             'ETT_Retreaded_Tread_Design__c':'',
+                             'ETT_RIB_R_Transaction_T__c':'',
+                             'ETT_RTD__c':'',     
+                             'ETT_Pressure__c':'',
+                             'ETT_Condition_No__c':''}" />
+
+    
+    <aura:attribute name="newLead" type="Lead" default="{ 'sobjectType': 'Lead'}"/>
+    <aura:attribute name="stgFleetInspectRecord" type="Object"/>
+    <aura:attribute name="tyreStatusMap" type="Map"/>        
+    
+    <force:recordData aura:id="recordLoader"
+                      recordId="{!v.recordId}"
+                      fields="Name"
+                      targetFields="{!v.stgFleetInspectRecord}"
+                      />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="todaysDate" type="string"/>
+    
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Scrap Inspection Report</h4>
+    </div>    
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">
+            
+            <div class="slds-scrollable--x">
+                <table class="slds-table slds-table--bordered slds-table--striped" border="1"> 
+                    <tr> 
+                        <th>Customer Name</th>
+                        <th>Date</th>
+                    </tr>
+                    <tr>
+                        <td>{!v.stgFleetInspectRecord.Name}</td>
+                        <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                             type="date"
+                                             name="date"
+                                             value="{!v.todaysDate}"
+                                             required="true"/>
+                        </td>
+                    </tr>
+                </table>
+                
+                <br/>
+                <table class="slds-table slds-table--bordered slds-table--striped" border="1" style="width:210%;"> 
+                    <tr> 
+                        <th>SL.No</th>
+                        <th>Tyre Size</th>
+                        <th>Casing Brand </th>
+                        <th>Original Tread Design</th>      
+                        <th>Serial No.</th>
+                        <th>Tyre Status</th>  
+                        <th>Retread Tread Design</th>
+                        <th>RIB ( R )TRACTION ( T )</th>
+                        <th>RTD</th>
+                        <th>Pressure</th>
+                        <th>Pressure Unit</th>                        
+                        <th>Condition</th>
+                        <th>Action</th>
+                        <th></th>
+                    </tr>
+                    <aura:iteration items="{!v.stagingScrapInspectionList}" var="item" indexVar="index">
+                        
+                        <tr>
+                            
+                            <td>{!index+1}</td>
+                            <td>  
+                                <c:ETT_DynamicLookupSearchComponent objectName="ETT_Tyre_Size_Master__c" fieldName="Name"  
+                                                                    selectRecordId="{!item.ETT_Tyre_Size__c}" selectRecordName="" rowNo="{!index}"
+                                                                    required="true" iconName="action:user"/> 
+                                
+                            </td>
+                            
+                            <td>
+                                <c:ETT_DynamicLookupSearchComponent objectName="ETT_Brand_Master__c" fieldName="Name"  
+                                                                    selectRecordId="{!item.ETT_Casing_Brand_lookup__c}" selectRecordName="" rowNo="{!index}"
+                                                                    required="true" iconName="action:user"/> 
+                                
+                            </td>
+                            
+                            <td>
+                                <c:ETT_DynamicLookupSearchComponent objectName="ETT_Pattern_Master__c" fieldName="Name"  
+                                                                    selectRecordId="{!item.ETT_Original_Tread_Design_lookup__c}" selectRecordName="" rowNo="{!index}"
+                                                                    required="false" iconName="action:user"/> 
+                                
+                            </td>                    
+                            
+                            <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                                 name="stgFleetVehicleNum"
+                                                 value="{!item.ETT_Tyre_Serial_Number__c}"
+                                                 required="false"/></td>
+                            
+                            <td>
+                                <lightning:select class="mrgn" aura:id="tyreStatusMap" value="{!item.ETT_Tyre_Status__c}" name="tyreStatusPicklist" required="true">
+                                    <option value="">--None--</option>
+                                    <aura:iteration items="{!v.tyreStatusMap}" var="ind" indexVar="key">
+                                        <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Tyre_Status__c}" />
+                                    </aura:iteration>
+                                </lightning:select>                        
+                            </td>
+                            
+                            <td>
+                             <c:ETT_DynamicLookupSearchComponent objectName="ETT_Tread_Pattern_Master__c" fieldName="Name"  
+                                                                    selectRecordId="{!item.ETT_Retreaded_Tread_Design_lookup__c}" selectRecordName="" rowNo="{!index}"
+                                                                    required="false" iconName="action:user"/> 
+                                
+                            </td>                    
+                            
+                            <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                                 name="stgFleetVehicleNum"
+                                                 value="{!item.ETT_RIB_R_Transaction_T__c}"
+                                                 required="false"/></td>
+                            
+                            <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                                 name="stgFleetVehicleNum"
+                                                 class="rtd"
+                                                 value="{!item.ETT_RTD__c}"
+                                                 required="false"/></td>
+                            
+                            <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                                 name="stgFleetVehicleNum"
+                                                 value="{!item.ETT_Pressure__c}"
+                                                 required="false"/>
+                            </td>
+                            <td>
+                             <lightning:select aura:id="action" value="{!item.ETT_Pressure_Unit__c	}" class="selWidth" required="true">
+                                    <option value="">choose one...</option>
+                                    <option value="PSI">PSI</option>
+                                    <option value="kPa">kPa</option>
+                                </lightning:select>
+                            </td>                    
+                            
+                            <td><lightning:input aura:id="stagingFleetInspectionForm"
+                                                 name="stgFleetVehicleNum"
+                                                 value="{!item.ETT_Condition_No__c}"
+                                                 required="true"/></td>                    
+                            
+                            <td>
+                                <lightning:select aura:id="action" value="{!item.ETT_Action__c}" class="selWidth" required="true">
+                                    <option value="">choose one...</option>
+                                    <option value="Retreadable">Retreadable</option>
+                                    <option value="Repairable">Repairable</option>
+                                    <option value="Scrap">Scrap</option>
+                                </lightning:select>
+                            </td>                    
+                            <td scope="col">
+                                <aura:if isTrue="{!index == 0}">
+                                    <a onclick="{!c.AddNewRow}">
+                                        <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                                        <span class="slds-assistive-text">Add Icon</span>
+                                    </a>
+                                    <aura:set attribute="else">
+                                        <a onclick="{!c.removeRow}" id="{!index}" >
+                                            <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                                            <span class="slds-assistive-text">Delete Icon</span>
+                                        </a>
+                                    </aura:set>
+                                </aura:if>
+                            </td>
+                            
+                        </tr>
+                        
+                    </aura:iteration>
+                </table>
+                
+                <br/><br/>
+            </div>
+            
+        </div>
+    </div>
+    
+    
+    <div class="modal-footer slds-modal__footer">
+        <lightning:button variant="Brand" class="slds-button" label="Submit" onclick="{!c.clickCreate}"/>
+        <lightning:button variant="Neutral" class="slds-button" label="Cancel" onclick="{!c.handleClose}"/>
+    </div>     
+    
+</aura:component>

@@ -1,0 +1,216 @@
+<aura:component controller="ETT_ServiceAppointmentController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global">
+    
+    <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}" />
+    <aura:attribute name="activeSections" type="List" default="" />
+    <aura:attribute name="activeSectionsMessage" type="String" default="" />
+    <aura:attribute name="opportunityCardRecord" type="Object" />
+    <aura:attribute name="opportunityCardLoadError" type="String" />
+    <aura:attribute name="showServiceApt" type="boolean" default="false" />
+    <aura:attribute name="errorServiceApt" type="boolean" default="false" />
+    
+    <aura:attribute name="processMap" type="Map"/>   
+    <aura:attribute name="tyreTypeMap" type="Map"/> 
+    
+    <aura:attribute name="objContact" type="Contact" />
+    
+    <aura:attribute name="objAccount" type="Account" default="{'sobjectType': 'Account',
+                                                              'Party_Type__c':'',
+                                                              'Id':''}" />    
+    
+    
+    <aura:attribute name="objServiceAppointment" type="ServiceAppointment" default="{'sobjectType': 'ServiceAppointment',
+                                                                                    'EarliestStartTime':'',
+                                                                                    'DueDate':''
+                                                                                   }" />    
+    
+    
+    <aura:attribute name="objWorkOrder" type="WorkOrder" default="{'sobjectType': 'WorkOrder',
+                                                                  'AccountId':'',
+                                                                  'ContactId':'',
+                                                                  'ETT_Opportunity__c':'',
+                                                                  'ETT_Number_Of_Tyres__c':'',
+                                                                  'WorkTypeId':'',
+                                                                  'ETT_Process__c':''}" />
+    
+    <aura:attribute name="objAssignedResource" type="AssignedResource" default="{'sobjectType': 'AssignedResource',
+                                                                                'ServiceAppointmentId':'',
+                                                                                'ServiceResourceId':'',
+                                                                                'ServiceCrewId':'',
+                                                                                'ETT_Vehicle_Detail__c':'',
+                                                                                'EstimatedTravelTime':'',
+                                                                                'ActualTravelTime':''}" />    
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <force:recordData aura:id="opportunityCardLoader"
+                      recordId="{!v.recordId}"
+                      fields="Id,Name,Account.Name,Account.Party_Type__c,Account.ETT_Payment_Type__c"
+                      targetFields="{!v.opportunityCardRecord}"
+                      targetError="{!v.opportunityCardLoadError}"
+                      />
+   
+    <!--<aura:if isTrue="{!v.errorServiceApt == true}">
+      <a href="/one/one.app?source=aloha#/sObject/00O3M000000FGneUAG/view" target="_blank">View Details</a>
+    </aura:if>-->
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Service Appointment</h4>
+    </div>
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">
+            <div class="slds-scrollable">
+                
+                <lightning:accordion allowMultipleSectionsOpen="true" activeSectionName="{! v.activeSections }">
+                    
+                    <lightning:accordionSection name="A" label="Tyre Collection Request">
+                        
+                        <table class="slds-table slds-max-medium-table_stacked-horizontal">
+                            
+                            <tr> 
+                                <th>Account</th>
+                                <td>
+                                    <lightning:input aura:id="acc" type="text" name="acc" value="{!v.opportunityCardRecord.Account.Name}" required="true" disabled="true" />
+                                </td>
+                                <th>Number Of Tyres</th>
+                                <td>
+                                    <lightning:input aura:id="noOfTyre" type="text" name="noOfTyre" value="{!v.objWorkOrder.ETT_Number_Of_Tyres__c}" required="true" />
+                                </td>               
+                            </tr> 
+                            <tr>
+                                <th>Contact</th>
+                                <td>
+                                    <lightning:input aura:id="contact" type="text" name="contact" value="{!v.objContact.LastName}" required="true" disabled="true" />
+                                </td>
+                                <th>Opportunity</th>
+                                <td>
+                                    <lightning:input aura:id="noOfTyre" type="text" name="noOfTyre" value="{!v.opportunityCardRecord.Name}" required="true" disabled="true" />
+                                </td>
+                            </tr> 
+                            <tr>
+                                <th>Work Type</th>
+                                <td>
+                                    <c:ETT_DynamicLookupSearchComponent objectName="WorkType" fieldName="Name"  
+                                                                        selectRecordId="{!v.objWorkOrder.WorkTypeId}" selectRecordName="" rowNo=""                                                                            
+                                                                        required="true" iconName="standard:work_type"/> 
+                                    
+                                </td>          
+                                <td>
+                                </td>
+                                <!--<th>Process</th>
+                                    <td>
+                                        <lightning:select class="mrgn" aura:id="process" value="{!item.ETT_Process__c}" onchange="{!c.handleCompanyOnChange}" name="paymentTypePicklist" required="true">
+                                            <option value="">-None-</option>
+                                            <aura:iteration items="{!v.processMap}" var="ind" indexVar="key">
+                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Process__c}" />
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </td>-->
+                            </tr> 
+                            
+                        </table>
+                        
+                        
+                    </lightning:accordionSection>
+                    
+                    <lightning:accordionSection name="B" label="Service Appointment">
+                        
+                        <table class="slds-table slds-max-medium-table_stacked-horizontal">
+                            <tr>
+                                <td>
+                                    <ui:inputCheckbox class="skipCheckbox" aura:id="skip" label="Skip" change="{!c.onCheck}"/>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <aura:if isTrue="{!v.showServiceApt == false}">
+                            <table class="slds-table slds-max-medium-table_stacked-horizontal">
+                                
+                                <tr> 
+                                    <!--<th>Service Appointment</th>
+                                    <td>
+                                        <c:ETT_DynamicLookupSearchComponent objectName="ServiceAppointment" fieldName="AppointmentNumber"  
+                                                                            selectRecordId="{!v.objAssignedResource.ServiceAppointmentId}" selectRecordName="" rowNo="{!index}"
+                                                                            required="true" iconName="standard:service_appointment_capacity_usage"/> 
+                                        
+                                    </td>-->
+                                    <th>Service Resource</th>
+                                    <td>
+                                        <c:ETT_DynamicLookupSearchComponent objectName="ServiceResource" fieldName="Name"  
+                                                                            selectRecordId="{!v.objAssignedResource.ServiceResourceId}" selectRecordName="" rowNo="{!index}"
+                                                                            required="true" iconName="standard:service_resource"/> 
+                                    </td>
+                                    <td colspan="2">
+                                        <aura:if isTrue="{!v.errorServiceApt == true}">
+                                            <a href="/one/one.app?source=aloha#/sObject/00O3M000000FGneUAG/view" target="_blank">View Service Resource's Scheduled Appointments</a>
+                                        </aura:if>
+                                    </td>
+                                </tr>
+                                <tr> 
+                                    <th>Earliest Start Permitted</th>
+                                    <td>
+                                        <ui:inputDateTime aura:id="estimatedTravelTime" value="{!v.objServiceAppointment.EarliestStartTime}" displayDatePicker="true" required="true" />
+                                    </td>
+                                    <th>Due Date</th>
+                                    <td>
+                                        <ui:inputDateTime aura:id="actualTravelTime" value="{!v.objServiceAppointment.DueDate}" displayDatePicker="true" required="true" />
+                                    </td>
+                                </tr>
+                                <tr> 
+                                    <th>Vehicle Detail</th>
+                                    <td>
+                                        <c:ETT_DynamicLookupSearchComponent objectName="ETT_Vehicle_Details__c" fieldName="Name"  
+                                                                            selectRecordId="{!v.objAssignedResource.ETT_Vehicle_Detail__c}" selectRecordName="" rowNo=""
+                                                                            required="true" iconName="standard:work_type"/> 
+                                        
+                                    </td>
+                                    <!--<th>Tyre Type</th>
+                                    <td>
+                                        <lightning:select class="mrgn" aura:id="tyreType" value="{!v.objWorkOrder.ETT_Tyre_Type__c}" onchange="{!c.handleCompanyOnChange}" name="tyreTypePicklist" required="true">
+                                            <option value="">-None-</option>
+                                            <aura:iteration items="{!v.tyreTypeMap}" var="ind" indexVar="key">
+                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==v.objWorkOrder.ETT_Tyre_Type__c}" />
+                                            </aura:iteration>
+                                        </lightning:select>                                
+                                    </td>-->
+                                    <!--<th>Service Crew</th>
+                                        <td>
+                                            <c:ETT_DynamicLookupSearchComponent objectName="ServiceCrew" fieldName="Name"  
+                                                                                selectRecordId="{!item.ServiceCrewId}" selectRecordName="" rowNo="{!index}"
+                                                                                required="true" iconName="standard:service_crew"/> 
+                                            
+                                        </td>-->
+                                </tr> 
+                                
+                            </table>
+                        </aura:if>
+                        
+                    </lightning:accordionSection>
+                    
+                </lightning:accordion>
+                
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-footer slds-modal__footer">
+        <lightning:button
+                          variant="Brand"
+                          class="slds-button"
+                          label="Submit"
+                          onclick="{!c.submit}"
+                          />
+        <lightning:button
+                          variant="Neutral"
+                          class="slds-button"
+                          label="Cancel"
+                          onclick="{!c.handleClose}"
+                          />
+    </div>
+    
+</aura:component>

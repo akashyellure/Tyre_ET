@@ -1,0 +1,80 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId" controller="ETT_QuotationSendInEmailCtrl" access="global">
+  
+  <!--Author:Janardhan
+   Cmp Name: ETT_QuotationSendInEmail
+  Ctrl Name: ETT_QuotationSendInEmailCtrl
+  Created Date: 31/10/21
+  Desc: 
+  ***-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> 
+    <aura:attribute name="emailVal" type="String" />
+    <aura:attribute name="CCVal" type="String" />
+    <aura:attribute name="AccId" type="String" />
+    <aura:attribute name="QuoteName" type="String" />
+    <aura:attribute name="EmailTempDevName" type="String" default="ETT_SendQuotationPdfTemplate"/>
+    <aura:attribute name="disableBtn" type="boolean" default="false" />
+    <aura:attribute name="record" type="Object"/>
+    <force:recordData aura:id="recordLoader"
+                      recordId="{!v.recordId}"
+                      fields="ETT_Account__c,Name,Email__c"
+                      targetFields="{!v.record}"
+                      recordUpdated="{!c.onForceLoad}"
+                      />
+    
+	
+        <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }       
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .btnsend {
+        background: #fe864d;
+        border: 1px solid #fe864d;
+        outline: none;
+        box-shadow: none;
+        margin: 1rem;
+        }
+        .slds-border_bottom {
+        border-bottom: 1px solid #f2f2f2;
+        }
+        .slds-modal__close {
+        top: .5rem;
+        right: .5rem;
+        border: 1px solid #d4d4d4;
+        }
+        .slds-modal__close svg.slds-button__icon.slds-button_icon-inverse {
+        fill: #000;
+        }
+    </aura:html>
+    
+     
+   
+    
+    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-border_bottom slds-hyphenate slds-align_absolute-center" style="border-bottom: 1px solid #f2f2f2;font-size: 16px;font-weight: 500!important;padding: 1rem;">
+        Send Email to Customer
+    </h2>
+    
+    <div class="slds-border_bottom">
+        <div class="slds-form-element__control slds-m-around_medium">
+            <ui:inputEmail aura:id="email" label="Customer Email" value="{!v.emailVal}" class="field"/>
+            <ui:inputEmail aura:id="CCEmail" label="CC Emails" value="{!v.CCVal}" class="field"/>
+            <p><b>Note:</b> Please add <b>;</b> to separate mutliple emails in CC. </p>
+        </div>
+    </div>
+    <div class="slds-float--right " >
+        <lightning:button variant="brand" 
+                          label="Send"
+                          title="send"
+                          onclick="{!c.sendEmail}" class="btnsend" disabled="{!v.disableBtn}" /> 
+        
+    </div>
+    
+    
+</aura:component>

@@ -1,0 +1,96 @@
+.THIS .outer-div {
+  position: relative;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  margin: 1rem;
+}
+
+.THIS .spinner2 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+.THIS .spinner2::after {
+  position: absolute;
+  content: 'Please wait...';
+  width: 100%;
+  text-align: center;
+  top: calc(50% + 3em);
+  font-weight: bold;
+  color: #333;
+}
+
+.THIS .errortext {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0rem;
+  background: #f2f2f2;
+  padding: 0.5rem;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.THIS .slds-pill {
+  background: #c6f4ea;
+  padding: 0.5rem;
+  margin: 0.2rem 0.5rem 0.2rem 0;
+}
+
+.THIS .slds-card {
+  --card-title-color: #333; /* Example CSS variable */
+}
+
+.THIS .slds-card__header-title {
+  color: var(--card-title-color);
+}
+
+.THIS .hidden_label label {
+  display: none;
+}
+
+.THIS .slds-card__header {
+  background-color: #f3f3f3;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0.75rem 1rem;
+}
+
+.THIS .slds-card__body {
+  padding: 1rem;
+}
+
+.THIS .slds-button_brand {
+  background-color: #0070d2;
+  border-color: #0070d2;
+}
+
+.THIS .slds-button_success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.THIS .slds-button_neutral {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.THIS .slds-table thead tr {
+  background-color: #f3f3f3;
+}
+
+.THIS .slds-table thead th {
+  padding: 0.5rem;
+}
+
+.THIS .slds-table tbody tr td {
+  padding: 0.5rem;
+}
+.THIS .slds-form-element__control label.slds-form-element__label.slds-no-flex{
+	color:#000 !Important;
+}
+.THIS .slds-form-element__control .slds-combobox_container{
+	padding:0 !important;
+}

@@ -1,0 +1,1012 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Curing</fullName>
+    <active>true</active>
+    <compactLayoutAssignment>Job_Card_Line_Item</compactLayoutAssignment>
+    <label>Curing</label>
+    <picklistValues>
+        <picklist>Approval_Status__c</picklist>
+        <values>
+            <fullName>Approve by HOO</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Approve by Supervisor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Approved</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Submitted</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending from FM</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending from HOO</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pending from Supervisor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rejected by HOO</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Curing_Reasons__c</picklist>
+        <values>
+            <fullName>Curing Tube Leak</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Electrical Motor Complaint</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Envelop Leak</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Heating Coil Complaint</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Others</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pressure Pipe Leak</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pressure Relay Complaint</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Safety Valve Complaint</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Vacuum Pipe Leak</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Vacuum Relay Complaint</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Activity_Performed__c</picklist>
+        <values>
+            <fullName>Buffer Settings Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing - Inflation pressure check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing - Scan Surface</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing - Tyre Cut Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing Blade Conditions</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing Dust Collector - Suction filter value check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing Dust Collector - Suction line check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing Dust Collector - Suction pipeline capacity check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing Dust Collector Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing Sidebuffer Conditions</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing powder replacement check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing- Rasphub Tyre contact position check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Buffing- Tyre stone check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Building Rim Status Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cementing First Half</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cementing Missing Repair</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cementing Patches</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cementing Production Plate Area</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cementing Second Half</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Change in the default Temperature</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Check Onside down filling</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Check Tread width%2C Pattern</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Check safety lock on</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Complaints</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Confirm The Temperture</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing 13 Vacuum Pressure valve Condition and 13 Pressure Cable Condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing Chamber Door Condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing Chamber Motor Condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing Check 13 Inflation Pressure Valve and 13 Pressure Cable Condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing Connect the vacuum and pressure pipes to the loaded catridge inside the chamber</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing Control Panel Board Condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing Digital Screen Condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing Door Safety Lock</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing Hydraulic Pump Condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing Remove all vacuum and pressure connections from the catridge</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing The Gaugs of Pressure And Vacuum</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Curing Vacuum Machine Condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cushion Gum check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cutting Found</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Defect Checks</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Display History</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Door safety lock is ok</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enter Curing round number and choose starting time and end time</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Applied Tyre</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Build Tyre Condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Chamber</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Chamber 1</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Hang the tyre</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Inflation pressure check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Lube Type</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Pressure</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Pressure and Vaccum gage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Pressure%2FVaccum</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Rim Type</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Rimming and Envloping status</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping System Checks</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Vaccum</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Vaccume gage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enveloping Wicking Pad Application</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Expandable Building Rim pressure check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Filling Sholders Strip Availability Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Filling Work Check on Skived Areas%2FGSO%2FPlate</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Filling machine temperature check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Check Crown Condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Check ET sticker is clearly displayed on the sidewall</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Check Precure tread size</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Check Side Wall</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Check Spreader Light Conditions</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Check Tyre Lift</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Check Tyre Pattern</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Check Tyre Size</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Check Tyre Spreader in working condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Check correct labelling location</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is Any Curing Mark</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is Any Poor Repair</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is Buff off any excessive sidewall repair rubber flash</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is Shoulde Strip Overflow Mark</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is Tyre Bead Area ok</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is Wicking Pad Mark Visible</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is any Bead Wire Visible default</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is any Liner bulge%2FSeparation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is any Tearing Mount%2FDismount Damage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is any Tread centering or snaking</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is any any other default</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is any open%2Fdefective splice</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is any overheated bead area default</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is any poor rubber flow at tread shoulder edges</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is there any other default</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Is thread area ok</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Inspection Status</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Final Stage Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Floor Conditions</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Instructions Agreement</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Is Curing round %3E%3D1</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Light Conditions</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Motorized Inspection Spread Work</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Nail hole check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Nail hole missing%2FCrack on Sidewall Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>OnHold</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Painting Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Painting Check Excessive Paint Leakage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Painting Check Inner Side of Tyre Casing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Painting Check Sidewall Painting Leakage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Painting Check Tyres Sidewall Painted</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Power Swicth Operation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Check Crown Condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Check Precure tread size</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Check Side Wall</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Check Spreader Light Conditions</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Check Tyre Lift</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Check Tyre Pattern</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Check Tyre Size</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Check Tyre Spreader in working condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is Any Curing Mark</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is Any Loose%2FIncorrect Repair Unit</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is Any Poor Repair</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is Buff off any excessive sidewall repair rubber flash</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is Shoulde Strip Overflow Mark</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is Tyre Bead Area OK</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is Tyre Interior OK</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is Wicking Pad Mark Visible</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any Bead Wire Visible default</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any Bubbles%2CBlister%2FCrack</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any Inner Line Bulge</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any Inner Line Cracking</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any Liner bulge%2FSeparation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any Tearing Mount%2FDismount Damage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any Tread centering or snaking</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any missed nail hole repair</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any open%2Fdefective splice</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any overheated bead area default</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any ply Separation for Bias Tyre</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is any poor rubber flow at tread shoulder edges</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is there any other default</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quality Control Is thread area ok</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Removal of plastic sheet check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Repaired Skived Area</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Review Thread Specifications</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Reviewing Job History</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rust Not Remove%2C Crack Missing%2C Steel Note Remove</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Shoulder Strip check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Side Crown buffing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Aluminum oxide Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Ball shaped carbide Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Burr Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Cement tool Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Check Skiving Tools Status</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Counter wheel Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Cutting Stone Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Other tools Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - RMA Perfection Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Rasps Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Router carbide Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Rubber hogs Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving - Start</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skiving spot filling check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Stitching adjustment check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Stitching check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Stitching pressure check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Stitching wheel condition</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Temperature reaches to 120 degree%3F</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Terms Read</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Thread - Cutting Machine Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Thread Cemented Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Thread Cut Section Cemented Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tread centering sensor condition check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tread width with Cushion gum match</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tyre Cementing Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tyre Cementing Dryness Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Wearing%2C Workstation%2C Skills Set %26 Tools Check</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>chamber door is opened%3F</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>check chamber motor condition in 45 mintues</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>check lekage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>check the Tube pressure and envelop valve</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>check the repair plug availability</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>curing started</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Cementing_Tool__c</picklist>
+        <values>
+            <fullName>Brush</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sprayer</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Defect_s_found__c</picklist>
+        <values>
+            <fullName>Crack Missing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Envelope %26 Tube Leaking</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Improper Cement solution Coting</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Improper One Side Filling</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Improper Tread stitching</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Inner Liner Separation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Length%2C Tread Pattern %26 Width mismatch</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Missing Skiving Spot</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Nail Hole Missing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Patch Air</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Patch Missing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Re Buffing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rm Not Correct</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rust Not Clear</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Spot Curing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Steel Not Remove</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Dust_Collector_Reason__c</picklist>
+        <values>
+            <fullName>Maintenance Required</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other reasons</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Repair%2FFault identified</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Incorrect_Buffing_Settings_Reason__c</picklist>
+        <values>
+            <fullName>Adjustment needed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other issues</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Is_Cementing_Completed__c</picklist>
+        <values>
+            <fullName>No</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Yes</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Pause_Reason__c</picklist>
+        <values>
+            <fullName>Break</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Break down</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Maintenance</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tyre Receiving</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Rim_Type__c</picklist>
+        <values>
+            <fullName>Rim</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sure Lock</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Side_Buffer_Condition_Reasons__c</picklist>
+        <values>
+            <fullName>Blade Change</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Wire Brush Change</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Status__c</picklist>
+        <values>
+            <fullName>Completed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>In-Progress</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Started</fullName>
+            <default>true</default>
+        </values>
+        <values>
+            <fullName>OnHold</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ETT_Type__c</picklist>
+        <values>
+            <fullName>Actual Work</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pause</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pre-Requisite Work</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Reason__c</picklist>
+        <values>
+            <fullName>Bag Full</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Bag damage</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Others</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Rim_Sure_Lock_Values__c</picklist>
+        <values>
+            <fullName>Rim</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sure Lock</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

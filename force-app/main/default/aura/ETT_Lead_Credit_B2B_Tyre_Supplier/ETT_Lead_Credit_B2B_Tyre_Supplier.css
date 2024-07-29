@@ -1,0 +1,78 @@
+.THIS.slds-spinner_container {  
+  z-index: 10000;
+  position: fixed;   
+}
+.THIS.slds-size_3-of-12 {
+    margin-left: 500px;
+}
+.THIS .mob{
+    margin-right: 21%;
+}
+.THIS .usr{
+    margin-left: 9%;
+}
+.THIS .custType{
+    width: 112%;
+}
+.THIS .tradeNo{
+    width: 103%;
+}
+.THIS .trExp{
+    margin-left: 2%;
+}
+.THIS .title{
+    padding-left: 1%;
+    font-weight: bold;
+    background: #9c7d0c;
+    font-size: 16px;
+    margin-top: 3%;
+    color:white;
+}
+.THIS .headingTitle{
+    font-size: 20px;
+    text-align: center;
+    margin-top: 5px;
+    font-weight: bold;
+} 
+.THIS .custom_table{
+    padding:15px;
+    margin-top:20px;
+}
+.THIS .custom_table tr{ 
+    vertical-align: top;
+}
+.THIS .slds-table th, .THIS .slds-table td {
+    border: none;
+}
+.THIS .required_field{
+    color:#f00;
+    font-style:normal;
+    margin-left:5px;
+}
+.THIS.suppliermaindiv .slds-form-element__label{
+    display:none;
+}
+.THIS.suppliermaindiv{
+    width: 100%;
+    background: #fff;
+    margin-bottom: 15px;
+}
+.THIS .supheading{ 
+    width:100%;
+    display:block;
+}
+.THIS .supheading h1{
+    background: #f2f2f2;
+    border: 1px solid #ddd;
+    padding:10px .5rem;
+    text-align: center;
+    font-size: 22px;
+    position: relative;
+    border-bottom: none;
+}
+.THIS .padtb tr:first-child th, .THIS .padtb tr:first-child td{
+    padding-top:15px !important;
+}
+.THIS .padtb tr:last-child th, .THIS .padtb tr:last-child td{
+    padding-bottom:15px !important;
+}

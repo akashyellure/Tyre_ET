@@ -1,0 +1,329 @@
+<apex:page id="pId" lightningStylesheets="true" standardController="opportunity" extensions="ETT_ServiceResourcesController" docType="html-5.0" showHeader="false" sidebar="false">
+    
+    <apex:form id="frmId">  
+        <!-- Define the JavaScript function sayHello-->
+        <apex:actionFunction name="changeSkipAppointmentValue" action="{!changeSkipAppointmentValue}" immediate="true" reRender="none">
+            <apex:param name="isChecked" value=""/>
+        </apex:actionFunction>
+        
+        <!--<apex:pageMessages id="pageMessage"></apex:pageMessages>-->
+        <apex:outputText value="{!Opportunity.RecordType.Name}" rendered="false"> </apex:outputText>
+        <apex:outputText value="{!Opportunity.AccountId}" rendered="false"> </apex:outputText>
+        <apex:stylesheet value="{!URLFOR($Resource.fullcalendar,'fullcalendar/fullcalendar.min.css')}"/>
+        <apex:stylesheet value="{!URLFOR($Resource.fullcalendar,'fullcalendar/jquery-ui.min.css')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.fullcalendar,'/fullcalendar/jquery.min.js')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.fullcalendar,'/fullcalendar/jquery-ui.min.js')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.fullcalendar,'/fullcalendar/moment.min.js')}"/>
+        <apex:includeScript value="{!URLFOR($Resource.fullcalendar,'/fullcalendar/fullcalendar.min.js')}"/>
+        <apex:includeScript value="{!$Resource.FullCalendarDemo}"/>
+        <html>
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <style>
+                    form{
+                    padding:1rem;
+                    }
+                    
+                    .customEventStyle1{
+                            padding: 1px;
+                    }
+                    
+                    #calendar{
+                    width: 70%;
+                    padding: 1rem;
+                    float: left;
+                    position: relative;
+                    display: inline-block;
+                    margin-top: 0px;
+                    border: 1px solid #dddbda;
+                    margin-right: 1%;
+                    }
+                    <!--.apexp{
+                    width: 29%;
+                    display: inline-block;
+                    }-->
+                    .bPageBlock {
+                    border-radius: 0px;
+                    }
+                    body .detailList .dataCol input[type="text"]{
+                    min-width:100%!important;
+                    }
+                    .apexp table > tbody > tr > td:first-child{
+                    display:none;
+                    }
+                    .apexp table > tbody > tr > td{
+                    font-size:12px;
+                    }
+                    .apexp .detailList .dataCol{
+                    font-size: 12px;
+                    }
+                    .apexp .detailList .dataCol input[type="checkbox"]:first-child{
+                    margin: 0rem 1rem 0rem!important;
+                    position: absolute;
+                    left: 36%;
+                    }
+                    .apexp table > tbody > tr > td.empty{
+                    display:none;
+                    }
+                    body .bPageBlock .detailList .labelCol, .slds-vf-scope .bPageBlock .detailList .labelCol {
+                    text-align: left;
+                    width: 29%;
+                    }
+                    body .lookupInput, .slds-vf-scope .lookupInput {    
+                    width: 100%;
+                    }
+                    body .bPageBlock, .slds-vf-scope .bPageBlock {
+                    border-radius: 0rem;
+                    box-shadow: none;
+                    }
+                    body .pbBottomButtons, .slds-vf-scope .pbBottomButtons {
+                    margin: 0;
+                    text-align: center;
+                    }
+                    body .bPageBlock .pbSubheader{
+                    margin-bottom: 5px;
+                    outline: none;
+                    }
+                    .hideDropdown select{
+                    visibility: hidden !important;
+                    
+                    }
+                    .lookupInput{
+                    float:left;
+                    	margin-top: -36px;
+                    }
+                    .service_appointment{
+                        display: block;
+                        position: relative;
+                        width: 100%;
+                        clear:both;
+                    }
+                    .service_appointment .pbSubsection{
+                    	padding:0px;
+                    }
+                    .service_appointment table{
+                    	width:100%;
+                    }
+                    .service_appointment table tr {
+                    	display:block;width:100%!important;float:left!important;
+                    }
+                    .service_appointment table th , .service_appointment table td{
+                    	display:block!important;width:50%!important;float:left!important;
+                    }
+                    .service_appointment .lookupInput {
+                    	float: left;
+                    	margin-top: 0px!important;
+                    }
+                    .service_appointment .hideDropdown select , .service_appointment table td:first-child{
+                    	display:none!important;
+                    }
+                    .service_appointment table select{
+                    	min-width:100%!important;
+                    }
+                    .service_appointment .lookupInput, .slds-vf-scope .lookupInput {
+                    	width: 100%;position:relative;
+                    }
+                    .slds-vf-scope .bPageBlock.apexDefaultPageBlock{
+                        padding: .75rem .5rem;
+                    }
+                    <!-- .fc-time-grid-event.fc-short .fc-title {
+                        display: inline-flex;
+                    }
+                    .ui-widget .fc-event {
+                        min-height: 14px;
+                    }
+                    .fc-scroller{
+                    overflow:auto!important;
+                    }
+                    .fc-time-grid .fc-event{
+                    display: inline-table;border-radius: 3px;
+                    word-break: break-word;
+                    white-space: break-spaces;
+                    /*position: relative;*/
+                    }
+                    .fc-time-grid-event.fc-short .fc-time{
+                    float: left;line-height: normal;
+                    }
+                    .fc-time-grid-event.fc-short .fc-title {
+                    float: left;line-height: normal;
+                    clear: both;
+                    }
+                    .fc-time-grid-event.fc-short .fc-title br , .fc-time-grid .fc-event .fc-title br{
+                    display:none;
+                    }
+                    .fc td, .fc th{
+                    border-right: 1px solid #ddd;
+                    }-->
+                    @media only screen and (max-width: 1024px) {
+                        body .detailList .dataCol input[type="text"]{
+                        min-width:auto!important;
+                     	}
+                    }                     
+                </style>
+            </head>
+            <body>
+                <apex:sectionHeader title="Service Resource Calender" subtitle="Manage your calendar vehicle and appoinments from one place"/>
+                
+                <div style="width:100%">
+                    <div id='calendar'></div>
+                    
+                    <apex:pageBlock id="pbId">
+                        <apex:pageBlockSection title="Tyre Collection Request" id="pbs1" >
+                            <div>
+                                <apex:outputText label="Account">{!Opportunity.Account.Name}</apex:outputText>
+                            </div>
+                            <div>
+                                <apex:outputText label="Number of Tyres"><apex:inputfield value="{!objWorkOrder.ETT_Number_Of_Tyres__c}"/></apex:outputText>
+                            </div>
+                            <div>
+                                <apex:outputText label="Contact">{!objContact.LastName}</apex:outputText>
+                            </div>
+                            <div>
+                                <apex:outputText label="Opportunity">{!Opportunity.Name}</apex:outputText>
+                            </div>
+                            <div>
+                                <apex:outputText label="Work Type">{!objWorkType.Name}</apex:outputText>
+                            </div>
+                            <div id="skipAppointment">
+                                <apex:actionRegion >
+                                    <apex:inputCheckbox label="Skip Appointment" id="isSkipAppointment"  value="{!isSkipAppointment}" onchange="hideServiceAppointment('{!isSkipAppointment}');">
+                                        <apex:outputText value="Skip Appointment"></apex:outputText> 
+                                        <apex:actionSupport rerender="pbId,pbs1"/>
+                                    </apex:inputCheckbox>
+                                </apex:actionRegion>
+                            </div>
+                            <!--
+<div>
+<apex:actionRegion > 
+<apex:inputCheckbox label="Delivery Appointment" value="{!isDeliveryAppointment}">
+<apex:outputText value="Delivery Appointment"></apex:outputText>
+<apex:actionSupport event="onchange" action="{!deliveryWorkType}" rerender="pbId,pbs1"/>
+</apex:inputCheckbox>
+</apex:actionRegion>                                
+</div>
+-->
+                        </apex:pageBlockSection> 
+                        <div id="ServiceAppointmentId" class="service_appointment">
+                            <apex:pageBlockSection title="Service Appointment" rendered="{!!isSkipAppointment}" id="pbs2">
+                                <div class="serviceres">
+                                    <apex:inputField value="{!objAssignedResource.ServiceResourceId}" label="Service Resource" id="serviceResourceId" />
+                                </div>
+                                <div>
+                                    <apex:inputField label="Earliest Start Permitted" value="{!objServiceAppointment.earliestStartTime}" id="startDate" ></apex:inputField>
+                                </div>
+                                <div>                                
+                                    <apex:inputField label="Due date" value="{!objServiceAppointment.DueDate}" id="dueDate"></apex:inputField>
+                                </div>
+                                <div>
+                                    <apex:inputField label="Vehicle"  value="{!objAssignedResource.ETT_Vehicle_Detail__c}" id="vehicle"  required="true"></apex:inputField>
+                                </div>
+                                <div>
+                                    <apex:selectList label="Priority" value="{!selectedPriority}" multiselect="false" size="1">
+                                        <apex:selectOptions value="{!priorityOptions}"/>
+                                    </apex:selectList>
+                                </div>
+                                <div>
+                                    <apex:inputField styleClass="hideDropdown" label="Inspector Name" value="{!objServiceAppointment.ETT_Inspector_name__c }" id="Inspector"></apex:inputField>
+                                </div>
+                                <div>
+                                    <!--<apex:inputField value="{!objServiceAppointment.Address}"></apex:inputField>-->
+                                </div>                                
+                            </apex:pageBlockSection>
+                        </div>
+                        
+                        <apex:pageBlockButtons >
+                            <div style="text-align: Right">
+                                <apex:commandButton action="{!serviceAppointmentRedirect}" value="Submit" rerender="pageMessage"/>
+                                <apex:commandButton value="Cancel" immediate="true" onclick="onLoadServiceAppiontment()" />    
+                            </div>
+                        </apex:pageBlockButtons>    
+                        <apex:pageMessages id="pageMessage"></apex:pageMessages>
+                    </apex:pageBlock>    
+                    
+                </div>
+                
+                <script type="text/javascript"> 
+                
+                $( document ).ready(function() {
+                    //Attach Listeners
+                    attachListners();
+                    //Initialize calendar
+                    const calendar = CalendarSingleton.getCalendar();
+                    //Get users events onload
+                    getEvents(calendar); //get records onload
+                    // searchRecords(calendar);  //get searched records
+                    
+                    /*------------------To initialize the external events   ----------------------------------
+                    $('#external-events .fc-event').each(function() {
+                        // store data so the calendar knows to render an event upon drop
+                        $(this).data('event', {
+                            title: $.trim($(this).text()), // use the elements text as the event title
+                            stick: true // maintain when user navigates (see docs on the renderEvent method)               
+                        });
+                        // make the event draggable using jQuery UI
+                        $(this).draggable({
+                            zIndex: 999,
+                            revert: true,      // will cause the event to go back to its original position
+                            revertDuration: 0  //  original position after the drag
+                        });
+                    });
+                    $( "#createStartTime,#createEndTime,#updateStartTime,#updateEndTime" ).datepicker();*/ 
+                });
+                
+                function onLoadServiceAppiontment(){
+                    window.location.reload();
+                }
+                
+                function hideServiceAppointment(isSkipAppintment){
+                    var isSkipAppt = document.getElementById("pId:frmId:pbId:pbs1:isSkipAppointment").checked;
+                    console.log(isSkipAppt);
+                    changeSkipAppointmentValue(isSkipAppt);
+                    if(isSkipAppt){
+                        document.getElementById("ServiceAppointmentId").style.display = "none";
+                        document.getElementById("pId:frmId:pbId:pbs2:serviceResourceId").value='Anil';
+                        document.getElementById("pId:frmId:pbId:pbs2:startDate").value="11/1/2022, 10:24 AM";
+                        document.getElementById("pId:frmId:pbId:pbs2:dueDate").value="12/14/2022, 10:24 AM";
+                        document.getElementById("pId:frmId:pbId:pbs2:vehicle").value='VN-001';
+                    }else{
+                        document.getElementById("ServiceAppointmentId").style.display = "block";    
+                        document.getElementById("pId:frmId:pbId:pbs2:serviceResourceId").value='';
+                        document.getElementById("pId:frmId:pbId:pbs2:startDate").value="";
+                        document.getElementById("pId:frmId:pbId:pbs2:dueDate").value="";
+                        document.getElementById("pId:frmId:pbId:pbs2:vehicle").value='';
+                    }           
+                }
+                /**
+* Function to invoke remote action to get current user's
+             * all events and populate the calendar based on response
+            **/
+                function getEvents(){
+                    //Invoking remote action
+                    Visualforce.remoting.Manager.invokeAction(
+                        '{!$RemoteAction.ETT_ServiceResourcesController.lstAssignedResources}',
+                        function(result, event){
+                            //console.log('result-->',result);
+                            //console.log('event status-->',event.status);
+                            
+                            if (event.status) {
+                                //Call was successful, add events to calendar  
+                                console.log('inside function result-->',result);
+                                addEvents(result, calendar);
+                            } else if (event.type === 'exception') {
+                                console.log('event -->');
+                                //Exception in remote call
+                                console.error(`${event.message} ${event.where}`);
+                            } else {
+                                //Call was unsuccssful
+                                console.error(`${event.message}`);
+                            }
+                        },
+                        {escape: true}
+                    );
+                }
+                
+                </script>        
+            </body>
+        </html>
+        
+    </apex:form>
+</apex:page>

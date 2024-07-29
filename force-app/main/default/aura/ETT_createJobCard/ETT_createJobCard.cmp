@@ -1,0 +1,57 @@
+<aura:component controller="ETT_createJobCard" implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+   
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    <aura:attribute name="actionVal" type="string"/>
+    <aura:attribute name="userInfo" type="Object"/>
+    
+    
+     <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+        .slds-modal__container{
+        max-width: 75rem !important;
+        width:75% !important;
+        }
+      
+    </aura:html>
+    
+     <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Create Job Card</h4>
+    </div>
+    <div class="mainDiv"> 
+        <div class="outer-div">
+            <aura:if isTrue="{!v.showSpinner}">
+                <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+            </aura:if>
+            <div class="slds-modal__content">
+                <aura:if isTrue="{!v.userInfo.Profile.Name == 'ETT_Receptionist'}">
+                    <div class="slds-m-around_large collectionitemdiv slds-align_absolute-center" >
+                        Do you want to create Job Card, Please click on <b>Submit</b>. 
+                    </div>
+                    <aura:set attribute="else">
+                        <div class="slds-m-around_large collectionitemdiv " >
+                            <div class="slds-grid slds-gutters">
+                                <div class="slds-col slds-size_2-of-4">
+                                    <lightning:select name="CCAction" label="Choose Action" value="{!v.actionVal}" required="true">
+                                        <option value="Job Card Created">Create Job Card</option>
+                                        <option value="Check and Report">Check and Report</option>
+                                        
+                                    </lightning:select>
+                                </div>
+                            </div>
+                        </div>
+                    </aura:set>
+                </aura:if>
+            </div>
+            
+            <div class="modal-footer slds-modal__footer">
+                <lightning:button variant="brand" disabled="{!v.showSpinner}" onclick="{!c.submitHandler}" label="Submit" iconName="utility:forward"/>
+            </div>
+        </div>
+    </div>
+    
+	
+</aura:component>

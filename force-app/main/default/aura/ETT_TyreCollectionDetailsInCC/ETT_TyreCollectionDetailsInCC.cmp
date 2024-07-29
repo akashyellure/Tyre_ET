@@ -1,0 +1,863 @@
+<aura:component controller="ETT_TyreCollectionDetailsInCC" implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+    <!--
+Author:Janardhan
+created Date:25/11/2021
+ -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    <aura:attribute name="lstTyreInventory" type="ETT_Tyre_Inventory__c[]" />
+    <aura:attribute name="TyreInventoryFrmServer" type="ETT_Tyre_Inventory__c[]" />
+    <aura:attribute name="TyreSizeName" type="String" />
+    <aura:attribute name="InventoryStatus" type="Map" />
+    <aura:attribute name="BrandName" type="String" />
+    <aura:attribute name="PatternName" type="String" />
+    <aura:attribute name="CountryName" type="String" />
+    <aura:attribute name="TyreLifeMap" type="Map"/>
+    <aura:attribute name="ProcessTypeMap" type="Map"/>
+    <aura:attribute name="JobTypeMap" type="Map"/> 
+    <aura:attribute name="ClaimProcessMap" type="Map"/> 
+    <aura:attribute name="showMainCmp" type="Boolean" default="false" />
+    <aura:attribute name="showToggleCheckCmp" type="Boolean" default="false" />
+    <aura:attribute name="stgNewCollTyreInfo" type="ETT_StagingNewTyreCollection__c[]" />
+    <aura:attribute name="stgCollTyreDetailsFrmServer" type="ETT_StagingNewTyreCollection__c[]" />
+    <aura:attribute name="CCApproved" type="Boolean" default="false" />
+    <aura:attribute name="readMode" type="Boolean" default="false" />
+    <aura:attribute name="isMOConfirmed" type="Boolean" default="false" />
+    <aura:attribute name="userInfo" type="Object"/>
+    <aura:attribute name="lstTyreMaster" type="ETT_Tyre_Master__c" />
+    <aura:attribute name="lstPriceConfir" type="ETT_Pricing_Information__c[]"/>  
+    <aura:handler name="updateLookupIdEvent" event="c:ETT_DynamicEvent" action="{!c.handleComponentEvent}" />
+    
+    <aura:attribute name="CCRecord" type="Object"/>
+    <aura:attribute name="recordLoadError" type="String"/>
+    
+    <force:recordData aura:id="recordLoader"
+                      recordId="{!v.recordId}"
+                      fields="ETT_Check_In__c,ETT_Check_Out__c,Approval_Status__c,RecordType.Name"
+                      targetFields="{!v.CCRecord}"
+                      targetError="{!v.recordLoadError}" recordUpdated="{!c.onForceCCLoad}"/>
+    
+    <aura:html tag="style">
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium {
+        padding: 0rem !important; } .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important; max-height:unset !important; }
+        .slds-modal__container{
+        max-width: 95rem !important;
+        width:95% !important;
+        }
+        .slds-modal__close {
+        top: .5rem;
+        right: .5rem;
+        border: 1px solid #d4d4d4;
+        }
+    </aura:html>
+    
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">Collection Details</h4>
+        
+    </div>
+    <div class="mainDiv"> 
+        <div class="outer-div">
+            <aura:if isTrue="{!v.showSpinner}">
+                <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+            </aura:if>
+            <div class="slds-modal__content">
+                
+                <div class="slds-scrollable collectionitemdiv" >
+                    
+                    <!-- removed - ,and(v.CCRecord.Approval_Status__c=='Pending with Sales Person',v.userInfo.Profile.Name=='ETT_Sales Team'),-->
+                    <!--aura:if isTrue="{!!or(and(v.CCRecord.Approval_Status__c=='Pending with HOO',v.userInfo.Profile.Name=='ETT_Head of Operations'),and(v.CCRecord.Approval_Status__c=='Pending with FM',v.userInfo.Profile.Name=='ETT_Factory Manager'))}"-->
+                    <!-- hide this for FM/HOO/SalesPerson--> 
+                     <!--aura:if isTrue="{!!(v.userInfo.Profile.Name=='ETT_Sales Team'|| v.userInfo.Profile.Name=='ETT_Head of Operations'|| v.userInfo.Profile.Name=='ETT_Factory Manager')}"-->   
+                     <!--aura:if isTrue="{!!(v.CCRecord.Approval_Status__c=='Pending with Sales Person' &amp;&amp; v.userInfo.Profile.Name=='ETT_Sales Team')&amp;&amp; (v.CCRecord.Approval_Status__c=='Pending with HOO' &amp;&amp; v.userInfo.Profile.Name=='ETT_Head of Operations')&amp;&amp;(v.CCRecord.Approval_Status__c=='Pending with FM' &amp;&amp; v.userInfo.Profile.Name=='ETT_Factory Manager')}"--><!-- hide this for FM/HOO/Sales person--> 
+
+                    <aura:if isTrue="{!((v.CCRecord.Approval_Status__c=='Pending with Reception' || v.CCRecord.Approval_Status__c=='New') &amp;&amp; v.userInfo.Profile.Name=='ETT_Receptionist') || v.CCRecord.Approval_Status__c=='Approved' || v.userInfo.Profile.Name == 'ETT_Collection Team(Platform)'}">
+
+                         <aura:if isTrue="{!!v.readMode}">
+                            <aura:if isTrue="{!not(empty(or(v.TyreInventoryFrmServer,v.stgCollTyreDetailsFrmServer)))}">   
+                                <div style="margin-left: 27px;margin-top:5px">
+                                    <lightning:input type="toggle"
+                                                     aura:id="checkboxToggle"
+                                                     label="Add New Tyre Addition: "
+                                                     name="toggle"
+                                                     checked="false"
+                                                     onchange ="{!c.selectChange}"
+                                                     />
+                                </div> 
+                            </aura:if>
+                        </aura:if> 
+                        <!--***start** Saved/Server records display/update mode -->
+                        <aura:if isTrue="{!not(empty(v.TyreInventoryFrmServer))}">
+                            <table class="slds-box slds-table slds-table slds-table--striped">
+                                <thead>
+                                    <tr class="slds-text-title_caps">
+                                        <th></th>
+                                        <th>SLNO</th>
+                                        <th>Tyre Size</th>
+                                        <th>Brand</th>
+                                        <th>Pattern</th>
+                                        <th>Country Of Origion</th>
+                                        <th>Tyre Life</th>
+                                        <!--th>Price</th-->
+                                        <th>Tyre SLNo</th>
+                                        <th>Job Type</th>
+                                        <th>Claim Process</th>
+                                        <th>Process Type</th>
+                                        <th>Status</th>
+                                        <th>Remarks</th>
+                                        
+                                        <aura:if isTrue="{!!v.readMode}">
+                                            <th>Action</th>
+                                        </aura:if>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody class="padtb">
+                                    <aura:iteration items="{!v.TyreInventoryFrmServer}" var="item" indexVar="index">
+                                        <tr id="{!index}">
+                                            <td>
+                                            </td>
+                                            <td data-label="SLNO" class="slds-cell-wrap">
+                                                <div>{!index + 1}</div>
+                                            </td> 
+                                            
+                                            <td>
+                                                <div style="width: 140px;">
+                                                    <aura:if isTrue="{!!v.readMode}">
+                                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Tyre_Size_Master__c" 
+                                                                                                 fieldName="ETT_Tyre_Size__c"  
+                                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                                 brandName="{!v.BrandName}"
+                                                                                                 patternName="{!v.PatternName}"
+                                                                                                 countryName="{!v.CountryName}"
+                                                                                                 selectRecordId="{!item.ETT_Tyre_Size_Master__c}" 
+                                                                                                 selectRecordName="{!item.Temp_Size_Name__c}" rowNo="{!index}"
+                                                                                                 required="true" iconName="standard:stage_collection"/>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!v.readMode}">
+                                                        <ui:inputText value="{!item.ETT_Tyre_Size_Master__r.Name}" disabled="true"/>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="width: 140px;">
+                                                    <aura:if isTrue="{!!v.readMode}">
+                                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Brand_Master__c" 
+                                                                                                 fieldName="ETT_Brand_Name__c"  
+                                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                                 brandName="{!v.BrandName}"
+                                                                                                 patternName="{!v.PatternName}"
+                                                                                                 countryName="{!v.CountryName}"
+                                                                                                 selectRecordId="{!item.ETT_Brand__c}" 
+                                                                                                 selectRecordName="{!item.Temp_Brand_Name__c}" rowNo="{!index}"
+                                                                                                 required="true" iconName="standard:brand"/> 
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!v.readMode}">
+                                                        <ui:inputText value="{!item.ETT_Brand__r.Name}" disabled="true"/>
+                                                        
+                                                    </aura:if>
+                                                    
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="width: 140px;">
+                                                    <aura:if isTrue="{!!v.readMode}">
+                                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Pattern_Master__c" 
+                                                                                                 fieldName="ETT_Original_Pattern__c"  
+                                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                                 brandName="{!v.BrandName}"
+                                                                                                 patternName="{!v.PatternName}"
+                                                                                                 countryName="{!v.CountryName}"
+                                                                                                 selectRecordId="{!item.ETT_Pattern__c}" 
+                                                                                                 selectRecordName="{!item.Temp_Pattern_Name__c}" rowNo="{!index}"
+                                                                                                 required="true" iconName="standard:steps"/> 
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!v.readMode}">
+                                                        <ui:inputText value="{!item.ETT_Pattern__r.Name}" disabled="true"/>
+                                                    </aura:if>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="width: 140px;">
+                                                    <aura:if isTrue="{!!v.readMode}">
+                                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Country_Master__c" 
+                                                                                                 fieldName="ETT_Country_Name__c"  
+                                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                                 brandName="{!v.BrandName}"
+                                                                                                 patternName="{!v.PatternName}"
+                                                                                                 countryName="{!v.CountryName}"
+                                                                                                 selectRecordId="{!item.ETT_Country__c}" 
+                                                                                                 selectRecordName="{!item.Temp_Country_Name__c}" rowNo="{!index}"
+                                                                                                 required="true" iconName="standard:service_territory_location"/> 
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!v.readMode}">
+                                                        <ui:inputText value="{!item.ETT_Country__r.Name}" disabled="true"/>
+                                                    </aura:if>
+                                                    
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <lightning:select class="mrgn" aura:id="TyreLife" value="{!item.ETT_Tyre_Life__c}" onchange="" name="TyreLifePicklist" required="true" disabled="{!v.readMode}">
+                                                    <aura:iteration items="{!v.TyreLifeMap}" var="ind" indexVar="key">
+                                                        <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Tyre_Life__c}" />
+                                                    </aura:iteration>
+                                                </lightning:select>
+                                            </td>
+                                            <!--td>
+                                            Price
+                                        </td-->
+                                            
+                                            <td>
+                                                <div style="width: 160px;">
+                                                    <lightning:input variant="label-hidden" class="transfromUpper"  disabled="{!v.readMode}" aura:id="firsttyre" type="text" value="{!item.Serial_Number__c}" label="{!index}" onchange="" onblur ="{!c.convertCase}" required="true" />
+                                                </div>
+                                            </td>
+                                            <td><div style="width: 100px;">
+                                                <lightning:select  disabled="{!v.readMode}" class="mrgn" aura:id="JobType" value="{!item.Job_Type__c}" onchange="" name="JobTypePicklist" required="true" >
+                                                    <aura:iteration items="{!v.JobTypeMap}" var="ind" indexVar="key">
+                                                        <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.Job_Type__c}" />
+                                                    </aura:iteration>
+                                                </lightning:select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <lightning:select  disabled="{!v.readMode}" class="mrgn" aura:id="ClaimProcessMap" value="{!item.Claim_Process__c}" onchange="" name="ClaimProcessMap" required="true" >
+                                                    <aura:iteration items="{!v.ClaimProcessMap}" var="ind" indexVar="key">
+                                                        <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key=='Normal'}" />
+                                                    </aura:iteration>
+                                                </lightning:select>
+                                            </td>
+                                            <td>
+                                                <lightning:select  disabled="{!v.readMode}" class="mrgn" aura:id="ProcessMap" value="{!item.Process_Type__c}" onchange="" name="ProcessMap" required="true">
+                                                    <aura:iteration items="{!v.ProcessTypeMap}" var="ind" indexVar="key">
+                                                        <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.Process_Type__c}" />
+                                                    </aura:iteration>
+                                                </lightning:select>
+                                            </td>
+                                            <td><div style="width: 100px;">
+                                                <lightning:select  disabled="{!v.readMode}" class="mrgn" aura:id="InventoryStatus" value="{!item.ETT_Inventory_Status__c}" onchange="" name="InventoryStatus" required="true">
+                                                    <aura:iteration items="{!v.InventoryStatus}" var="ind" indexVar="key">
+                                                        <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Inventory_Status__c}" />
+                                                    </aura:iteration>
+                                                </lightning:select>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="width: 140px;">
+                                                    <lightning:textarea  disabled="{!v.readMode}" value="{!item.Remarks__c}" />
+                                                </div>
+                                            </td>
+                                            <aura:if isTrue="{!!v.readMode}">
+                                                <td>
+                                                    <aura:if isTrue="{!!or(v.CCRecord.Approval_Status__c=='Pending with HOO',v.CCRecord.Approval_Status__c=='Pending with FM')}">
+                                                        <a onclick="{!c.deleteRowFrmServer}" data-filename="{!item.Id}" id="{!index}" >
+                                                            <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small addiconcus" size="small" alternativeText="icon"/>
+                                                            <span class="slds-assistive-text">Delete Icon</span>
+                                                        </a>
+                                                    </aura:if>
+                                                </td>
+                                            </aura:if>
+                                            
+                                        </tr>                             
+                                    </aura:iteration>
+                                </tbody>
+                                
+                                
+                            </table>
+                        </aura:if> 
+                        
+                        <aura:if isTrue="{!!v.readMode}">
+                            <aura:if isTrue="{!not(empty(v.stgCollTyreDetailsFrmServer))}">
+                                <table class="slds-box slds-table slds-table slds-table--striped">
+                                    <thead>
+                                        <tr class="slds-text-title_caps"> 
+                                            <th scope="col" class="slds-text-align--left">
+                                                <div title="SLNO" class="line_tit"><b>SLNO</b> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--left">
+                                                <div title="Tyre Size" class="line_tit"><b>Tyre Size</b><i class="required_field">*</i> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--left">
+                                                <div title="Brand" class="line_tit"><b>Brand</b><i class="required_field">*</i> </div>
+                                            </th>
+                                            
+                                            <th scope="col" class="slds-text-align--left">
+                                                <div title="Pattern" class="line_tit"><b>Pattern</b> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--left">
+                                                <div title="Country Of Origion" class="line_tit"><b>Country Of Origion</b><i class="required_field">*</i> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--left">
+                                                <div title="Tyre Serial No." class="line_tit"><b>Tyre Serial No.</b><i class="required_field">*</i> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--left">
+                                                <div title="Job Type" class="line_tit"><b>Job Type</b><i class="required_field">*</i> </div>
+                                            </th>
+                                            <th scope="col" class="slds-text-align--left">
+                                                <div title="Procees Type" class="line_tit"><b>Process Type</b><i class="required_field">*</i> </div>
+                                            </th>   
+                                            
+                                            <th scope="col">
+                                                <div title="Add / Delete" class="line_tit"><b>Action </b> </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="padtb">
+                                        <aura:iteration items="{!v.stgCollTyreDetailsFrmServer}" var="item" indexVar="index">
+                                            <tr id="{!index}"> 
+                                                <td data-label="SLNO" class="slds-cell-wrap">
+                                                    <div>{!index + 1}</div>
+                                                </td>
+                                                
+                                                <td data-label="TYRE SIZE" class="slds-cell-wrap">
+                                                    <div style="width: 140px;">
+                                                        <lightning:input  onblur="{!c.convertCase}" required="true" variant="label-hidden" type="text" value="{!item.Size_Name__c}" /> 
+                                                    </div>
+                                                </td>
+                                                <td data-label="BRAND" class="slds-text-align--center ">
+                                                    <div style="width: 140px;">
+                                                        <lightning:input onblur="{!c.convertCase}" required="true" variant="label-hidden" type="text" value="{!item.Brand_Name__c}" /> 
+                                                    </div>
+                                                </td>
+                                                
+                                                <td data-label="PATTERN	" class="slds-text-align--center">
+                                                    <div style="width: 140px;">
+                                                        <lightning:input  onblur="{!c.convertCase}" variant="label-hidden" type="text" value="{!item.Pattern_Name__c}" /> 
+                                                    </div>
+                                                </td>
+                                                <td data-label="COUNTRY OF ORIGION" class="slds-text-align--center">
+                                                    <div style="width: 140px;">
+                                                        <lightning:input  onblur="{!c.convertCase}" required="true" variant="label-hidden" type="text" value="{!item.Country_Name__c}" /> 
+                                                    </div>
+                                                </td>
+                                                <td data-label="COUNTRY OF ORIGION" class="slds-text-align--center">
+                                                    <div style="width: 160px;">
+                                                        <lightning:input  onblur="{!c.convertCase}" required="true" variant="label-hidden" type="text" value="{!item.Tyre_Serial_No__c}" /> 
+                                                    </div>
+                                                </td>
+                                                <td><div style="width: 120px;">
+                                                    <lightning:select class="mrgn" aura:id="JobType" value="{!item.Job_Type__c}" onchange="" name="JobTypePicklist" required="true" disabled="false">
+                                                        <aura:iteration items="{!v.JobTypeMap}" var="ind" indexVar="key">
+                                                            <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.Job_Type__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <lightning:select class="mrgn" aura:id="ProcessMap" value="{!item.Process_Type__c}" onchange="" name="ProcessMap" required="true" disabled="false">
+                                                        <aura:iteration items="{!v.ProcessTypeMap}" var="ind" indexVar="key">
+                                                            <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.Process_Type__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </td>
+                                                <!--td><div style="width: 100px;">
+                                                    <lightning:select  disabled="{!v.readMode}" class="mrgn" aura:id="InventoryStatus" value="{!item.ETT_Inventory_Status__c}" onchange="" name="InventoryStatus" required="true">
+                                                        <aura:iteration items="{!v.InventoryStatus}" var="ind" indexVar="key">
+                                                            <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Inventory_Status__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                    </div>
+                                                </td-->
+                                                
+                                                <td data-label="Action" class="slds-cell-wrap">
+                                                    <aura:if isTrue="{!!v.readMode}">
+                                                        <aura:if isTrue="{!!or(v.CCRecord.Approval_Status__c=='Pending with HOO',v.CCRecord.Approval_Status__c=='Pending with FM')}">
+                                                            <a onclick="{!c.deleteNewTyreFrmServer}" data-filename="{!item.Id}" id="{!index}">
+                                                                <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small addiconcus" size="small" alternativeText="icon" />
+                                                                <span class="slds-assistive-text">Delete Icon</span>
+                                                            </a>
+                                                        </aura:if>
+                                                    </aura:if>
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>
+                                    </tbody>                                        
+                                </table>
+                            </aura:if>
+                        </aura:if>
+                        <!-- ***End** Saved/Server records display/update mode-->
+                        
+                        
+                        <aura:if isTrue="{!v.showMainCmp}">
+                            
+                            <aura:if isTrue="{!v.showToggleCheckCmp}">
+                                <table class="slds-box slds-table slds-table slds-table--striped">
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th></th>
+                                            <th>SLNO</th>
+                                            <th>Tyre Size</th>
+                                            <th>Brand</th>
+                                            <th>Pattern</th>
+                                            <th>Country Of Origion</th>
+                                            <th>Tyre Life</th>
+                                            <!--th>Price</th-->
+                                            <th>Tyre SLNo</th>
+                                            <th>Job Type</th>
+                                            <th>Claim Process</th>
+                                            <th>Process Type</th>
+                                            <th>Remarks</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    
+                                    <tbody class="padtb">
+                                        <aura:iteration items="{!v.lstTyreInventory}" var="item" indexVar="index">
+                                            <tr id="{!index}">
+                                                <td>
+                                                </td>
+                                                <td data-label="SLNO" class="slds-cell-wrap">
+                                                    <div>{!index + 1}</div>
+                                                </td> 
+                                                
+                                                <td>
+                                                    <div style="width: 140px;">
+                                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Tyre_Size_Master__c" 
+                                                                                                 fieldName="ETT_Tyre_Size__c"  
+                                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                                 brandName="{!v.BrandName}"
+                                                                                                 patternName="{!v.PatternName}"
+                                                                                                 countryName="{!v.CountryName}"
+                                                                                                 selectRecordId="{!item.ETT_Tyre_Size_Master__c}" 
+                                                                                                 selectRecordName="{!item.Temp_Size_Name__c}" rowNo="{!index}"
+                                                                                                 required="true" iconName="standard:stage_collection"/>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div style="width: 140px;">
+                                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Brand_Master__c" 
+                                                                                                 fieldName="ETT_Brand_Name__c"  
+                                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                                 brandName="{!v.BrandName}"
+                                                                                                 patternName="{!v.PatternName}"
+                                                                                                 countryName="{!v.CountryName}"
+                                                                                                 selectRecordId="{!item.ETT_Brand__c}" 
+                                                                                                 selectRecordName="{!item.Temp_Brand_Name__c}" rowNo="{!index}"
+                                                                                                 required="true" iconName="standard:brand"/> 
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div style="width: 140px;">
+                                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Pattern_Master__c" 
+                                                                                                 fieldName="ETT_Original_Pattern__c"  
+                                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                                 brandName="{!v.BrandName}"
+                                                                                                 patternName="{!v.PatternName}"
+                                                                                                 countryName="{!v.CountryName}"
+                                                                                                 selectRecordId="{!item.ETT_Pattern__c}" 
+                                                                                                 selectRecordName="{!item.Temp_Pattern_Name__c}" rowNo="{!index}"
+                                                                                                 required="true" iconName="standard:steps"/> 
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div style="width: 140px;">
+                                                        <c:ETT_DynamicLookupController_CloneCopy objectName="ETT_Country_Master__c" 
+                                                                                                 fieldName="ETT_Country_Name__c"  
+                                                                                                 tyreSizeName="{!v.TyreSizeName}"
+                                                                                                 brandName="{!v.BrandName}"
+                                                                                                 patternName="{!v.PatternName}"
+                                                                                                 countryName="{!v.CountryName}"
+                                                                                                 selectRecordId="{!item.ETT_Country__c}" 
+                                                                                                 selectRecordName="{!item.Temp_Country_Name__c}" rowNo="{!index}"
+                                                                                                 required="true" iconName="standard:service_territory_location"/> 
+                                                        
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <lightning:select class="mrgn" aura:id="TyreLife" value="{!item.ETT_Tyre_Life__c}" onchange="" name="TyreLifePicklist" required="true">
+                                                        <aura:iteration items="{!v.TyreLifeMap}" var="ind" indexVar="key">
+                                                            <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Tyre_Life__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </td>
+                                                <!--td>
+                                                Price
+                                            </td-->
+                                                
+                                                <td>
+                                                    <div style="width: 160px;">
+                                                        <lightning:input variant="label-hidden" class="transfromUpper" aura:id="firsttyre" type="text" value="{!item.Serial_Number__c}" label="{!index}" onchange="" onblur ="{!c.convertCase}" required="true" />
+                                                    </div>
+                                                </td>
+                                                <td><div style="width: 120px;">
+                                                    <lightning:select class="mrgn" aura:id="JobType" value="{!item.Job_Type__c}" onchange="" name="JobTypePicklist" required="true" disabled="false">
+                                                        <aura:iteration items="{!v.JobTypeMap}" var="ind" indexVar="key">
+                                                            <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.Job_Type__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <lightning:select class="mrgn" aura:id="ClaimProcessMap" value="{!item.Claim_Process__c}" onchange="" name="ClaimProcessMap" required="true" disabled="false">
+                                                        <aura:iteration items="{!v.ClaimProcessMap}" var="ind" indexVar="key">
+                                                            <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key=='Normal'}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </td>
+                                                <td>
+                                                    <lightning:select class="mrgn" aura:id="ProcessMap" value="{!item.Process_Type__c}" onchange="" name="ProcessMap" required="true" disabled="false">
+                                                        <aura:iteration items="{!v.ProcessTypeMap}" var="ind" indexVar="key">
+                                                            <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.Process_Type__c}" />
+                                                        </aura:iteration>
+                                                    </lightning:select>
+                                                </td>
+                                                <td>
+                                                    <div style="width: 140px;">
+                                                        <lightning:textarea value="{!item.Remarks__c}" />
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <aura:if isTrue="{!index == 0}">
+                                                        
+                                                        <a data-index="{!index}" onclick="{!c.copyThisLine}">
+                                                            <lightning:icon iconName="utility:copy" class="slds-icon slds-icon_small" size="small" alternativeText="add" />
+                                                        </a>
+                                                        <a onclick="{!c.addNewRow}">
+                                                            <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add" />
+                                                        </a>
+                                                        
+                                                        <aura:set attribute="else">
+                                                            <a data-index="{!index}" onclick="{!c.copyThisLine}">
+                                                                <lightning:icon iconName="utility:copy" class="slds-icon slds-icon_small" size="small" alternativeText="add" />
+                                                            </a>
+                                                            <a onclick="{!c.removeRow}" id="{!index}" >
+                                                                <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small addiconcus" size="small" alternativeText="icon"/>
+                                                                <span class="slds-assistive-text">Delete Icon</span>
+                                                            </a>
+                                                            
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </td>
+                                                
+                                            </tr>                             
+                                        </aura:iteration>
+                                    </tbody>
+                                    
+                                    
+                                </table>
+                                
+                                
+                                <div><h4 class="title slds-text-heading--medium" style="margin: 10px;">Add New Tyre Details</h4></div>                
+                                
+                                <!--Start - add new tyre info-->
+                                <form class="slds-form--stacked">                 
+                                    <!--<div><h1 class="subheading">Add New Tyre Details</h1></div>-->
+                                    <table class="slds-box slds-table slds-table slds-table--striped">
+                                        <thead>
+                                            <tr class="slds-text-title_caps"> 
+                                                <th scope="col" class="slds-text-align--left">
+                                                    <div title="SLNO" class="line_tit"><b>SLNO</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--left">
+                                                    <div title="Tyre Size" class="line_tit"><b>Tyre Size</b><i class="required_field">*</i> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--left">
+                                                    <div title="Brand" class="line_tit"><b>Brand</b><i class="required_field">*</i> </div>
+                                                </th>
+                                                
+                                                <th scope="col" class="slds-text-align--left">
+                                                    <div title="Pattern" class="line_tit"><b>Pattern</b> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--left">
+                                                    <div title="Country Of Origion" class="line_tit"><b>Country Of Origion</b><i class="required_field">*</i> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--left">
+                                                    <div title="Tyre Serial No." class="line_tit"><b>Tyre Serial No.</b><i class="required_field">*</i> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--left">
+                                                    <div title="Job Type" class="line_tit"><b>Job Type</b><i class="required_field">*</i> </div>
+                                                </th>
+                                                <th scope="col" class="slds-text-align--left">
+                                                    <div title="Procees Type" class="line_tit"><b>Process Type</b><i class="required_field">*</i> </div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div title="Add / Delete" class="line_tit"><b>Action </b> </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="padtb">
+                                            <aura:iteration items="{!v.stgNewCollTyreInfo}" var="item" indexVar="index">
+                                                <tr id="{!index}"> 
+                                                    <td data-label="SLNO" class="slds-cell-wrap">
+                                                        <div>{!index + 1}</div>
+                                                    </td>
+                                                    
+                                                    <td data-label="TYRE SIZE" class="slds-cell-wrap">
+                                                        <div style="width: 140px;">
+                                                            <lightning:input  onblur="{!c.convertCase}" required="true" variant="label-hidden" type="text" value="{!item.Size_Name__c}" /> 
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="BRAND" class="slds-text-align--center ">
+                                                        <div style="width: 140px;">
+                                                            <lightning:input onblur="{!c.convertCase}" required="true" variant="label-hidden" type="text" value="{!item.Brand_Name__c}" /> 
+                                                        </div>
+                                                    </td>
+                                                    
+                                                    <td data-label="PATTERN	" class="slds-text-align--center">
+                                                        <div style="width: 140px;">
+                                                            <lightning:input  onblur="{!c.convertCase}" variant="label-hidden" type="text" value="{!item.Pattern_Name__c}" /> 
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="COUNTRY OF ORIGION" class="slds-text-align--center">
+                                                        <div style="width: 140px;">
+                                                            <lightning:input  onblur="{!c.convertCase}" required="true" variant="label-hidden" type="text" value="{!item.Country_Name__c}" /> 
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="COUNTRY OF ORIGION" class="slds-text-align--center">
+                                                        <div style="width: 160px;">
+                                                            <lightning:input  onblur="{!c.convertCase}" required="true" variant="label-hidden" type="text" value="{!item.Tyre_Serial_No__c}" /> 
+                                                        </div>
+                                                    </td>
+                                                    <td><div style="width: 120px;">
+                                                        <lightning:select class="mrgn" aura:id="JobType" value="{!item.Job_Type__c}" onchange="" name="JobTypePicklist" required="true" disabled="false">
+                                                            <aura:iteration items="{!v.JobTypeMap}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.Job_Type__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <lightning:select class="mrgn" aura:id="ProcessMap" value="{!item.Process_Type__c}" onchange="" name="ProcessMap" required="true" disabled="false">
+                                                            <aura:iteration items="{!v.ProcessTypeMap}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.Process_Type__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                    </td>
+                                                    <!--td><div style="width: 100px;">
+                                                        <lightning:select  disabled="{!v.readMode}" class="mrgn" aura:id="InventoryStatus" value="{!item.ETT_Inventory_Status__c}" onchange="" name="InventoryStatus" required="true">
+                                                            <aura:iteration items="{!v.InventoryStatus}" var="ind" indexVar="key">
+                                                                <option text="{!ind.value}" value="{!ind.key}" selected="{!ind.key==item.ETT_Inventory_Status__c}" />
+                                                            </aura:iteration>
+                                                        </lightning:select>
+                                                        </div>
+                                                    </td-->
+                                                    
+                                                    <td data-label="Action" class="slds-cell-wrap">
+                                                        <aura:if isTrue="{!index == 0}">
+                                                            <a data-index="{!index}" onclick="{!c.copyThisLineNewTyre}">
+                                                                <lightning:icon iconName="utility:copy" class="slds-icon slds-icon_small" size="small" alternativeText="add" />
+                                                            </a>
+                                                            <a onclick="{!c.addNewRowsIntoTyreMaster}">
+                                                                <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small addiconcus" size="small" alternativeText="add" />
+                                                                <span class="slds-assistive-text">Add Icon</span>
+                                                                
+                                                            </a>
+                                                            <aura:set attribute="else">
+                                                                <a data-index="{!index}" onclick="{!c.copyThisLineNewTyre}">
+                                                                    <lightning:icon iconName="utility:copy" class="slds-icon slds-icon_small" size="small" alternativeText="add" />
+                                                                </a>
+                                                                <a onclick="{!c.removeRowsIntoTyreMaster}" id="{!index}">
+                                                                    <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small addiconcus" size="small" alternativeText="icon" />
+                                                                    <span class="slds-assistive-text">Delete Icon</span>
+                                                                </a>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>
+                                        </tbody>                                        
+                                    </table>
+                                </form>
+                                <!--End - add new tyre info-->
+                            </aura:if>  
+                            
+                            <aura:set attribute="else">
+                                <h4 style="margin-top:140px" class="title slds-text-heading--medium slds-align_absolute-center"> Do you want to start collect the tyres,please click on start button </h4>
+                            </aura:set>
+                        </aura:if>  
+                        
+                    </aura:if> 
+
+                    <!--Srart**New TyreMaster details forApproval -->
+                    <!--v.CCRecord.Approval_Status__c=='Pending with Sales Person' -->
+                  <!--aura:if isTrue="{!or(and(v.CCRecord.Approval_Status__c=='Pending with Sales Person',v.userInfo.Profile.Name=='ETT_Sales Team'),and(v.CCRecord.Approval_Status__c=='Pending with HOO',v.userInfo.Profile.Name=='ETT_Head of Operations'),and(v.CCRecord.Approval_Status__c=='Pending with FM',v.userInfo.Profile.Name=='ETT_Factory Manager'))}"--><!-- hide this for FM/HOO--> 
+                    <aura:if isTrue="{!(v.CCRecord.Approval_Status__c=='Pending with Sales Person' &amp;&amp; v.userInfo.Profile.Name=='ETT_Sales Team')|| (v.CCRecord.Approval_Status__c=='Pending with HOO' &amp;&amp; v.userInfo.Profile.Name=='ETT_Head of Operations')||(v.CCRecord.Approval_Status__c=='Pending with FM' &amp;&amp; v.userInfo.Profile.Name=='ETT_Factory Manager')}"><!-- show this for FM/HOO/Sales person--> 
+     
+                    <aura:if isTrue="{!not(empty(v.lstTyreMaster))}">
+                            <table class="slds-box slds-table slds-table slds-table--striped">
+                                <thead>
+                                    <th></th>
+                                    <th>Name</th>
+                                    <th>Tyre Size</th>
+                                    <th>Brand</th>
+                                    <th>Pattern</th>
+                                    <th>Country</th>
+                                    
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{!v.lstTyreMaster}" var="item" indexVar="key">
+                                        <tr>
+                                            <td>
+                                                <label class="slds-checkbox">
+                                                    <ui:inputCheckbox aura:id="checkEstimation" value="{!item.ETT_Status__c}"/>
+                                                    <span class="slds-checkbox--faux" />
+                                                    <span class="slds-form-element__label"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                {!item.Name}
+                                            </td>
+                                            <td>
+                                                {!item.ETT_Tyre_Size__r.Name}
+                                            </td>
+                                            <td>
+                                                {!item.ETT_Brand_Name__r.Name}
+                                            </td>
+                                            <td>
+                                                {!item.ETT_Original_Pattern__r.Name}
+                                            </td>
+                                            <td>
+                                                {!item.ETT_Country_Name__r.Name}
+                                            </td>
+                                            
+                                        </tr>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                        </aura:if>
+                        <!--End** New TyreMaster details forApproval -->
+                        <!--Start** New Pricing Information details forApproval -->
+                      
+                        <aura:if isTrue="{!and(empty(v.lstTyreMaster),not(empty(v.lstPriceConfir)))}">
+                            
+                            <table class="slds-box slds-table slds-table">
+                                <thead>
+                                    <th>TYRE SIZE</th>
+                                    <th>BRAND</th>
+                                    <th>PATTERN</th>
+                                    <th>COUNTRY</th>
+                                    <aura:if isTrue="{!v.CCRecord.RecordType.Name == 'Tyre - Refurbishing Services'}">  
+                                        <th>REPAIR PRICE</th> 
+                                        <th>SELLING PRICE(P)</th>
+                                        <th>SELLING PRICE(H)</th>
+                                        <th>RETREAD PRICE(P)</th>
+                                        <th>RETREAD PRICE(H)</th>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.CCRecord.RecordType.Name == 'Tyre Supplier'}"> 
+                                        <th>PURCHASE PRICE</th>
+                                    </aura:if>
+                                    <th>MIN PRICE</th>
+                                    <th>MAX PRICE</th>
+                                    <aura:if isTrue="{!v.userInfo.Profile.Name=='ETT_Factory Manager'}">
+                                        <th>Action</th>
+                                    </aura:if>
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{!v.lstPriceConfir}" var="item" indexVar="index">
+                                        <tr>
+                                            <td>{!item.ETT_Tyre_Size__r.Name}</td>
+                                            <td>{!item.ETT_Brand__r.Name}</td>
+                                            <td>{!item.ETT_Pattern__r.Name}</td>
+                                            <td>{!item.ETT_Country_of_Origin__r.Name}</td>
+                                            
+                                            <aura:if isTrue="{!v.CCRecord.RecordType.Name == 'Tyre - Refurbishing Services'}">
+                                                <td><lightning:input aura:id="repariPrice" 
+                                                                     name="{!index}" 
+                                                                     value="{!item.ETT_Repair_Price__c}" 
+                                                                     
+                                                                     />
+                                                </td>
+                                                <td><lightning:input aura:id="sellingProcure" 
+                                                                     name="{!index}" 
+                                                                     value="{!item.ETT_Selling_Price_P__c}" 
+                                                                     />
+                                                </td>
+                                                <td><lightning:input aura:id="sellingHot" 
+                                                                     name="{!index}" 
+                                                                     value="{!item.ETT_Selling_Price_H__c}" 
+                                                                     />
+                                                </td>
+                                                <td><lightning:input aura:id="RetreadProcure" 
+                                                                     name="{!index}" 
+                                                                     value="{!item.ETT_Retread_Price_P__c}" 
+                                                                     
+                                                                     />
+                                                </td>
+                                                <td><lightning:input aura:id="RetreadHot" 
+                                                                     name="{!index}" 
+                                                                     value="{!item.ETT_Retread_Price_H__c}" 
+                                                                     
+                                                                     />
+                                                </td>
+                                            </aura:if>
+                                            <aura:if isTrue="{!v.CCRecord.RecordType.Name == 'Tyre Supplier'}"> 
+                                                
+                                                <div style="width: 140px;">
+                                                    <td><ui:inputNumber value="{!item.ETT_Purchase_Price__c}" required="true" /></td>
+                                                </div>
+                                            </aura:if>
+                                            <td>{!item.ETT_Min_Range__c}</td>
+                                            <td>{!item.ETT_Max_Range__c}</td>
+                                            <aura:if isTrue="{!v.userInfo.Profile.Name=='ETT_Factory Manager'}">
+                                               <div style="width: 140px;"> <td> <lightning:select  aura:id="approvalStage" value="{!item.ETT_Approval_Status__c}" name="approvalList">
+                                                    
+                                                    <option text="Approved" value="Approved" />
+                                                    <option text="Rejected" value="Rejected" />
+                                                    </lightning:select>
+                                                   </td></div>
+                                            </aura:if>
+                                        </tr>
+                                    </aura:iteration>
+                                    
+                                </tbody>
+                            </table>
+                            
+                            
+                        </aura:if>
+                    </aura:if>
+                    <!--End** New Pricing Information details forApproval -->
+                    
+                </div>
+            </div>
+            <div class="modal-footer slds-modal__footer">
+                
+                <aura:if isTrue="{!!v.showMainCmp}">
+                    <lightning:button variant="brand" onclick="{!c.startCollection}" label="Start" iconName="utility:outcome"/>
+                </aura:if>
+                <aura:if isTrue="{!v.showMainCmp}">
+                    <aura:if isTrue="{!!v.CCApproved}">
+                        
+                        <aura:if isTrue="{!or(and(or(v.CCRecord.Approval_Status__c=='Pending with Reception',v.CCRecord.Approval_Status__c=='New'),v.userInfo.Profile.Name=='ETT_Receptionist'))}">
+                            <lightning:button variant="brand" onclick="{!c.ApproveProcess}" label="Approve" disabled="{!!v.isMOConfirmed}" iconName="utility:approval"/>
+                        </aura:if>
+                        <!-- removed - and(v.userInfo.Profile.Name=='ETT_Sales Team',v.CCRecord.Approval_Status__c=='Pending with Sales Person'),-->
+                        <aura:if isTrue="{!or(and(v.userInfo.Profile.Name=='ETT_Head of Operations',empty(v.lstTyreMaster),v.CCRecord.Approval_Status__c=='Pending with HOO'),and(v.CCRecord.Approval_Status__c=='Pending with FM',v.userInfo.Profile.Name=='ETT_Factory Manager'))}">
+                            
+                            <lightning:button variant="brand" onclick="{!c.ApproveFM_HOO}" label="Approve Price" iconName="utility:approval"/>
+                        </aura:if>
+                        <!-- adding separtely for Sales person profile, it is not working in above condition with profiles-->
+                        <aura:if isTrue="{!and(v.userInfo.Profile.Name=='ETT_Sales Team',v.CCRecord.Approval_Status__c=='Pending with Sales Person')}">
+                            <lightning:button variant="brand" onclick="{!c.ApproveFM_HOO}" label="Approve Price" iconName="utility:approval"/>
+    					</aura:if>
+                        <aura:if isTrue="{!(empty(or(v.TyreInventoryFrmServer,v.stgCollTyreDetailsFrmServer)))}"> 
+                            <lightning:button variant="brand" label="Save" onclick="{!c.handleSave}" class="" disabled=""  iconName="utility:save"/> 
+                        </aura:if>
+                        <aura:if isTrue="{!not(empty(or(v.TyreInventoryFrmServer,v.stgCollTyreDetailsFrmServer)))}"> 
+                            <aura:if isTrue="{!!or(v.CCRecord.Approval_Status__c=='Pending with HOO',v.CCRecord.Approval_Status__c=='Pending with FM')}">
+                                <aura:if isTrue="{!!and(v.CCRecord.Approval_Status__c=='Pending with Reception',v.userInfo.Profile.Name=='ETT_Collection Team')}">
+                                  <aura:if isTrue="{!!and(v.CCRecord.Approval_Status__c=='Pending with Sales Person',v.userInfo.Profile.Name=='ETT_Sales Team')}">
+                                    <lightning:button variant="brand" onclick="{!c.upserthandler}" label="Update" iconName="utility:record_update"/>
+                                 
+                                    </aura:if>
+                                </aura:if>
+                            </aura:if>    
+                        </aura:if>
+                        <aura:if isTrue="{!and(empty(v.CCRecord.ETT_Check_Out__c),or(not(empty(v.TyreInventoryFrmServer)),not(empty(v.stgCollTyreDetailsFrmServer))))}"> 
+                            <!--lightning:button variant="brand" onclick="{!c.stopCollection}" label="CheckOut" iconName="utility:outcome"/-->
+                        </aura:if>
+                        <aura:if isTrue="{!and(not(empty(v.lstTyreMaster)),v.userInfo.Profile.Name=='ETT_Head of Operations')}">
+                            <lightning:button variant="brand" onclick="{!c.ApproveTyreMaster}" label="Tyre Master Approve" iconName="utility:approval"/>
+                        </aura:if>
+                    </aura:if>
+                    
+                </aura:if>
+                
+				<lightning:button variant="destructive" onclick="{!c.closeModel}" label="Cancel" iconName="utility:close"/>
+                
+            </div>
+        </div>
+    </div>
+    
+</aura:component>

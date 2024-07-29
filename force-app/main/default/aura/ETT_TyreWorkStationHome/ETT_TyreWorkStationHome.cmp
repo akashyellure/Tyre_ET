@@ -1,0 +1,624 @@
+<aura:component controller="ETT_TyreWorkStationHomeCtrl" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="device" type="string"/>
+    <aura:attribute name="userInfo" type="Object"/>
+    <aura:attribute name="workScheduleInfo" type="Object"/>
+    <aura:attribute name="showCLModel" type="boolean" default="false"/>   
+    <aura:attribute name="CarousalJobcardList" type="list"/>
+    <aura:attribute name="jobCardList" type="list"/>
+    <aura:attribute name="corousalSize" type="Integer" default="3"/>
+    <aura:attribute name="start" type="Integer" default="0"/>
+    <aura:attribute name="noOfJobcards" type="Integer"/>
+    <aura:attribute name="searchKeyWord" type="string"/>
+    <aura:attribute name="showSpinner" type="boolean" default="false"/> 
+    <aura:attribute name="startDateTime" type="String"/>
+    <aura:attribute name="selectedJobCardId" type="String"/>
+    <aura:attribute name="HasCheckList" type="boolean" />
+    
+    <aura:attribute name="floorCond" type="boolean" default="true"/>
+    <aura:attribute name="li8Cond" type="boolean" default="true"/>
+     <!--*** buffing Data***Start-->
+    <aura:attribute name="bufferSetting" type="boolean" default="true"/>
+    <aura:attribute name="buffBlade" type="boolean" default="true"/>
+    <aura:attribute name="sideBufferCond" type="boolean" default="true"/>
+    <aura:attribute name="buffingPwdReplc" type="boolean" default="false"/>
+    <aura:attribute name="dustCollStatus" type="boolean" default="true"/>
+    <aura:attribute name="buffSettReason" type="string"/>
+    <aura:attribute name="sideBuffReason" type="string"/>  
+    <aura:attribute name="bagReplcReasn" type="string"/> 
+    <aura:attribute name="shwBuffSetReas" type="boolean" default="false"/>
+    <aura:attribute name="shwSideBuffReas" type="boolean" default="false"/>
+    <aura:attribute name="shwBagReplcReas" type="boolean" default="false"/>
+    <aura:attribute name="sucFilteCond" type="boolean" default="true"/>
+    <aura:attribute name="sucLineCond" type="boolean" default="true"/>
+    <aura:attribute name="sucPipeCond" type="boolean" default="true"/>
+    <aura:attribute name="showJobView_Buffing" type="boolean" default="false"/>
+    <aura:attribute name="startDustColl" type="boolean" default="true"/>
+    <aura:attribute name="switchOnPwr" type="boolean" default="true"/>
+    
+    
+      <!--*** Buffing Data***End-->
+    <!--*** Skiving Data***Start-->
+    <aura:attribute name="rapsStatus" type="boolean" default="true"/>
+    <aura:attribute name="cutngStoneStatus" type="boolean" default="true"/>
+    <aura:attribute name="counWhelStatus" type="boolean" default="true"/>
+    <aura:attribute name="cementWheStatus" type="boolean" default="true"/>
+    <aura:attribute name="rubberHogs" type="boolean" default="true"/>
+    <aura:attribute name="burrStatus" type="boolean" default="true"/>
+    <aura:attribute name="routerCarbide" type="boolean" default="true"/>
+    <aura:attribute name="balShapeCarbide" type="boolean" default="true"/>
+    <aura:attribute name="aluOxide" type="boolean" default="true"/>
+    <aura:attribute name="otherTools" type="boolean" default="true"/>
+    <aura:attribute name="showJobView_Skiving" type="boolean" default="false"/>
+    
+    <!--*** Skiving Data***End-->
+    
+    <!--*** Repair Data***Start-->
+    <aura:attribute name="motoInsSpe" type="boolean" default="true"/>
+    <aura:attribute name="repairPlug" type="boolean" default="true"/>
+    <aura:attribute name="showJobView_Repair" type="boolean" default="false"/>
+    
+    <!--*** Repair Data***End-->
+    
+    <!--*** Cementing Data***Start-->
+    <aura:attribute name="showJobView_Cementing" type="boolean" default="false"/>
+      <!--*** Cementing Data***End-->
+    
+    <!--*** Filling Data***Start-->
+    <aura:attribute name="fillMachineTemp" type="boolean" default="true"/>
+    <aura:attribute name="showJobView_Filling" type="boolean" default="false"/>
+    <!--*** Filling Data***End-->
+    
+    
+    
+    <!--*** Thread Prep Data***Start-->
+    <aura:attribute name="cuttMachineCond" type="boolean" default="true"/>
+    <aura:attribute name="cuttMachineReason" type="string" default=""/>
+    <aura:attribute name="shwCuttMachReas" type="boolean" default="false"/>
+    <aura:attribute name="showJobView_ThreadPreparation" type="boolean" default="false"/>
+    <!--*** Thread Prep Data***End-->
+    
+    <!--*** Building Prep Data***Start-->
+    <aura:attribute name="showJobView_Building" type="boolean" default="false"/>
+    <!--*** Building Prep Data***End-->
+    
+    <!--*** Rimming & Enveloping Data***Start-->
+    <aura:attribute name="envLiftCond" type="boolean" default="true"/>
+    <aura:attribute name="envSpMachCond" type="boolean" default="true"/>
+    <aura:attribute name="tyreRimmCond" type="boolean" default="true"/>
+    <aura:attribute name="CuringEnvpCnd" type="boolean" default="true"/>
+    <aura:attribute name="RimPlateCnd" type="boolean" default="true"/>
+    <aura:attribute name="CuringTubeSta" type="boolean" default="true"/>
+    <aura:attribute name="showJobView_RimmingEnveloping" type="boolean" default="false"/>
+    <!--*** Rimming & Enveloping Data***End-->
+    
+    <!--*** Curing Data***Start-->
+    <aura:attribute name="chamDoorCond" type="boolean" default="true"/>
+    <aura:attribute name="HydPump" type="boolean" default="true"/>
+    <aura:attribute name="DoorSafeLock" type="boolean" default="true"/>
+    <aura:attribute name="x13InfPressure" type="boolean" default="true"/>
+    <aura:attribute name="VacMachine" type="boolean" default="true"/>
+    <aura:attribute name="VacPresValv" type="boolean" default="true"/>
+    <aura:attribute name="x13PreCable" type="boolean" default="true"/>
+    <aura:attribute name="DigScreen" type="boolean" default="true"/>
+    <aura:attribute name="ConPanBoard" type="boolean" default="true"/>
+    <aura:attribute name="ChamMotor" type="boolean" default="true"/>
+    <aura:attribute name="GauVacPressure" type="boolean" default="true"/>
+    <aura:attribute name="ValveNumber" type="string" default=""/>
+    <aura:attribute name="shwValvNumber" type="boolean" default="false"/>
+    <aura:attribute name="showJobView_Curing" type="boolean" default="false"/>
+    <aura:attribute name="Valveoptions" type="String[]" access="PRIVATE" default="1P1,1P2,2P1,2P2,3P1,3P2,4P1,4P2,5P1,5P2,6P1,6P2,7P1,7P2,8P1,8P2,9P1,9P2,10P1,10P2,11P1,11P2,12P1,12P2,13P1,13P2"/>
+    <aura:attribute name="curingRemarks" type="string"/>
+    <aura:attribute name="showRemarks" type="boolean" default="false"/>
+    <!--*** Curing Data***End-->
+    
+    <!--*** Final Inspection Data***Start-->
+    <aura:attribute name="tyreSpred" type="boolean" default="true"/>
+    <aura:attribute name="spreadLi8" type="boolean" default="true"/>
+    <aura:attribute name="tyreLift" type="boolean" default="true"/>
+    <aura:attribute name="showJobView_FinalInspection" type="boolean" default="false"/>
+    <!--*** Final Inspection Data***End-->
+    
+    <aura:attribute name="showJobView_RemovalOfRIMTubeFlap" type="boolean" default="false"/>
+    <aura:attribute name="showJobView_Painting" type="boolean" default="false"/>
+    <aura:attribute name="showJobView_QualityControl" type="boolean" default="false"/>
+    
+    <!-- Events-->
+     <aura:handler event="c:ETT_JobCardUpdate" action="{!c.refreshData}" name="refreshJobCardList"/>
+    
+    <div class="bgimage"></div>
+    <div class="menudiv">
+        
+        <img src="{!$Resource.ETLogo}" class="companylogo" onclick="{!c.reloadPage}" /> 
+        <div class="menudropdowndiv1">
+            
+            <button class="dropmenubtn1" onclick="{!c.onMenuClickHandler}"> <img class="profileimg" src="{!$Resource.ETuser_profile}" /></button>
+            <span  class="profileText" onclick="{!c.onMenuClickHandler}">Hi {!v.userInfo.FirstName}</span>
+            <div class="dropdown-content1 slds-hide" aura:id="dropDown">
+                <ul>
+                    
+                    <!--aura:if isTrue="{!v.device == 'PHONE' || v.device =='TABLET'}">
+                       
+                            <li><a href="javascript:void(0)" onclick="{!c.OpenInspection}">Inspection</a></li>
+                   
+                      
+                            <li><a href="javascript:void(0)" onclick="{!c.OpenCheckOut}">Check Out</a></li>
+                            <li><a href="javascript:void(0)" onclick="{!c.OpenCheckIn}">Check In</a></li>
+                       
+                    </aura:if-->
+                    <li><a onclick="{!c.handleLogout}" >Logout</a></li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    <div class="outer_div" style="margin-top: 53px">
+        
+        <aura:if isTrue="{!not(empty(v.workScheduleInfo))}">
+            
+            <div class="slds-grid slds-gutters wsDiv">
+                <div class="slds-col slds-size_1-of-4">
+                    <b>Work Station :</b>   {!v.workScheduleInfo.ETT_Work_Station__r.Name} 
+                </div>
+                <div class="slds-col slds-size_1-of-4">
+                    <b>Technician Name : </b>{!v.workScheduleInfo.ETT_Technician__r.Name}
+                </div>
+                <div class="slds-col slds-size_1-of-4">
+                    <b>Work Station Type :</b>{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c} 
+                </div>
+                <div class="slds-col slds-size_1-of-4">
+                    <b>Work Station Code :</b>{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Code__c}
+                </div>
+            </div>
+            
+            
+            <lightning:button class="slds-float_left slds-m-top_medium" variant="brand" disabled="" onclick="{!c.openChecklist}" label="New Checklist" iconName="utility:edit_form"/>
+            
+            <lightning:input type="search"
+                             name="searchKey" value="{!v.searchKeyWord}" 
+                             aura:id="searchKey"  oncommit="{!c.filterHandler}" onchange="{!c.filterHandler}" 
+                             placeholder="Search Serial No./Job No." class="searchbox" autocomplete="off"/>
+            
+            <aura:if isTrue="{!not(empty(v.CarousalJobcardList))}">
+                <div class="item_main">
+                    <aura:iteration items="{!v.CarousalJobcardList}" var="item" indexVar="indx">
+                        
+                        <div class="details_div">
+                            
+                            <div class="head_div" >
+                                <aura:if isTrue="{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c=='Thread Preparation'}">
+                                         <div>{!item.ETT_Main_Job_Card__r.Name}</div>  
+                                    <aura:set attribute="else">
+                                        <div>{!item.Name}</div>  
+                                    </aura:set>
+                                </aura:if>
+                                
+                                <lightning:button label="Open" name="{!item.Id}" onclick="{!c.jobCardProcess}"/>
+                            </div> 
+                            
+                            <aura:if isTrue="{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c=='Thread Preparation'}">
+                                 <div class="inner_details">
+                                <span>Sub JC No</span>
+                                <span>{!item.Name}</span>
+                            </div>
+                            </aura:if>
+                            <div class="inner_details">
+                                <span>Serial No</span>
+                                <span>{!item.Tyre_Inventory__r.Serial_Number__c}</span>
+                            </div>
+                            <div class="inner_details">
+                                <span>Tyre Size</span>
+                                <span>{!item.Tyre_Inventory__r.ETT_Tyre_Size_Master__r.Name}</span>
+                            </div>
+                            <div class="inner_details">
+                                <span>Tread Pattern</span>
+                                <span>{!item.Tyre_Inventory__r.ETT_Pattern__r.Name}</span>
+                            </div>                              
+                            <div class="inner_details">
+                                <span>Priority</span>
+                                <span>{!item.ETT_Priority__c}</span>
+                            </div>
+                            <div class="inner_details">
+                                <span>Party Type</span>
+                                <span>{!item.Tyre_Inventory__r.Party_Type__c}</span>
+                            </div>
+                            
+                            <aura:if isTrue="{!item.Tyre_Inventory__r.Party_Type__c=='Customer'}">
+                                <div class="inner_details">
+                                    <span>Party Name</span>
+                                    <span>{!item.Tyre_Inventory__r.ETT_Collection_Card__r.ETT_Accounts__r.Name}</span>
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!item.Tyre_Inventory__r.Party_Type__c=='Internal'}">
+                                <div class="inner_details">
+                                    <span>Party Name</span>
+                                    <span>{!item.Tyre_Inventory__r.ETT_Collection_Card__r.ETT_SubInventory_Name__r.Name}</span>
+                                </div>
+                            </aura:if>
+                            
+                            <div class="inner_details">
+                                <span>Created Date</span>
+                                <span><lightning:formattedDateTime value="{!item.CreatedDate}"
+                                                                   year="numeric" month="short" day="2-digit" hour="2-digit" minute="2-digit"
+                                                                   timeZone="Asia/Dubai" hour12="true"/></span>
+                            </div>
+                            <!--aura:if isTrue="{!AND(item.Tyre_Inventory__r.Party_Type__c !='Customer', item.Tyre_Inventory__r.Party_Type__c !='Internal') }">
+                                <div class="inner_details">
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </aura:if-->
+                            
+                            
+                        </div>                   
+                        
+                    </aura:iteration>
+                    <div class="MS-controls ">
+                        <lightning:button disabled="{!v.start==0}" onclick="{!c.getPreviousList}" iconName="utility:chevronleft" class="btnback btnprev"/>
+                        <lightning:button disabled="{!!lessthan(v.start+v.corousalSize,v.noOfJobcards)}"  onclick="{!c.getNextList}" iconName="utility:chevronright" class="btnback btnnext"/>
+                    </div>
+                    
+                </div>
+                <aura:set attribute="else">
+                    <div class="slds-text-heading_medium slds-align_absolute-center" style="height:17rem"><strong> No Job cards assigned to you.</strong></div>
+                </aura:set>            
+            </aura:if> 
+            
+            <aura:set attribute="else">
+                <div class="slds-text-heading_medium slds-align_absolute-center" style="height:17rem">No Work Schedule Allocated. Please check with Supervisor for help.</div> 
+            </aura:set>
+        </aura:if>
+        <aura:if isTrue="{!v.showCLModel}">
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container outer-div">
+                    <aura:if isTrue="{!v.showSpinner}">
+                        <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+                    </aura:if>
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick="{!c.handleCancelPopup}" title="Close">
+                            <lightning:icon iconName="utility:close" alternativeText="close" />
+                        </button>
+                        <h2 class="slds-text-heading_medium slds-hyphenate">{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c} Checklist</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        
+                        <div class="slds-grid slds-wrap">
+                            
+                            
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning:input label="Floor Condition"  type="toggle" messageToggleActive="Good" messageToggleInactive="Not Good" name="input1" checked="{!v.floorCond}" variant="label-stacked"/>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning:input type="toggle" label="Light Condition" messageToggleActive="Good" messageToggleInactive="Not Good"  name="input2" checked="{!v.li8Cond}" variant="label-stacked"/>
+                            </div>
+                            
+                            <!-- Buffer stage logic*** start ***-->
+                            <aura:if isTrue="{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c=='Buffing'}">
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Buffer Settings" onchange="{!c.bufferSettingChange}" messageToggleActive="Correct" messageToggleInactive="Not Correct"  name="input3" checked="{!v.bufferSetting}" variant="label-stacked"/>
+                                    <aura:if isTrue="{!v.shwBuffSetReas}">
+                                        <lightning:select name="BufferSettingsReason" label="Reason" value="{!v.buffSettReason}" required="true" aura:id="BufferSettingsReason" messageWhenValueMissing="Reason is required">
+                                            <option value="">--None--</option>
+                                            <option value="Rim Change">Rim Change</option>
+                                            <option value="Radius Setting">Radius Setting</option>
+                                            <option value="Bead Adjustment">Bead Adjustment</option>
+                                        </lightning:select>
+                                    </aura:if>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Buffer Blade"  messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.buffBlade}" variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Side Buffer Condition" onchange="{!c.sideBufferChange}" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.sideBufferCond}" variant="label-stacked"/>
+                                    <aura:if isTrue="{!v.shwSideBuffReas}">
+                                        <lightning:select name="SidebufferReason" label="Reason" required="true" value="{!v.sideBuffReason}" aura:id="SidebufferReason" messageWhenValueMissing="Reason is required">
+                                            <option value="">--None--</option>
+                                            <option value="Blade Change">Blade Change</option>
+                                            <option value="Wire Brush Change">Wire Brush Change</option>
+                                            <option value="Counter Wheel">Counter Wheel</option>
+                                        </lightning:select>
+                                    </aura:if>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Buffing Powder Replacement" onchange="{!c.buffingPowderChange}" messageToggleActive="Yes" messageToggleInactive="No" checked="{!v.buffingPwdReplc}" variant="label-stacked"/>
+                                    <aura:if isTrue="{!v.shwBagReplcReas}">
+                                        <lightning:select name="bagReplacementReason" label="Reason" value="{!v.bagReplcReasn}" required="true" aura:id="bagReplacementReason" messageWhenValueMissing="Reason is required">
+                                            <option value="">--None--</option>
+                                            <option value="Bag Full">Bag Full</option>
+                                            <option value="Bag Damage">Bag Damage</option>
+                                            <option value="Other">Other</option>
+                                        </lightning:select>
+                                    </aura:if>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Dust Collector Status"  onchange="{!c.dustCollChange}" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.dustCollStatus}" variant="label-stacked"/>
+                                </div>
+                                 
+                                <div class="slds-grid slds-wrap slds-hide" aura:id="dustColl">
+                                    <div class="slds-col slds-size_1-of-3">
+                                        <lightning:input type="toggle" label="Suction Line Condition" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.sucLineCond}" variant="label-stacked"/>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-3">
+                                        <lightning:input type="toggle" label="Suction Pipe Line Condition" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.sucPipeCond}" variant="label-stacked"/>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-3">
+                                        <lightning:input type="toggle" label="Suction Filter Condition" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.sucFilteCond}" variant="label-stacked"/>
+                                    </div>
+                                    
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Started Dust Collection Sytem?" messageToggleActive="Yes" messageToggleInactive="No" checked="{!v.startDustColl}" variant="label-stacked" required="true" aura:id="startDustColl" messageWhenValueMissing="Plese Start Dust Collector"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Switched On Power?" messageToggleActive="Yes" messageToggleInactive="No" checked="{!v.switchOnPwr}" variant="label-stacked" required="true" aura:id="switchOnPwr" messageWhenValueMissing="Please Switch On Power"/>
+                                </div>
+                            </aura:if>
+                            <!-- Buffer stage logic*** End ***-->
+                            
+                            <!-- Skving stage logic*** start ***-->
+                            <aura:if isTrue="{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c=='Skiving'}">
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Raps Status" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.rapsStatus}" variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Cutting Stone Status" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.cutngStoneStatus}" variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Counter Wheel Status" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.counWhelStatus}" variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Cementing Wheel Status" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.cementWheStatus}" variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Rubber Hogs Status" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.rubberHogs}" variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Burr Status" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.burrStatus}" variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Router Carbide Status" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.routerCarbide}" variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Ball Shaped Carbide Status" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.balShapeCarbide}" variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Aluminium Oxide Stone Status" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.aluOxide}" variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Check Other Tools" messageToggleActive="Good" messageToggleInactive="Not Good" checked="{!v.otherTools}" variant="label-stacked"/>
+                                </div>
+                                
+                            </aura:if>
+                            <!-- Skving stage logic*** End ***-->
+                            
+                            
+                            <!-- Repair stage logic*** start ***-->
+                            <aura:if isTrue="{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c=='Repair'}">
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Motorized Inspection Spreader" checked="{!v.motoInsSpe}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Repair Plug(Uniseal)" checked="{!v.repairPlug}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                
+                            </aura:if>
+                            <!-- Repair stage logic*** End ***-->
+                            
+                            
+                            <!-- Filling stage logic*** start ***-->
+                            <aura:if isTrue="{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c=='Filling'}">
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Filling Machine Temp (80 Deg)" checked="{!v.fillMachineTemp}" messageToggleActive="Correct" messageToggleInactive="Not Correct"  variant="label-stacked"/>
+                                </div>
+                                
+                                
+                            </aura:if>
+                            <!-- Filling stage logic*** End ***-->
+                            
+                            <!-- Thread Preparation stage logic*** start ***-->
+                            <aura:if isTrue="{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c=='Thread Preparation'}">
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Cutting Machine Condition" checked="{!v.cuttMachineCond}" onchange="{!c.cuttMachChange}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                    <aura:if isTrue="{!v.shwCuttMachReas}">
+                                        <lightning:textarea name="CuttingMachineReason" label="Reason" required="true" value="{!v.cuttMachineReason}" aura:id="cuttMachineReason" messageWhenValueMissing="Reason is required"/>
+                                    </aura:if>
+                                </div>
+                            </aura:if>
+                            <!-- Thread Preparation stage logic*** End ***-->
+                            
+                            <!-- Rimming & Enveloping stage logic*** start ***-->
+                            <aura:if isTrue="{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c== 'Rimming &amp; Enveloping'}">
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Envelop Lift Condition" checked="{!v.envLiftCond}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Envelop Spreader Machine Condition" checked="{!v.envSpMachCond}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Tyre Rimming Machine" checked="{!v.tyreRimmCond}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Curing Envelop Condition" checked="{!v.CuringEnvpCnd}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Rim &amp; Plate Condition" checked="{!v.RimPlateCnd}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Curing Tube Status" checked="{!v.CuringTubeSta}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                            </aura:if>
+                            <!-- Rimming & Enveloping  stage logic*** End ***-->
+                            
+                            <!-- Curing stage logic*** start ***-->
+                            <aura:if isTrue="{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c== 'Curing'}">
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Chamber Door Condition" checked="{!v.chamDoorCond}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Hydraulic Pump Condition" checked="{!v.HydPump}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Door Safety Lock Condition" checked="{!v.DoorSafeLock}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="13 Inflation Pressure Condition" checked="{!v.x13InfPressure}" onchange="{!c.InflPressureChange}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                    <aura:if isTrue="{!v.shwValvNumber}"> 
+                                        <!--lightning:input name="ValveNumber" label="Valve Number" value="{!v.ValveNumber}" required="true" aura:id="ValveNumber" messageWhenValueMissing="Valve Number is required"/-->
+                                        
+                                        <lightning:select name="ValveNumber" label="Valve Number" aura:id="valveNum" value="{!v.ValveNumber}" messageWhenValueMissing="Valve Number is required">
+                                            <aura:iteration items="{!v.Valveoptions}" var="option">
+                                                <option text="{!option}" value="{!option}"/>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </aura:if>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Vacuum Machine Condition" checked="{!v.VacMachine}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="13 Vacuum Pressure Valve" checked="{!v.VacPresValv}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="13 Pressure Cable Condition" checked="{!v.x13PreCable}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Digital Screen Condition" checked="{!v.DigScreen}" onchange="{!c.showRemarksMethod}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Control Panel Board Condition" checked="{!v.ConPanBoard}" onchange="{!c.showRemarksMethod}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Chamber Motor Condition" checked="{!v.ChamMotor}" onchange="{!c.showRemarksMethod}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Guages of Vacuum Pressure" checked="{!v.GauVacPressure}" onchange="{!c.showRemarksMethod}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <aura:if isTrue="{!v.showRemarks}">
+                                    <div class="slds-col slds-size_1-of-1">
+                                        <lightning:textarea required="true" name="curingRemarks" aura:id="curingRemar" value="{!v.curingRemarks}" label="Remarks" messageWhenValueMissing="Remarks are required"/>
+                                    </div>
+                                </aura:if>
+                            </aura:if>
+                            <!-- Curing stage logic*** End ***-->
+                            
+                            <!-- Final Inspection/Quality Control stage logic*** start ***-->
+                            <aura:if isTrue="{!v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c== 'Final Inspection'|| v.workScheduleInfo.ETT_Work_Station__r.ETT_Station_Type__c== 'Quality Control'}">
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Tyre Spreader Condition" checked="{!v.tyreSpred}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Spreader Light Condition" checked="{!v.spreadLi8}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning:input type="toggle" label="Tyre Lift Condition" checked="{!v.tyreLift}" messageToggleActive="Good" messageToggleInactive="Not Good"  variant="label-stacked"/>
+                                </div>
+                            </aura:if>
+                            <!-- Final Inspection/Quality Control stage logic*** End ***-->
+                            
+                        </div>
+                        
+                        
+                        
+                        
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button label="Cancel" title="Cancel" onclick="{! c.handleCancelPopup}"/>
+                        <lightning:button variant="brand" label="Check Out" title="Save" onclick="{! c.handleChecklist}" />
+                    </footer>
+                </div>
+                
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+        
+        <!--***Refered this below code from ETT_JobCardList.cmp
+
+         -->
+        
+        <aura:if isTrue="{!v.showJobView_Buffing}">
+            <c:ETT_Retreading_Buffing recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Buffing}" skillSets="" 
+                                      workStationSchedule=""
+                                      dustCollectorReasonValues="" precuredTreadLineValues=""
+                                      holdReasonValues=""  availableStations="" buffingSettingsReasonValues=""
+                                      jobCardSetup="" workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>        
+        <aura:if isTrue="{!v.showJobView_Skiving}">
+            <c:ETT_Retreading_Skiving recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Skiving}" skillSets="" 
+                                      workStationSchedule="" holdReasonValues="" availableDefects=""
+                                      jobCardSetup="" workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>
+        
+        <aura:if isTrue="{!v.showJobView_Repair}"> 
+            <c:ETT_Retreading_Repair recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Repair}" skillSets=""
+                                     workStationSchedule="" holdReasonValues="" availableDefects=""
+                                     availableStations="" 
+                                     jobCardSetup=""  workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>
+        
+        <aura:if isTrue="{!v.showJobView_Cementing}"> 
+            <c:ETT_Retreading_Cementing recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Cementing}" skillSets=""
+                                        workStationSchedule="" holdReasonValues="" availableDefects=""
+                                        availableStations="" 
+                                        jobCardSetup="" workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>
+        <aura:if isTrue="{!v.showJobView_Filling}">
+            <c:ETT_Retreading_Filling recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Filling}" skillSets="" 
+                                      workStationSchedule="" holdReasonValues="" availableDefects=""
+                                      jobCardSetup="" workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>
+        
+        <aura:if isTrue="{!v.showJobView_ThreadPreparation}">
+            <c:ETT_Retreading_Thread_Preparation recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_ThreadPreparation}" skillSets="" 
+                                                 workStationSchedule="" holdReasonValues="" availableStations="" availableDefects=""
+                                                 jobCardSetup="" workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>
+        
+        <aura:if isTrue="{!v.showJobView_Building}">
+            <c:ETT_Retreading_Building recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Building}" skillSets="" 
+                                       workStationSchedule="" holdReasonValues="" availableStations="" availableDefects=""
+                                       jobCardSetup="" workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>
+        <aura:if isTrue="{!v.showJobView_RimmingEnveloping}"> 
+            <c:ETT_Retreading_Enveloping recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_RimmingEnveloping}" skillSets=""
+                                         workStationSchedule="" holdReasonValues="" availableDefects=""
+                                         availableStations="" 
+                                         jobCardSetup="" workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>
+        <aura:if isTrue="{!v.showJobView_Curing}"> 
+            <c:ETT_Retreading_Curing recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Curing}" skillSets=""
+                                     workStationSchedule="" holdReasonValues="" availableDefects=""
+                                     availableStations="" 
+                                     jobCardSetup="" workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>
+        <aura:if isTrue="{!v.showJobView_FinalInspection}">
+            <c:ETT_Retreading_Final_Inspection recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_FinalInspection}" skillSets="" 
+                                               workStationSchedule=""
+                                               dustCollectorReasonValues="" precuredTreadLineValues=""
+                                               holdReasonValues=""  availableStations="" buffingSettingsReasonValues=""
+                                               jobCardSetup="" workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>
+        
+        <aura:if isTrue="{!v.showJobView_RemovalOfRIMTubeFlap}">
+            <c:ETT_Retreading_Removal_Of_Rim_Tube_Flap recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_RemovalOfRIMTubeFlap}" skillSets="" 
+                                                       workStationSchedule=""
+                                                       dustCollectorReasonValues="" precuredTreadLineValues=""
+                                                       holdReasonValues=""  availableStations="" buffingSettingsReasonValues=""
+                                                       jobCardSetup="" workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>
+        <aura:if isTrue="{!v.showJobView_Painting}">
+            <c:ETT_Retreading_Painting recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_Painting}" skillSets="" 
+                                       workStationSchedule=""
+                                       dustCollectorReasonValues="" precuredTreadLineValues=""
+                                       holdReasonValues=""  availableStations="" buffingSettingsReasonValues=""
+                                       jobCardSetup=""  workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>
+        <aura:if isTrue="{!v.showJobView_QualityControl}">
+            <c:ETT_Retreading_QualityControl recordId="{!v.selectedJobCardId}" showJobModelView="{!v.showJobView_QualityControl}" skillSets="" 
+                                             workStationSchedule=""
+                                             dustCollectorReasonValues="" precuredTreadLineValues=""
+                                             holdReasonValues=""  availableStations="" buffingSettingsReasonValues=""
+                                             jobCardSetup="" workSheduleInfo="{!v.workScheduleInfo}"/>
+        </aura:if>    
+    
+    </div>
+</aura:component>

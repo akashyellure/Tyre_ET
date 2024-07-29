@@ -1,0 +1,1009 @@
+<aura:component controller="ETT_TyreInspectionCardController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="inspectionRecordId" type="Id" />    
+    
+    <aura:attribute name="jobCardId" type="Id" />    
+    <aura:attribute name="jobCardStage" type="String" />    
+    <aura:attribute name="revision" type="String" />        
+    <aura:attribute name="allBeadAreaOptions" type="object" />
+    <aura:attribute name="allSidewallAreaOptions" type="object" />
+    <aura:attribute name="allCrownAreaOptions" type="object" />
+    
+    <aura:attribute name="allTyreInteriorOptions" type="object" />
+    <aura:attribute name="allAnyAreaOptions" type="object" />
+    <aura:attribute name="submitLifeOne" type="boolean" default="false" />
+    <aura:attribute name="submitLifemultiple" type="boolean" default="false" />
+    
+    <aura:attribute name="allHolesandInjuriesOptions" type="object" />
+    <aura:attribute name="allMissingLooseTreadOptions" type="object" />
+    <aura:attribute name="allCracksOptions" type="object" />
+    <aura:attribute name="allBulgesDepressionsOptions" type="object" />
+    <aura:attribute name="allMiscellaneousOptions" type="object" />
+    <aura:attribute name="values" type="List" default="[]"/>
+    
+     <aura:attribute name="displayFileName" type="List" />        
+    <aura:attribute name="tyreLife" type="String" default="1" />    
+    <aura:attribute name="title" type="String" />
+    <aura:attribute name="stepNo" type="String"  />
+    <aura:attribute name="SubStepNo" type="String" default="1" />
+    <aura:attribute name="selectedValue" type="String" />
+    <aura:attribute name="beadAreaVal" type="String" default=""/>
+    <aura:attribute name="selectedStatus" type="String" default="Yes"/>
+    <aura:attribute name="fileToBeUploaded" type="Object[]"/>
+    <aura:attribute name="fileToBeUploadedNTCCuts" type="Object[]"/>
+    <aura:attribute name="fileName" type="string[]"  />
+    <aura:attribute name="selectedCutsNTCList" type="List" default="[]" description="Selected Genre Picklist Values"/>
+    <aura:attribute name="TyreInspectionRecord" type="Object" />
+    <aura:attribute name="TyreInspectionLoadError" type="String" /> 
+
+    <aura:attribute name="objInspectionCard" type="ETT_Inspection_Card__c" 
+                    default="{'sobjectType': 'ETT_Inspection_Card__c',
+                             'ETT_Poking_Screwdriver__c' : false,
+                             'ETT_Chalk_Crayon_Yellow__c' : false,
+                             'ETT_Cutting_Player__c' : false,
+                             'ETT_Handheld_Drop_Light__c' : false,
+                             'ETT_Staple_Gun__c' : false,
+                             'ETT_Tyre_Tapping_Tool__c' : false,
+                             'ETT_Nail_Remover__c' : false,
+                             'ETT_Spiral_Cement_Tool__c' : false,
+                             'ETT_Knife__c' : false,
+                             'ETT_Industrial_Vacuum_Cleaner__c' : false
+                             }" />
+    
+    
+    <force:recordData aura:id="TyreInspectionRecord" 
+                      recordId="{!v.recordId}" 
+                      fields="Id,ETT_Status__c,ETT_Account__c,
+                              ETT_Brand__c,
+                              ETT_Pattern__c,
+                              ETT_Tyre_Size__c,
+                              ETT_Country__c,
+                              ETT_Collection_Line_Item__c,
+                              RecordTypeId,
+                              RecordType.Name,
+                              ETT_Tyre_Life__c" 
+                      targetFields="{!v.TyreInspectionRecord}" 
+                      targetError="{!v.TyreInspectionLoadError}"
+                      /> 
+    
+    
+    
+    <aura:attribute name="TyreRejectionLineItem" type="ETT_TyreInspectionCardWrapper.TyreRejectionLineItem[]" />
+    <aura:attribute name="TyreRejectionSubLineItem" type="ETT_TyreInspectionCardWrapper.TyreRejectionSubLineItem[]" />
+    <aura:attribute name="FileWrapper" type="ETT_TyreInspectionCardWrapper.FileWrapper[]" />
+        <aura:attribute name="FileWrapperNTCCuts" type="ETT_TyreInspectionCardWrapper.FileWrapperNTCCuts[]" />    
+    <aura:attribute name="InspectionTechincalSkill" type="Object" />
+    
+    <aura:registerEvent name="sampleCmpEvent" type="c:ETI_Technician_Inspection_Event" />
+    <aura:registerEvent name="ComplaintMasterEvent" type="c:ETT_ComplaintMaster"/>
+    
+    <aura:if isTrue="{!v.tyreLife eq '1'}">   
+        <!-- Tyre Life 1 Start -->
+        <div class="maincontent"> 
+            <div class="slds-tabs--default">
+                <ul class="slds-tabs--default__nav" role="tablist">
+                    <li  aura:id="tyreLifeOneBeadAreaId" class="slds-tabs--default__item slds-text-title--caps slds-active" title="Fruits Name" role="presentation" >
+                        <a class="slds-tabs--default__link" href="javascript:void(0);" onclick="{!c.callBeadArea}" role="tab" tabindex="0" aria-selected="false" aria-controls="tab-default-1" id="Fruits_linking">
+                            Bead Area
+                        </a>
+                    </li>
+                    <li  aura:id="tyreLifeOneSidewallAreaId"  class="slds-tabs--default__item slds-text-title--caps " title="Vegetables Name" role="presentation">
+                        <a class="slds-tabs--default__link" href="javascript:void(0);" onclick="{!c.callSideWallArea}" role="tab" tabindex="-1" aria-selected="true" aria-controls="tab-default-2" id="vegetable_linking">
+                            Sidewall Area
+                        </a>
+                    </li>
+                    <li  aura:id="tyreLifeOneCrownAreaId" class="slds-tabs--default__item slds-text-title--caps" title="Color Name" role="presentation">
+                        <a class="slds-tabs--default__link" href="javascript:void(0);" onclick="{!c.callCrownArea}" role="tab" tabindex="-1" aria-selected="false" aria-controls="tab-default-3" id="color_linking">
+                            Crown Area
+                        </a>
+                    </li>
+                    <li  aura:id="tyreLifeOneTyreInteriorId" class="slds-tabs--default__item slds-text-title--caps" title="Color Name" role="presentation">
+                        <a class="slds-tabs--default__link" href="javascript:void(0);" onclick="{!c.callTyreInterior}" role="tab" tabindex="-1" aria-selected="false" aria-controls="tab-default-4" id="color_linking">
+                            Tyre Interior
+                        </a>
+                    </li>
+                    <li  aura:id="tyreLifeOneAnyAreaId" class="slds-tabs--default__item slds-text-title--caps" title="Color Name" role="presentation">
+                        <a class="slds-tabs--default__link" href="javascript:void(0);" onclick="{!c.callAnyArea}" role="tab" tabindex="-1" aria-selected="false" aria-controls="tab-default-5" id="color_linking">
+                            Any Area
+                        </a>
+                    </li>                                    
+                </ul>
+                <!---->
+                <div aura:id="tyreLifeOneBeadAreaTabDataId" id="tab-default-1" class="slds-tabs--default__content slds-show" role="tabpanel" aria-labelledby="Fruits_linking">
+                    <!-- Selection of 1 -->
+                    <aura:if isTrue="{!and(v.SubStepNo eq '1', v.selectedValue eq '1')}">
+                        <label class="slds-form-element__label slds-text-title_bold subheadingtag" for="select-01">A. Bead Area</label>
+                        <div class="slds-form-element textboxdiv">
+                            <label class="slds-form-element__label slds-text-title_bold" for="select-01">Good Condition</label>
+                            <div class="slds-select_container">
+                                <ui:inputSelect options="{!v.allBeadAreaOptions.goodConditionsOption}" value="{!v.allBeadAreaOptions.selectedStatus}"  aura:id="BeadArea" class="slds-select"  change="{!c.onBeadAreaChange}"/>
+                            </div>
+                        </div>
+                        
+                        <aura:if isTrue="{!v.allBeadAreaOptions.selectedStatus eq 'No'}">
+                            
+                            <aura:iteration items="{!v.allBeadAreaOptions.BeadArea}" var="item" indexVar="i">
+                                <div class="slds-form-element textboxdiv">
+                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">{!item.label}</label>
+                                    <div class="slds-select_container">
+                                        <!--ui:inputSelect options="{!item.options}" label="{!item.label}" class="slds-select"   /-->
+                                        <lightning:select variant="label-hidden"  value="{!item.value}" class="label-hidden" >
+                                            <aura:iteration items="{!item.options}" var="opt" indexVar="i">
+                                                <option value="{!opt.value}">{!opt.label}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                    <aura:if isTrue="{!item.value eq 'Rejected'}">
+                                        <div>
+                                            <div class="slds-grid slds-gutters slds-p-top_x-small">
+                                                <div class="slds-col slds-size_1-of-2">
+                                                    <img src="{!item.imagelink}"/>                                                                
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-2">
+                                                    
+                                                    <lightning:input height="200" width="350" 
+                                                                     label="File Upload"  
+                                                                     id="{!i}"  
+                                                                     files="{!v.fileToBeUploaded}"
+                                                                     type="file" 
+                                                                     name="BeadArea" 
+                                                                     multiple="false" 
+                                                                     required="false" 
+                                                                     onchange="{!c.handleFilesChange}"
+                                                                     />
+                                                    <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                        <aura:if isTrue="{!itemField.label == 'strFileName'}">
+                                                            {!itemField.value}
+                                                        </aura:if>
+                                                    </aura:iteration>
+                                                    
+                                                </div>
+                                            </div>                                                        
+                                        </div>
+                                        <div>
+                                            <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                <aura:if isTrue="{!itemField.label == 'Rejection Name' || itemField.label == 'Recommendation' || itemField.label == 'Cause Of Rejection' || itemField.label == 'Other'}">
+                                                    <aura:if isTrue="{!itemField.label=='Other'}">
+                                                        <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="false"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                        <aura:set attribute="else">
+                                                            <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </aura:if>
+                                                <!--<lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />-->
+                                            </aura:iteration>
+                                        </div>
+                                    </aura:if>
+                                    
+                                </div>
+                            </aura:iteration>
+                        </aura:if>
+                    </aura:if>
+                </div>
+                <div aura:id="tyreLifeOneSidewallAreaTabDataId" id="tab-default-2" class="slds-tabs--default__content slds-hide" role="tabpanel" aria-labelledby="vegetable_linking">
+                    <!-- Selection of B of step 1 -->
+                    <aura:if isTrue="{!and(v.SubStepNo eq '2', v.selectedValue eq '1')}">
+                        <label class="slds-form-element__label slds-text-title_bold subheadingtag" for="select-01">B. Sidewall Area</label>
+                        <div class="slds-form-element textboxdiv">
+                            <label class="slds-form-element__label slds-text-title_bold" for="select-01">Good Condition</label>
+                            <div class="slds-select_container">
+                                <ui:inputSelect options="{!v.allSidewallAreaOptions.goodConditionsOption}" value="{!v.allSidewallAreaOptions.selectedStatus}"  aura:id="SideWallArea" class="slds-select"  change="{!c.onBeadAreaChange}"/>
+                            </div>                                        
+                        </div>
+                        <aura:if isTrue="{!v.allSidewallAreaOptions.selectedStatus eq 'No'}">
+                            
+                            <aura:iteration items="{!v.allSidewallAreaOptions.SidewallArea}" var="item1" indexVar="i">
+                                <div class="slds-form-element textboxdiv">
+                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">{!item1.label}</label>
+                                    <div class="slds-select_container">
+                                        <lightning:select variant="label-hidden"  value="{!item1.value}" class="label-hidden">
+                                            <aura:iteration items="{!item1.options}" var="opt" indexVar="i">
+                                                <option value="{!opt.value}">{!opt.label}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                    <aura:if isTrue="{!item1.value eq 'Rejected'}">
+                                        <div>
+                                            <div class="slds-grid slds-gutters slds-p-top_x-small">
+                                                <div class="slds-col slds-size_1-of-2">
+                                                    <img src="{!item1.imagelink}"/>
+                                                    
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-2">
+                                                    <lightning:input height="200" 
+                                                                     width="350" 
+                                                                     label="File Upload"  
+                                                                     id="{!i}"
+                                                                     files="{!v.fileToBeUploaded}"
+                                                                     type="file"  
+                                                                     name="SidewallArea"  
+                                                                     multiple="false" 
+                                                                     required="false" 
+                                                                     onchange="{!c.handleFilesChange}"/>
+                                                    
+                                                    
+                                                    <aura:iteration items="{!item1.inputFields}" var="itemField">
+                                                        <aura:if isTrue="{!itemField.label == 'strFileName'}">
+                                                            {!itemField.value}
+                                                        </aura:if>
+                                                    </aura:iteration>
+                                                    
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        <div>
+                                            <aura:iteration items="{!item1.inputFields}" var="itemField">
+                                                <aura:if isTrue="{!itemField.label == 'Rejection Name' || itemField.label == 'Recommendation' || itemField.label == 'Cause Of Rejection' || itemField.label == 'Other'}">
+                                                    <!--<lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />-->
+                                                    <aura:if isTrue="{!itemField.label=='Other'}">
+                                                        <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="false"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                        <aura:set attribute="else">
+                                                            <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </aura:if>
+                                            </aura:iteration>
+                                        </div>
+                                    </aura:if>
+                                </div>
+                            </aura:iteration>
+                        </aura:if>
+                    </aura:if>
+                </div>
+                <div aura:id="tyreLifeOneCrownAreaTabDataId" id="tab-default-3" class="slds-tabs--default__content slds-hide" role="tabpanel" aria-labelledby="color_linking">
+                    <!-- Selection of C of step 1 -->
+                    <aura:if isTrue="{!and(v.SubStepNo eq '3', v.selectedValue eq '1')}">                                    
+                        <label class="slds-form-element__label slds-text-title_bold subheadingtag" for="select-01">C. Crown Area</label>
+                        <div class="slds-form-element textboxdiv">
+                            <label class="slds-form-element__label slds-text-title_bold" for="select-01">Good Condition</label>
+                            <div class="slds-select_container">
+                                <ui:inputSelect options="{!v.allCrownAreaOptions.goodConditionsOption}" value="{!v.allCrownAreaOptions.selectedStatus}"   aura:id="CrownArea" class="slds-select"  change="{!c.onBeadAreaChange}"/>
+                            </div>
+                        </div>
+                        
+                        <aura:if isTrue="{!v.allCrownAreaOptions.selectedStatus eq 'No'}">
+                            <div style="clear: both;">
+                                <div class="slds-p-top_large textboxdiv" style="clear: both;">
+                                    <ol class="slds-list_ordered" type="a">                                                
+                                        <li>Indicate Nail hole injury <mark>'#'</mark> sign on both side of the Tyre. </li>
+                                        <li>Indicate the Injury Location as circle - <mark>'o'</mark> sign- with yellow Crayon / Chalk. </li>
+                                        <li>Indicate spot repair required as <mark>'S'</mark> sign.</li>
+                                        <li>Indicates Section Repair Over the Injury area as <mark>'X'</mark> sign.</li>
+                                        <li>Indicates if required, Repair After Cementing as <mark>'RAC'</mark> sign.</li>
+                                        <li>Indicates if required, Repair After Retreading if required, as <mark>'RAR'</mark> sign. </li>
+                                        <li>Indicates if required, Repair After Buffing if required, as <mark>'RAB'</mark> sign.</li>
+                                        <li>Indicates if reject / Not Worth Retreading as <mark>'NWR'</mark> sign.</li>
+                                    </ol>
+                                </div>
+                                <div class="textboxdiv">
+                                    <lightning:dualListbox aura:id="selectGenre"
+                                                           name="CutsNTC"
+                                                           label="Cuts / NTC "
+                                                           sourceLabel="Available Cuts / NTC "
+                                                           selectedLabel="Selected Cuts / NTC "
+                                                           options="{!v.allCrownAreaOptions.CutsNTC}"
+                                                           value="{!v.values}" 
+                                                           onchange="{!c.handleGenreChange}"/>
+                                </div>
+                            </div>
+                            
+                            <aura:iteration items="{!v.selectedCutsNTCList}" var="CutsNTC" indexVar="i">
+                                <div class="slds-form-element textboxdiv">
+                                    <label class="slds-form-element__label slds-m-right_none" for="default1">{!CutsNTC.label}</label>
+                                    <div class="slds-form-element__control">
+                                        <lightning:buttonIcon disabled="{!CutsNTC.selectedValue == 0}" value="{!i}" class="slds-button slds-button_icon slds-button_icon-small slds-input__button_decrement" name="{!CutsNTC}" iconName="utility:ban"   title="Decrement" alternativeText="Close window" onclick="{!c.handleOnDecrement}"/>
+                                        <input type="number" id="default1" placeholder="1" class="slds-input slds-input_counter" value="{!CutsNTC.selectedValue}"/>
+                                        <lightning:buttonIcon value="{!i}" class="slds-button slds-button_icon slds-button_icon-small slds-input__button_increment" name="{!CutsNTC}" iconName="utility:new"   title="Increment" alternativeText="Close window" onclick="{!c.handleOnIncrement}"/>
+                                    </div>
+                                    
+                                    
+                                    
+                                    <lightning:input height="200" width="350" 
+                                                     label="File Upload"  
+                                                     id="{!i}"  
+                                                     files="{!v.fileToBeUploadedNTCCuts}"
+                                                     type="file" 
+                                                     name="{!CutsNTC.label}" 
+                                                     multiple="false" 
+                                                     required="false" 
+                                                     onchange="{!c.handleFilesChangeForCuts}"
+                                                     />                                                
+                                    
+                                    
+                                    <aura:iteration items="{!v.displayFileName}" var="filename" indexVar="val">
+                                        <aura:if isTrue="{!CutsNTC.label==filename.key}">
+                                            {!filename.value}
+                                        </aura:if>
+                                    </aura:iteration>
+                                    
+                                    
+                                </div>
+                            </aura:iteration>
+                            
+                            <aura:iteration items="{!v.allCrownAreaOptions.CrownArea}" var="item" indexVar="i">
+                                <div class="slds-form-element textboxdiv">
+                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">{!item.label}</label>
+                                    <div class="slds-select_container">
+                                        <lightning:select variant="label-hidden"  value="{!item.value}" class="label-hidden">
+                                            <aura:iteration items="{!item.options}" var="opt" indexVar="i">
+                                                <option value="{!opt.value}">{!opt.label}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                    <aura:if isTrue="{!item.value eq 'Rejected'}">
+                                        <div>
+                                            <div class="slds-grid slds-gutters slds-p-top_x-small">
+                                                <div class="slds-col slds-size_1-of-2">
+                                                    <img src="{!item.imagelink}"/>
+                                                    
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-2">
+                                                    <lightning:input height="200" width="350" 
+                                                                     label="File Upload"  
+                                                                     id="{!i}"  
+                                                                     files="{!v.fileToBeUploaded}"
+                                                                     type="file" 
+                                                                     name="CrownArea" 
+                                                                     multiple="false" 
+                                                                     required="false" 
+                                                                     onchange="{!c.handleFilesChange}"
+                                                                     />
+                                                    <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                        <aura:if isTrue="{!itemField.label == 'strFileName'}">
+                                                            {!itemField.value}
+                                                        </aura:if>
+                                                    </aura:iteration>
+                                                    
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        <div>
+                                            <!--<aura:iteration items="{!item.inputFields}" var="itemField">
+                                                            <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />
+                                                        </aura:iteration>-->
+                                            <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                <aura:if isTrue="{!itemField.label == 'Rejection Name' || itemField.label == 'Recommendation' || itemField.label == 'Cause Of Rejection' || itemField.label == 'Other'}">
+                                                    <!-- <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />-->
+                                                    
+                                                    <aura:if isTrue="{!itemField.label=='Other'}">
+                                                        <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="false"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                        <aura:set attribute="else">
+                                                            <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                        </aura:set>
+                                                    </aura:if>
+                                                    
+                                                </aura:if>
+                                                <!--<lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />-->
+                                            </aura:iteration>
+                                            
+                                        </div>
+                                    </aura:if>
+                                </div>
+                            </aura:iteration>
+                            
+                        </aura:if>
+                    </aura:if>
+                </div>
+                <div aura:id="tyreLifeOneTyreInteriorTabDataId" id="tab-default-4" class="slds-tabs--default__content slds-hide" role="tabpanel" aria-labelledby="color_linking">
+                    <!-- Selection of D of step 1 -->
+                    <aura:if isTrue="{!and(v.SubStepNo eq '4', v.selectedValue eq '1')}">
+                        
+                        <label class="slds-form-element__label slds-text-title_bold subheadingtag" for="select-01">D. Tyre Interior</label>
+                        <div class="slds-form-element textboxdiv">
+                            <label class="slds-form-element__label slds-text-title_bold" for="select-01">Good Condition</label>
+                            <div class="slds-select_container">
+                                <ui:inputSelect  options="{!v.allTyreInteriorOptions.goodConditionsOption}" value="{!v.allTyreInteriorOptions.selectedStatus}" aura:id="TyreInterior" class="slds-select"  change="{!c.onBeadAreaChange}"/>
+                            </div>
+                        </div>
+                        
+                        <aura:if isTrue="{!v.allTyreInteriorOptions.selectedStatus eq 'No'}">
+                            
+                            <aura:iteration items="{!v.allTyreInteriorOptions.TyreInterior}" var="item" indexVar="i">
+                                <div class="slds-form-element textboxdiv">
+                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">{!item.label}</label>
+                                    <div class="slds-select_container">
+                                        <lightning:select variant="label-hidden"  value="{!item.value}" class="label-hidden">
+                                            <aura:iteration items="{!item.options}" var="opt" indexVar="i">
+                                                <option value="{!opt.value}">{!opt.label}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                    <aura:if isTrue="{!item.value eq 'Rejected'}">
+                                        <div>
+                                            <div class="slds-grid slds-gutters slds-p-top_x-small">
+                                                <div class="slds-col slds-size_1-of-2">
+                                                    <img src="{!item.imagelink}"/>
+                                                    
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-2">
+                                                    <lightning:input height="200" 
+                                                                     width="350" 
+                                                                     label="File Upload"  
+                                                                     id="{!i}"
+                                                                     files="{!v.fileToBeUploaded}"
+                                                                     type="file"  
+                                                                     name="TyreInterior"  
+                                                                     multiple="false" 
+                                                                     required="false" 
+                                                                     onchange="{!c.handleFilesChange}"/>
+                                                    
+                                                    <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                        <aura:if isTrue="{!itemField.label == 'strFileName'}">
+                                                            {!itemField.value}
+                                                        </aura:if>
+                                                    </aura:iteration>                                                                
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        <div>
+                                            <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                <aura:if isTrue="{!itemField.label == 'Rejection Name' || itemField.label == 'Recommendation' || itemField.label == 'Cause Of Rejection' || itemField.label == 'Other'}">
+                                                    <aura:if isTrue="{!itemField.label=='Other'}">
+                                                        <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="false"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                        <aura:set attribute="else">
+                                                            <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                        </aura:set>
+                                                    </aura:if>
+                                                    <!--<lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />-->
+                                                </aura:if>
+                                            </aura:iteration>
+                                        </div>
+                                    </aura:if>
+                                </div>
+                            </aura:iteration>
+                        </aura:if>
+                    </aura:if>
+                </div>
+                <div aura:id="tyreLifeOneAnyAreaTabDataId" id="tab-default-5" class="slds-tabs--default__content slds-hide" role="tabpanel" aria-labelledby="color_linking">
+                    <!-- Selection of E of step 1 -->
+                    <aura:if isTrue="{!and(v.SubStepNo eq '5', v.selectedValue eq '1')}">
+                        <label class="slds-form-element__label slds-text-title_bold subheadingtag" for="select-01">E. Any Area</label>
+                        <div class="slds-form-element textboxdiv">
+                            <label class="slds-form-element__label slds-text-title_bold" for="select-01">Good Condition</label>
+                            <div class="slds-select_container">
+                                <ui:inputSelect options="{!v.allAnyAreaOptions.goodConditionsOption}" value="{!v.allAnyAreaOptions.selectedStatus}"  aura:id="AnyArea" class="slds-select"  change="{!c.onBeadAreaChange}"/>
+                            </div>
+                        </div>
+                        
+                        <aura:if isTrue="{!v.allAnyAreaOptions.selectedStatus eq 'No'}">
+                            
+                            <aura:iteration items="{!v.allAnyAreaOptions.AnyArea}" var="item" indexVar="i">
+                                <div class="slds-form-element textboxdiv">
+                                    <label class="slds-form-element__label slds-text-title_bold" for="select-01">{!item.label}</label>
+                                    <div class="slds-select_container">
+                                        <lightning:select variant="label-hidden"  value="{!item.value}" class="label-hidden">
+                                            <aura:iteration items="{!item.options}" var="opt" indexVar="i">
+                                                <option value="{!opt.value}">{!opt.label}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </div>
+                                    <aura:if isTrue="{!item.value eq 'Rejected'}">
+                                        <div>
+                                            <div class="slds-grid slds-gutters slds-p-top_x-small">
+                                                <div class="slds-col slds-size_1-of-2">
+                                                    <img src="{!item.imagelink}"/>
+                                                    
+                                                </div>
+                                                <div class="slds-col slds-size_1-of-2">
+                                                    
+                                                    <lightning:input height="200" 
+                                                                     width="350" 
+                                                                     label="File Upload"  
+                                                                     id="{!i}"
+                                                                     files="{!v.fileToBeUploaded}"
+                                                                     type="file"  
+                                                                     name="AnyArea"  
+                                                                     multiple="false" 
+                                                                     required="false" 
+                                                                     onchange="{!c.handleFilesChange}"/>
+                                                    
+                                                    
+                                                    <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                        <aura:if isTrue="{!itemField.label == 'strFileName'}">
+                                                            {!itemField.value}
+                                                        </aura:if>
+                                                    </aura:iteration>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        <div>
+                                            <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                <aura:if isTrue="{!itemField.label == 'Rejection Name' || itemField.label == 'Recommendation' || itemField.label == 'Cause Of Rejection' || itemField.label == 'Other'}">
+                                                    <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />
+                                                </aura:if>
+                                            </aura:iteration>
+                                        </div>
+                                    </aura:if>
+                                </div>
+                            </aura:iteration>
+                        </aura:if>
+                    </aura:if>
+                </div>                                
+            </div>
+        </div>  
+        <!-- Tyre Life 1 Stop -->
+        <aura:set attribute="else">
+            <!-- Tyre Life more than 1 Start -->
+            <div class="maincontent"> 
+                <div class="slds-tabs--default">
+                    <ul class="slds-tabs--default__nav" role="tablist">
+                        <li  aura:id="tyreLifeMoreThanOneHolesAndInjuriesId" class="slds-tabs--default__item slds-text-title--caps slds-active" title="Fruits Name" role="presentation" >
+                            <a class="slds-tabs--default__link" href="javascript:void(0);" onclick="{!c.tyreLifeMoreThanOneHolesAndInjuries}" role="tab" tabindex="0" aria-selected="false" aria-controls="tab-default-1" id="Fruits_linking">
+                                Holes and Injuries
+                            </a>
+                        </li>
+                        <li  aura:id="tyreLifeMoreThanOneMissingLooseTreadId"  class="slds-tabs--default__item slds-text-title--caps " title="Vegetables Name" role="presentation">
+                            <a class="slds-tabs--default__link" href="javascript:void(0);" onclick="{!c.tyreLifeMoreThanOneMissingLooseTread}" role="tab" tabindex="-1" aria-selected="true" aria-controls="tab-default-2" id="vegetable_linking">
+                                Missing/Loose Tread
+                            </a>
+                        </li>
+                        <li  aura:id="tyreLifeMoreThanOneCracksId" class="slds-tabs--default__item slds-text-title--caps" title="Color Name" role="presentation">
+                            <a class="slds-tabs--default__link" href="javascript:void(0);" onclick="{!c.tyreLifeMoreThanOneCracks}" role="tab" tabindex="-1" aria-selected="false" aria-controls="tab-default-3" id="color_linking">
+                                Cracks
+                            </a>
+                        </li>
+                        <li  aura:id="tyreLifeMoreThanOneBulgesDepressionsId" class="slds-tabs--default__item slds-text-title--caps" title="Color Name" role="presentation">
+                            <a class="slds-tabs--default__link" href="javascript:void(0);" onclick="{!c.tyreLifeMoreThanOneBulgesDepressions}" role="tab" tabindex="-1" aria-selected="false" aria-controls="tab-default-4" id="color_linking">
+                                Bulges/Depressions
+                            </a>
+                        </li>
+                        <li  aura:id="tyreLifeMoreThanOneMiscellaneousId" class="slds-tabs--default__item slds-text-title--caps" title="Color Name" role="presentation">
+                            <a class="slds-tabs--default__link" href="javascript:void(0);" onclick="{!c.tyreLifeMoreThanOneMiscellaneous}" role="tab" tabindex="-1" aria-selected="false" aria-controls="tab-default-5" id="color_linking">
+                                Miscellaneous
+                            </a>
+                        </li>                                    
+                    </ul>
+                    <!---->
+                    <div aura:id="tyreLifeMoreThanOneHolesAndInjuriesTabDataId" id="tab-default-1" class="slds-tabs--default__content slds-show" role="tabpanel" aria-labelledby="Fruits_linking">
+                        <!-- step 2 and sub step A-->
+                        <aura:if isTrue="{!v.SubStepNo eq '1'}">
+                            
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label slds-text-title_bold subheadingtag" for="select-01">A. Holes and Injuries</label>
+                            </div>
+                            <div class="slds-form-element textboxdiv">
+                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Good Condition</label>
+                                <div class="slds-select_container">
+                                    <ui:inputSelect options="{!v.allHolesandInjuriesOptions.goodConditionsOption}" aura:id="HolesandInjuries" class="slds-select"  change="{!c.onBeadAreaChange}"/>
+                                </div>
+                            </div>
+                            
+                            <aura:if isTrue="{!v.allHolesandInjuriesOptions.selectedStatus eq 'No'}">
+                                <aura:iteration items="{!v.allHolesandInjuriesOptions.HolesandInjuries}" var="item" indexVar="i">
+                                    <div class="slds-form-element textboxdiv">
+                                        <label class="slds-form-element__label slds-text-title_bold" for="select-01">{!item.label}</label>
+                                        <div class="slds-select_container">
+                                            <lightning:select variant="label-hidden"  value="{!item.value}" class="label-hidden">
+                                                <aura:iteration items="{!item.options}" var="opt" indexVar="i">
+                                                    <option value="{!opt.value}">{!opt.label}</option>
+                                                </aura:iteration>
+                                            </lightning:select>
+                                        </div>
+                                        <aura:if isTrue="{!item.value eq 'Rejected'}">
+                                            <div>
+                                                <div class="slds-grid slds-gutters slds-p-top_x-small">
+                                                    <div class="slds-col slds-size_1-of-2">
+                                                        <img src="{!item.imagelink}"/>
+                                                        
+                                                    </div>
+                                                    <div class="slds-col slds-size_1-of-2">
+                                                        <lightning:input height="200" 
+                                                                         width="350" 
+                                                                         label="File Upload"  
+                                                                         id="{!i}"
+                                                                         files="{!v.fileToBeUploaded}"
+                                                                         type="file"  
+                                                                         name="HolesandInjuries"  
+                                                                         multiple="false" 
+                                                                         required="false" 
+                                                                         onchange="{!c.handleFilesChange}"/>
+                                                        
+                                                        
+                                                        <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                            <aura:if isTrue="{!itemField.label == 'strFileName'}">
+                                                                {!itemField.value}
+                                                            </aura:if>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <div>
+                                                <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                    <aura:if isTrue="{!itemField.label == 'Rejection Name' || itemField.label == 'Recommendation' || itemField.label == 'Cause Of Rejection' || itemField.label == 'Other'}">
+                                                        <aura:if isTrue="{!itemField.label=='Other'}">
+                                                            <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="false"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                            <aura:set attribute="else">
+                                                                <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                            </aura:set>
+                                                        </aura:if>
+                                                        
+                                                        <!--<lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />-->
+                                                    </aura:if>
+                                                </aura:iteration>
+                                            </div>
+                                        </aura:if>
+                                    </div>
+                                </aura:iteration>
+                            </aura:if>
+                        </aura:if>
+                    </div>
+                    <div aura:id="tyreLifeMoreThanOneMissingLooseTreadTabDataId" id="tab-default-2" class="slds-tabs--default__content slds-hide" role="tabpanel" aria-labelledby="vegetable_linking">
+                        <!-- step 2 and sub step B-->
+                        <aura:if isTrue="{!v.SubStepNo eq '2'}">
+                            
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label slds-text-title_bold subheadingtag" for="select-01">B.	Missing/Loose Tread</label>
+                                
+                            </div>
+                            <div class="slds-form-element textboxdiv">
+                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Good Condition</label>
+                                <div class="slds-select_container">
+                                    <ui:inputSelect options="{!v.allMissingLooseTreadOptions.goodConditionsOption}"  aura:id="MissingLooseTread" class="slds-select"  change="{!c.onBeadAreaChange}"/>
+                                </div>
+                            </div>
+                            
+                            <aura:if isTrue="{!v.allMissingLooseTreadOptions.selectedStatus eq 'No'}">
+                                
+                                <aura:iteration items="{!v.allMissingLooseTreadOptions.MissingLooseTread}" var="item" indexVar="i">
+                                    <div class="slds-form-element textboxdiv">
+                                        <label class="slds-form-element__label slds-text-title_bold" for="select-01">{!item.label}</label>
+                                        <div class="slds-select_container">
+                                            <lightning:select variant="label-hidden"  value="{!item.value}" class="label-hidden">
+                                                <aura:iteration items="{!item.options}" var="opt" indexVar="i">
+                                                    <option value="{!opt.value}">{!opt.label}</option>
+                                                </aura:iteration>
+                                            </lightning:select>
+                                        </div>
+                                        <aura:if isTrue="{!item.value eq 'Rejected'}">
+                                            <div>
+                                                <div class="slds-grid slds-gutters slds-p-top_x-small">
+                                                    <div class="slds-col slds-size_1-of-2">
+                                                        <img src="{!item.imagelink}"/>
+                                                        
+                                                    </div>
+                                                    <div class="slds-col slds-size_1-of-2">
+                                                        
+                                                        <lightning:input height="200" 
+                                                                         width="350" 
+                                                                         label="File Upload"  
+                                                                         id="{!i}"
+                                                                         files="{!v.fileToBeUploaded}"
+                                                                         type="file"  
+                                                                         name="MissingLooseTread"  
+                                                                         multiple="false" 
+                                                                         required="false" 
+                                                                         onchange="{!c.handleFilesChange}"/>
+                                                        
+                                                        
+                                                        <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                            <aura:if isTrue="{!itemField.label == 'strFileName'}">
+                                                                {!itemField.value}
+                                                            </aura:if>
+                                                        </aura:iteration>
+                                                        
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <div>
+                                                <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                    <aura:if isTrue="{!itemField.label == 'Rejection Name' || itemField.label == 'Recommendation' || itemField.label == 'Cause Of Rejection' || itemField.label == 'Other'}">
+                                                        <aura:if isTrue="{!itemField.label=='Other'}">
+                                                            <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="false"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                            <aura:set attribute="else">
+                                                                <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                            </aura:set>
+                                                        </aura:if>
+                                                        <!--
+                                                                <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />
+-->                                                            
+                                                    </aura:if>
+                                                </aura:iteration>
+                                            </div>
+                                        </aura:if>
+                                    </div>
+                                </aura:iteration>
+                            </aura:if>
+                        </aura:if>
+                    </div>
+                    <div aura:id="tyreLifeMoreThanOneCracksTabDataId" id="tab-default-3" class="slds-tabs--default__content slds-hide" role="tabpanel" aria-labelledby="color_linking">
+                        <!-- step 2 and sub step C-->
+                        <aura:if isTrue="{!v.SubStepNo eq '3'}">
+                            
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label slds-text-title_bold subheadingtag" for="select-01">C.	Cracks</label>
+                                
+                            </div>
+                            <div class="slds-form-element textboxdiv">
+                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Good Condition</label>
+                                <div class="slds-select_container">
+                                    <ui:inputSelect options="{!v.allCracksOptions.goodConditionsOption}"  aura:id="Cracks" class="slds-select"  change="{!c.onBeadAreaChange}"/>
+                                </div>
+                            </div>
+                            
+                            <aura:if isTrue="{!v.allCracksOptions.selectedStatus eq 'No'}">
+                                
+                                <aura:iteration items="{!v.allCracksOptions.Cracks}" var="item" indexVar="i">
+                                    <div class="slds-form-element textboxdiv">
+                                        <label class="slds-form-element__label slds-text-title_bold" for="select-01">{!item.label}</label>
+                                        <div class="slds-select_container">
+                                            <lightning:select variant="label-hidden"  value="{!item.value}" class="label-hidden">
+                                                <aura:iteration items="{!item.options}" var="opt" indexVar="i">
+                                                    <option value="{!opt.value}">{!opt.label}</option>
+                                                </aura:iteration>
+                                            </lightning:select>
+                                        </div>
+                                        <aura:if isTrue="{!item.value eq 'Rejected'}">
+                                            <div>
+                                                <div class="slds-grid slds-gutters slds-p-top_x-small">
+                                                    <div class="slds-col slds-size_1-of-2">
+                                                        <img src="{!item.imagelink}"/>
+                                                        
+                                                    </div>
+                                                    <div class="slds-col slds-size_1-of-2">
+                                                        <lightning:input height="200" 
+                                                                         width="350" 
+                                                                         label="File Upload"  
+                                                                         id="{!i}"
+                                                                         files="{!v.fileToBeUploaded}"
+                                                                         type="file"  
+                                                                         name="Cracks"  
+                                                                         multiple="false" 
+                                                                         required="false" 
+                                                                         onchange="{!c.handleFilesChange}"/>
+                                                        
+                                                        
+                                                        <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                            <aura:if isTrue="{!itemField.label == 'strFileName'}">
+                                                                {!itemField.value}
+                                                            </aura:if>
+                                                        </aura:iteration>
+                                                        
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <div>
+                                                <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                    <aura:if isTrue="{!itemField.label == 'Rejection Name' || itemField.label == 'Recommendation' || itemField.label == 'Cause Of Rejection' || itemField.label == 'Other'}">
+                                                        <aura:if isTrue="{!itemField.label=='Other'}">
+                                                            <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="false"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                            <aura:set attribute="else">
+                                                                <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                            </aura:set>
+                                                        </aura:if>
+                                                        <!--
+                                                                <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />
+-->                                                            
+                                                    </aura:if>
+                                                </aura:iteration>
+                                            </div>
+                                        </aura:if>
+                                    </div>
+                                </aura:iteration>
+                            </aura:if>
+                        </aura:if>
+                    </div>
+                    <div aura:id="tyreLifeMoreThanOneBulgesDepressionsTabDataId" id="tab-default-4" class="slds-tabs--default__content slds-hide" role="tabpanel" aria-labelledby="color_linking">
+                        <!-- step 2 and sub step D-->
+                        <aura:if isTrue="{!v.SubStepNo eq '4'}">
+                            
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label slds-text-title_bold subheadingtag" for="select-01">D.	Bulges/Depressions</label>
+                                
+                            </div>
+                            <div class="slds-form-element textboxdiv">
+                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Good Condition</label>
+                                <div class="slds-select_container">
+                                    <ui:inputSelect options="{!v.allBulgesDepressionsOptions.goodConditionsOption}"  aura:id="BulgesDepressions" class="slds-select"  change="{!c.onBeadAreaChange}"/>
+                                </div>
+                            </div>
+                            
+                            <aura:if isTrue="{!v.allBulgesDepressionsOptions.selectedStatus eq 'No'}">
+                                
+                                <aura:iteration items="{!v.allBulgesDepressionsOptions.BulgesDepressions}" var="item" indexVar="i">
+                                    <div class="slds-form-element textboxdiv">
+                                        <label class="slds-form-element__label slds-text-title_bold" for="select-01">{!item.label}</label>
+                                        <div class="slds-select_container">
+                                            <lightning:select variant="label-hidden"  value="{!item.value}" class="label-hidden">
+                                                <aura:iteration items="{!item.options}" var="opt" indexVar="i">
+                                                    <option value="{!opt.value}">{!opt.label}</option>
+                                                </aura:iteration>
+                                            </lightning:select>
+                                        </div>
+                                        <aura:if isTrue="{!item.value eq 'Rejected'}">
+                                            <div>
+                                                <div class="slds-grid slds-gutters slds-p-top_x-small">
+                                                    <div class="slds-col slds-size_1-of-2">
+                                                        <img src="{!item.imagelink}"/>
+                                                        
+                                                    </div>
+                                                    <div class="slds-col slds-size_1-of-2">
+                                                        <lightning:input height="200" 
+                                                                         width="350" 
+                                                                         label="File Upload"  
+                                                                         id="{!i}"
+                                                                         files="{!v.fileToBeUploaded}"
+                                                                         type="file"  
+                                                                         name="BulgesDepressions"  
+                                                                         multiple="false" 
+                                                                         required="false" 
+                                                                         onchange="{!c.handleFilesChange}"/>
+                                                        
+                                                        
+                                                        <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                            <aura:if isTrue="{!itemField.label == 'strFileName'}">
+                                                                {!itemField.value}
+                                                            </aura:if>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <div>
+                                                <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                    <aura:if isTrue="{!itemField.label == 'Rejection Name' || itemField.label == 'Recommendation' || itemField.label == 'Cause Of Rejection' || itemField.label == 'Other'}">
+                                                        <aura:if isTrue="{!itemField.label=='Other'}">
+                                                            <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="false"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                            <aura:set attribute="else">
+                                                                <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                            </aura:set>
+                                                        </aura:if>
+                                                        <!--
+                                                                <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />
+                                                            
+-->
+                                                    </aura:if>
+                                                </aura:iteration>
+                                            </div>
+                                        </aura:if>
+                                    </div>
+                                </aura:iteration>
+                            </aura:if>
+                        </aura:if>
+                    </div>
+                    <div aura:id="tyreLifeMoreThanOneMiscellaneousTabDataId" id="tab-default-5" class="slds-tabs--default__content slds-hide" role="tabpanel" aria-labelledby="color_linking">
+                        <!-- step 2 and sub step E-->
+                        <aura:if isTrue="{!v.SubStepNo eq '5'}">
+                            
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label slds-text-title_bold subheadingtag" for="select-01">E.	Miscellaneous</label>
+                                
+                            </div>
+                            <div class="slds-form-element textboxdiv">
+                                <label class="slds-form-element__label slds-text-title_bold" for="select-01">Good Condition</label>
+                                <div class="slds-select_container">
+                                    <ui:inputSelect options="{!v.allMiscellaneousOptions.goodConditionsOption}"  aura:id="Miscellaneous" class="slds-select"  change="{!c.onBeadAreaChange}"/>
+                                </div>
+                            </div>
+                            
+                            <aura:if isTrue="{!v.allMiscellaneousOptions.selectedStatus eq 'No'}">
+                                
+                                <aura:iteration items="{!v.allMiscellaneousOptions.Miscellaneous}" var="item" indexVar="i">
+                                    <div class="slds-form-element textboxdiv">
+                                        <label class="slds-form-element__label slds-text-title_bold" for="select-01">{!item.label}</label>
+                                        <div class="slds-select_container">
+                                            <lightning:select variant="label-hidden"  value="{!item.value}" class="label-hidden">
+                                                <aura:iteration items="{!item.options}" var="opt" indexVar="i">
+                                                    <option value="{!opt.value}">{!opt.label}</option>
+                                                </aura:iteration>
+                                            </lightning:select>
+                                        </div>
+                                        <aura:if isTrue="{!item.value eq 'Rejected'}">
+                                            <div>
+                                                <div class="slds-grid slds-gutters slds-p-top_x-small">
+                                                    <div class="slds-col slds-size_1-of-2">
+                                                        <img src="{!item.imagelink}"/>
+                                                        
+                                                    </div>
+                                                    <div class="slds-col slds-size_1-of-2">
+                                                        <lightning:input height="200" width="350" 
+                                                                         label="File Upload"  
+                                                                         id="{!i}"  
+                                                                         files="{!v.fileToBeUploaded}"
+                                                                         type="file" 
+                                                                         name="Miscellaneous" 
+                                                                         multiple="false" 
+                                                                         required="false" 
+                                                                         onchange="{!c.handleFilesChange}"
+                                                                         />
+                                                        <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                            <aura:if isTrue="{!itemField.label == 'strFileName'}">
+                                                                {!itemField.value}
+                                                            </aura:if>
+                                                        </aura:iteration>
+                                                        
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <div>
+                                                <aura:iteration items="{!item.inputFields}" var="itemField">
+                                                    <aura:if isTrue="{!itemField.label == 'Rejection Name' || itemField.label == 'Recommendation' || itemField.label == 'Cause Of Rejection' || itemField.label == 'Other'}">
+                                                        <aura:if isTrue="{!itemField.label=='Other'}">
+                                                            <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="false"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                            <aura:set attribute="else">
+                                                                <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />                                                                    
+                                                            </aura:set>
+                                                        </aura:if>
+                                                        <!--
+                                                                <lightning:input title="{!itemField.value}" disabled="{!itemField.label != 'Other'}" required="true"  value="{!itemField.value}" label="{!itemField.label}" />
+-->                                                            
+                                                    </aura:if>
+                                                </aura:iteration>
+                                            </div>
+                                        </aura:if>
+                                    </div>
+                                </aura:iteration>
+                            </aura:if>
+                        </aura:if>
+                    </div>                                
+                </div>
+            </div>  
+            <!-- Tyre Life more than 1 Stop -->                                                
+            
+        </aura:set>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.stepNo eq '1'}">
+        <!-- Tyre Life 1 Start -->
+        <!-- Selection of 1 -->
+        <aura:if isTrue="{!and(v.SubStepNo eq '1', v.selectedValue eq '1')}">
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.callSideWallArea}">Next</button>                                    
+        </aura:if>
+        <!-- Selection of B of step 1 -->
+        <aura:if isTrue="{!and(v.SubStepNo eq '2', v.selectedValue eq '1')}">
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.callBeadArea}">Previous</button>                                                                        
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.callCrownArea}">Next</button>                                                                        
+        </aura:if>
+        <!-- Selection of C of step 1 -->
+        <aura:if isTrue="{!and(v.SubStepNo eq '3', v.selectedValue eq '1')}">
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.callSideWallArea}">Previous</button>                                                                        
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.callTyreInterior}">Next</button>                                                                        
+        </aura:if>
+        <aura:if isTrue="{!and(v.SubStepNo eq '4', v.selectedValue eq '1')}">
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.callCrownArea}">Previous</button>                                                                        
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.callAnyArea}">Next</button>                                                                        
+        </aura:if>
+        <aura:if isTrue="{!and(v.SubStepNo eq '5', v.selectedValue eq '1')}">
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.callTyreInterior}">Previous</button>                                                                        
+            <button disabled="{!v.submitLifeOne}" class="slds-button slds-button_brand" onclick="{!c.SubmitTyreLifeOne}">Submit</button>                                                                        
+        </aura:if>
+        <!-- Tyre Life 1 Stop -->
+    </aura:if>             
+    
+    <aura:if isTrue="{!or(v.stepNo eq '2',v.stepNo eq '3',v.stepNo eq '4',v.stepNo eq '5')}">
+        <!-- step 2 and sub step A-->
+        <aura:if isTrue="{!v.SubStepNo eq '1'}">
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.tyreLifeMoreThanOneMissingLooseTread}">Next</button>
+        </aura:if>
+        <!-- step 2 and sub step B-->
+        <aura:if isTrue="{!v.SubStepNo eq '2'}">
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.tyreLifeMoreThanOneHolesAndInjuries}">Previous</button>
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.tyreLifeMoreThanOneCracks}">Next</button>
+        </aura:if>
+        <!-- step 2 and sub step C-->
+        <aura:if isTrue="{!v.SubStepNo eq '3'}">
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.tyreLifeMoreThanOneMissingLooseTread}">Previous</button>
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.tyreLifeMoreThanOneBulgesDepressions}">Next</button>
+        </aura:if> 
+        <!-- step 2 and sub step D-->
+        <aura:if isTrue="{!v.SubStepNo eq '4'}">
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.tyreLifeMoreThanOneCracks}">Previous</button>
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.tyreLifeMoreThanOneMiscellaneous}">Next</button>
+        </aura:if>
+        <!-- step 2 and sub step E-->
+        <aura:if isTrue="{!v.SubStepNo eq '5'}">
+            <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.tyreLifeMoreThanOneBulgesDepressions}">Previous</button>
+            <button disabled="{!v.submitLifemultiple}" class="slds-button slds-button_brand" onclick="{!c.SubmitMoreThanOneTyreLife}">Submit</button>
+        </aura:if>
+    </aura:if>
+    
+    <br/><br/><br/>
+</aura:component>

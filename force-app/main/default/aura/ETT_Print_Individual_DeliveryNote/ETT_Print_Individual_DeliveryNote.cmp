@@ -1,0 +1,83 @@
+<aura:component controller="ETT_PrintDeliveryNoteController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+	<aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;  
+        }
+        .slds-modal__content{
+        <!--overflow-y:hidden !important;-->
+        height:unset !important;
+        max-height:unset !important;
+       
+     	width:100% !important;
+        }
+    </aura:html>
+    <ltng:require styles="{!$Resource.ModalWidthCSS}"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="objDeliveryNote" type="ETT_Delivery_Note__c" default="{'sobjectType': 'ETT_Delivery_Note__c'}" />
+    
+    <aura:attribute name="isSelectAll" type="boolean"/>
+    
+    <aura:attribute name="DeliveryNoteRecord" type="Object" />
+    <aura:attribute name="DeliveryNoteRecordError" type="String" /> 
+    <aura:attribute name="deliveryLineItem" type="Map"/>
+    <aura:attribute name="collectionCardList" type="List"/>
+    <aura:attribute name="objDeliveryLineItem" type="Object[]"/>
+    <aura:attribute name="isDLIPrepared" type="Boolean" default="false" />
+    
+    <aura:attribute name="lstDeliveryLineItem" type="ETT_Delivery_Line_Item__c[]"/>
+    <aura:attribute name="lstDeliveryLineItemArr" type="ETT_Delivery_Line_Item__c[]"/>
+    
+    <aura:attribute name="userInfo" type="user"/>  
+     
+    <force:recordData aura:id="DeliveryNoteRecord" 
+                      recordId="{!v.recordId}" 
+                      fields="Id,Name,BillingStreet" 
+                      targetFields="{!v.DeliveryNoteRecord}" 
+                      targetError="{!v.DeliveryNoteError}"
+                      /> 
+    
+
+    
+    <div class="modal-header slds-modal__header">
+        <h4 class="title slds-text-heading--medium">
+            Delivery Note Details
+        </h4>
+    </div>    
+    
+    <div class="slds-modal__content">
+        <div class="slds-box">
+            
+            <aura:if isTrue="{!v.isDLIPrepared}">
+                <div style="font-size: 14px;font-weight: bold;">
+                    There is no Delivery Note Pending for this account.
+                </div>
+                <aura:set attribute="else">
+                    
+                     <table class="slds-table" border="1"> 
+               <tr>
+                            <td>Collection Card:</td>
+                            <td>
+                                <!-- onchange="{!c.handleSelect}" -->
+                                <lightning:select aura:id="selectGroupNum" label="cardno" name="cardno" >
+                                <aura:iteration items="{!v.collectionCardList}" var="ind" indexVar="key">
+                                    <option value="{!ind.value}">{!ind.value}</option>
+                                </aura:iteration>
+                                </lightning:select>
+                             
+                                <!--<aura:iteration items="{!v.objDeliveryLineItem}" var="ind" indexVar="key">
+                                    {!ind.value},&nbsp; 
+                                </aura:iteration>-->
+                            </td>  
+                   
+                        </tr>
+                        
+                    </table>
+                    <br/><br/>
+                </aura:set>
+            </aura:if>
+        </div>
+    </div>
+</aura:component>

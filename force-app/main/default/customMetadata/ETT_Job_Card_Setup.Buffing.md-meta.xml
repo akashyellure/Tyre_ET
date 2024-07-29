@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Buffing</label>
+    <protected>false</protected>
+    <values>
+        <field>ETT_Instructions__c</field>
+        <value xsi:type="xsd:string">&lt;ol class=&quot;slds-list_ordered&quot; type=&quot;a&quot;&gt;
+                                                            &lt;li&gt;Excessive smoke and heat emitted indicates that either pressing the buffer too hard and/or buffing blades are already worn out. Release the buffing pressure or replace the buffing blade is necessary to avoid scorching to the rubber fire hazard.&lt;/li&gt;
+                                                            &lt;li&gt;All buffed radial tyre casings to be cemented with in 8 hours.&lt;/li&gt;
+                                                        &lt;/ol&gt;</value>
+    </values>
+</CustomMetadata>

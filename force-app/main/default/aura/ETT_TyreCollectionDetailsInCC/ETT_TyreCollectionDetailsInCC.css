@@ -1,0 +1,34 @@
+.THIS .outer-div {
+    position: relative;
+}
+.THIS .spinner2 {
+   position: absolute;
+}
+.THIS .spinner2::after {
+    position: absolute;
+    content: 'Please wait...';
+    width: 100%;
+    text-align: center;
+    top: calc(50% + 3em);
+    font-weight: bold;
+}
+.THIS .collectionitemdiv{
+    min-height:400px;
+    max-height:400px;
+    overflow:auto;
+}
+.THIS .collectionitemdiv .slds-table{
+    margin: 1rem;
+    border: 1px solid #dddbda;
+    position: relative;
+    float: left;
+}
+.THIS .collectionitemdiv .slds-table .slds-form-element__label{
+    display:none;
+}
+.THIS .collectionitemdiv .slds-table .slds-form-element__label .transfromUpper{
+    text-transform:uppercase
+}
+.THIS .collectionitemdiv .slds-table .slds-media__body {
+    text-align: left;
+}

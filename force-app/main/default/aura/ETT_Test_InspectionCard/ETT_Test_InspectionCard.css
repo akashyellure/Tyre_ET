@@ -1,0 +1,77 @@
+.THIS .slds-modal_small .slds-modal__container {
+    min-width: 99%!important;
+}
+.THIS .label-hidden > label {
+    display: none;
+}
+.THIS .slds-tabs_default__nav, .THIS .slds-tabs--default__nav {
+    background-color: rgb(250, 250, 249);
+    border: 0 solid rgb(212, 212, 212);
+    border-radius: .25rem .25rem 0 0;
+    background: #f3f2f2;
+    color: #000;
+}
+.THIS .slds-tabs_default__link, .THIS .slds-tabs--default__link {
+    color: #000000;
+}
+.THIS .slds-tabs--default__item.slds-active{
+    background: #fff;
+}
+.THIS .slds-tabs--default__item.slds-active .slds-tabs--default__link{
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(255, 255, 255);
+    color: #000;
+}
+.THIS .slds-tabs--default__item.slds-active:after ,
+.THIS .slds-tabs_default__item:hover:after, 
+.THIS .slds-tabs--default__item:hover:after{
+    display:none;
+}
+.THIS .maincontent{
+    border: 1px solid #ddd;
+    margin: 1rem 0rem;
+}
+.THIS .slds-show {
+    padding: 1rem;
+    display: flow-root;
+}
+.THIS .subheadingtag{
+    font-size: 18px!important;
+    color: #000;
+    position: relative;
+    display: block;
+    padding: 0;
+    font-weight:700!important;
+}
+.THIS .textboxdiv{
+    width:49%;
+    margin-right:.5%;
+    margin-bottom:1%;
+    margin-left:.5%;
+    display:inline-block;
+    float:left;
+}
+.THIS .slds-text-title_bold {
+    font-size: 12px;
+    font-weight: bold;
+}
+.THIS .btnmargin{
+    margin-bottom:5px;
+}
+@media only screen and (max-width: 1024px) {
+    .THIS .textboxdiv{
+        width:100%;
+        margin-right:0%;
+        margin-bottom:1%;
+        margin-left:0%;
+    }
+}
+@media only screen and (max-width: 480px) {
+    .THIS .textboxdiv .slds-grid{
+        display:block; 
+    }
+    .THIS .textboxdiv .slds-grid .slds-size_1-of-2 , 
+    .THIS .textboxdiv .slds-grid .slds-size_1-of-2 {
+        width:100%;
+    }
+}

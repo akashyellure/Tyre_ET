@@ -1,0 +1,123 @@
+<aura:component implements="force:hasRecordId,force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" controller="ETT_EstimationController">
+    <aura:attribute name="estimationDetails" type="ETT_Estimate_Quotation__c[]"  /> 
+    <aura:attribute name="estimationDetailsList" type="List"  /> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="isSelectAll" type="boolean"/>
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="isUserFM" type="boolean" default="false" />
+    <aura:attribute name="isUserHOO" type="boolean" default="false" />
+    <aura:attribute name="readonly" type="boolean" default="false" />    
+    
+    <ltng:require styles="{!$Resource.ModalWidthCSS}"/>
+    
+    <aura:if isTrue="{!or(v.isUserFM,v.isUserHOO)}">
+        <lightning:accordion  allowMultipleSectionsOpen="true">
+            
+            <lightning:accordionSection name="A" label="Estimation Summary">
+                <table class="slds-table slds-table--bordered slds-table--striped" border="1"> 
+                    <tr>
+                        <th>Item Code</th>
+                        <th>Count</th>
+                    </tr>
+                    <aura:iteration items="{!v.estimationDetailsList}" var="estimation" indexVar="index">
+                        <tr>
+                            <th>{!estimation.key}</th>
+                            <th>{!estimation.value}</th>                            
+                        </tr>
+                    </aura:iteration>
+                </table>
+                
+                
+            </lightning:accordionSection>
+            
+            <lightning:accordionSection name="B" label="Estimation Details">
+                <div class="slds-scrollable_x">
+                    <table class="slds-table slds-table--bordered slds-table--striped" border="1" style="width:900px;"> 
+                        <tr> 
+                            <th>          
+                                <label class="slds-checkbox">
+                                    <ui:inputCheckbox value="{!v.isSelectAll}" change="{!c.handleSelectAllEstimation}" aura:id="selectAll"/>
+                                    <span class="slds-checkbox--faux" />
+                                    <span class="slds-form-element__label"></span>
+                                </label>
+                            </th>
+                            <th>Account Name</th>
+                            <th>Collection Card Number</th>
+                            <th>Inspection Number</th>
+                            <th>Tyre Size</th>
+                            <th>Brand</th>
+                            <th>Pattern</th>
+                            <th>Country</th>
+                            <th>Item</th>
+                            <th>Supplier Price</th>
+                            <th>Quantity</th>
+                            <th>Min Range</th>
+                            <th>Max Range</th>
+                        </tr> 
+                        <aura:iteration items="{!v.estimationDetails}" var="estimation" indexVar="index">
+                            <tr class="slds-text-title_caps">
+                                
+                                <td>
+                                    <aura:if isTrue="{!v.isUserHOO}">
+                                        <label class="slds-checkbox">
+                                            <ui:inputCheckbox aura:id="checkEstimation" value="{!estimation.ETT_Requesting_HOO_For_Accpetence__c}" text="{!estimation.Id}"/>
+                                            <span class="slds-checkbox--faux" />
+                                            <span class="slds-form-element__label"></span>
+                                        </label>
+                                    </aura:if>
+                                    
+                                    <aura:if isTrue="{!v.isUserFM}">
+                                        <label class="slds-checkbox">
+                                            <ui:inputCheckbox aura:id="checkEstimation" value="{!estimation.ETT_Accept_Quotation__c}" text="{!estimation.Id}"/>
+                                            <span class="slds-checkbox--faux" />
+                                            <span class="slds-form-element__label"></span>
+                                        </label>
+                                    </aura:if>    
+                                </td>
+                                <td>{!estimation.ETT_Collection_Card__r.ETT_Accounts__r.Name}</td>
+                                <td>{!estimation.ETT_Collection_Card__r.Name}</td>
+                                <td>{!estimation.ETT_Tyre_Inspection_Card__r.Name}</td>
+                                <td>{!estimation.ETT_Tyre_Size__r.Name}</td>
+                                <td>{!estimation.ETT_Brand__r.Name}</td>
+                                <td>{!estimation.ETT_Pattern__r.Name}</td>
+                                <td>{!estimation.ETT_Country_of_Origin__r.Name}</td>
+                                <td>
+                                    TU-{!estimation.ETT_Tyre_Size__r.Name}-{!estimation.ETT_Brand__r.ETT_Brand_Code__c}
+                                </td>
+                                <td> <lightning:input aura:id="priceId" name="price" type="text" value="{!estimation.ETT_Price__c}"
+                                                      required="true" />
+                                    <span id="priceErr" style="color:red;"></span>
+                                </td>
+                                <td>{!estimation.ETT_Quantity__c}</td>
+                                <td>{!estimation.ETT_Min_Range__c}</td>
+                                <td>{!estimation.ETT_Max_Range__c}</td>
+                            </tr>   
+                        </aura:iteration>   
+                    </table>   
+                </div>
+                <aura:if isTrue="{!v.readonly==false}">
+                    <aura:if isTrue="{!v.isUserHOO}">
+                        <lightning:button label="Pricing Estimation Approval" 
+                                          class="slds-m-top--medium"
+                                          variant="brand"
+                                          onclick="{!c.acceptQuotations}"/>
+                    </aura:if>
+                    <aura:if isTrue="{!v.isUserFM}">
+                        <lightning:button label="Pricing Estimation Approval" 
+                                          class="slds-m-top--medium"
+                                          variant="brand"
+                                          onclick="{!c.acceptQuotations}"/>
+                    </aura:if>
+                </aura:if>
+            </lightning:accordionSection>        
+        </lightning:accordion>
+        
+        <aura:set attribute="else">
+            <p style="text-align: center;
+                      margin: 5%;
+                      font-size: 16px;
+                      color: red;">You do not have access to this component</p>
+        </aura:set>
+    </aura:if>
+    
+</aura:component>

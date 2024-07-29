@@ -1,0 +1,196 @@
+<!--****
+*Author:Janardhan
+*CreatedDate:09/11/21
+*Desc:
+*cmp Name:ETT_Job_Card_Close
+*Controller: ETT_JobCardCloseCtrl
+
+****-->
+<aura:component controller="ETT_JobCardCloseCtrl" implements="lightning:actionOverride,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="jobCardId" type="string" />  
+    <aura:attribute name="recordName" type="string" /> 
+    <aura:attribute name="jobCardInfo" type="ETT_Inspection_Card__c" />
+    <aura:attribute name="jobType" type="string" />
+    <aura:attribute name="selectedJobProcss" type="string"/>
+    <aura:attribute name="options" type="List" default="Buffing"/>
+    <aura:attribute name="allItemsList" type="list"/>
+    <aura:attribute name="filterItemsList" type="list"/>
+    <aura:attribute name="showModel" type="boolean" default="false" />
+    <aura:attribute name="issuedQty" type="string"/>
+    <aura:attribute name="toolMasterId" type="Id"/>
+    <aura:attribute name="newJobCardCloseLines" type="ETT_Job_Card_Close_Lines__c[]"  /> 
+    <aura:attribute name="tempUOM" type="string"/>
+    <aura:attribute name="tempAvailQty" type="string"/>
+    <aura:attribute name="tempItemCode" type="string"/>
+    <aura:attribute name="tempItemDesc" type="string"/>
+    <aura:attribute name="tempIndiUnitVal" type="string"/>    
+     <aura:attribute name="ProdtnStatus" type="string"/>
+     <aura:attribute name="envInfo" type="list"/>
+    <aura:attribute name="curingInfo" type="list"/>
+    <aura:attribute name="buffingInfo" type="list"/>
+    
+    <div  class="outer-div">
+        <!--lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" /-->
+        
+        <lightning:card title="Job Card Close" >
+            <lightning:recordEditForm aura:id="JobCardCloseForm" recordId="" objectApiName="ETT_Job_Card_Close__c" onsubmit="" onsuccess="{!c.HanldeJobCloseSuccess}" >
+                <lightning:messages />
+                <div class="slds-form_horizontal slds-form slds-grid slds-wrap">                     
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="Job_Card__c" onchange="{!c.getJobCardDetails}" value="{!v.jobCardId}"/>
+                    <lightning:inputField class="slds-hide" fieldName="Party__c" value="{!v.jobCardInfo.ETT_Inspection_Card__r.ETT_Account__c}"/>
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="Collection_Card__c" value="{!v.jobCardInfo.ETT_Inspection_Card__r.ETT_Collection_Card__c}" disabled="true"/>
+                    <lightning:input class="slds-size_1-of-3" label="Collection Date" type="date" value="{!v.jobCardInfo.ETT_Inspection_Card__r.ETT_Collection_Card__r.ETT_Collection_Date__c}" disabled="true"/>
+                    <lightning:input class="slds-size_1-of-3" label="Party Name" value="{!v.jobCardInfo.Collection_Card__r.ETT_Accounts__r.Name}" disabled="true" />
+                    <lightning:input class="slds-size_1-of-3" label="Party Type" value="{!v.jobCardInfo.Collection_Card__r.ETT_Accounts__r.Party_Type__c}" disabled="true"/>
+                    <h2 class="heading">Tyre Info</h2>
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="Job_Type__c" value="{!v.jobType}" disabled="true"/>
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="Brand_Name__c" value="{!v.jobCardInfo.ETT_Inspection_Card__r.ETT_Brand__r.Name}" disabled="true"/>
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="Tyre_Size__c" value="{!v.jobCardInfo.ETT_Inspection_Card__r.ETT_Tyre_Size__r.Name}" disabled="true"/>
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="Serial_Number__c"  value="{!v.jobCardInfo.ETT_Inspection_Card__r.ETT_Tyre_Serial_Number__c}" disabled="true"/>
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="O_Pattern__c"  value="{!v.jobCardInfo.ETT_Tyre_Master__r.ETT_Original_Pattern__r.Name}" disabled="true"/>
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="PR__c"  value="{!v.jobCardInfo.ETT_Tyre_Master__r.ETT_Ply_Rate__c}" disabled="true"/>
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="LI__c"  value="{!v.jobCardInfo.ETT_Tyre_Master__r.ETT_Load_Index__c}" disabled="true"/>
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="SI__c"  value="{!v.jobCardInfo.ETT_Tyre_Master__r.ETT_Speed_Index__c}" disabled="true"/>
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="Origin__c"  value="{!v.jobCardInfo.ETT_Inspection_Card__r.ETT_Tyre_Serial_Number__c}" disabled="true"/>
+                    <lightning:input class="slds-size_1-of-3" label="Pressure Valve Number" value="{!v.envInfo[0].Pressure_Valve__c}" disabled="true"/>
+                    <lightning:input class="slds-size_1-of-3" label="Vacuum Valve Number" value="{!v.envInfo[0].Vacuum_Valve__c}" disabled="true"/>
+					<lightning:input type="number" class="slds-size_1-of-3" label="Curing Round Number" value="{!v.curingInfo[0].ETT_Curing_Round_Number__c}" disabled="true"/>
+					<lightning:input type="datetime" class="slds-size_1-of-3" label="Curing Start" value="{!v.curingInfo[0].ETT_Curing_Start_Time__c}" disabled="true"/>
+					<lightning:input type="datetime" class="slds-size_1-of-3" label="Curing End" value="{!v.curingInfo[0].ETT_Curing_End_Time__c}" disabled="true"/>
+                  	<lightning:inputField class="slds-size_1-of-3" fieldName="Thread_Pattern__c" value="{!v.buffingInfo[0].Desired_Tread_Pattern__c}" disabled="true"/>
+                    <!--Reamarks-->
+                    <lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.ETT_Buffing_Technician_Rejection_Remarks__c}" label="Buffing Remarks" />
+					<lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.ETT_Skiving_Technician_Rejection_Remarks__c}" label="Skiving Remarks" />
+                    <lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.ETT_Repair_Technician_Rejection_Remarks__c}" label="Repair Remarks" />
+					<lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.ETT_Cementing_Technici_Rejection_Remarks__c}" label="Cementing Remarks" />
+					<lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.ETT_Filling_Technician_Rejection_Remarks__c}" label="Filling Remarks" />
+					<lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.ETT_Thread_Technician_Rejection_Remarks__c}" label="Thread Preparation Remarks" />
+					<lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.ETT_Building_Technician_Reject_Remarks__c}" label="Building Remarks" />
+					<lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.ETT_Rimming_Env_Technician_Reject_Remark__c}" label="Rim &amp; Env Remarks" />
+					<lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.ETT_Curing_Technician_Rejection_Remarks__c}" label="Curing Remarks" />
+					<lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.ETT_Painting_Technician_Remarks__c}" label="Painting Remarks" />
+					<lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.ETT_Final_Inspection_Technician_Remarks__c}" label="Final Inspection Remarks" />
+					<lightning:textarea  class="slds-size_1-of-3" disabled="true" value="{!v.jobCardInfo.Quality_control_Tech__c}" label="Quality Remarks" />
+
+                    
+                    
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="Production_Status__c" value="{!v.ProdtnStatus}"/>
+                    <lightning:inputField class="slds-size_1-of-3" fieldName="Remarks__c" />
+                </div>
+            </lightning:recordEditForm>
+        </lightning:card>
+        <lightning:card title="Consumption" >
+            <lightning:button variant="brand" label="Add Item" title="Add Item" onclick="{!c.handleAddItem}"  class="slds-float_right"/>
+            
+            <div class="slds-form_horizontal slds-form slds-grid slds-wrap"> 
+                <lightning:combobox class="slds-size_1-of-3" label="Process Name" placeholder="Select an Option" options="{! v.options }" onchange="{! c.handleChangeProcess }"/>
+            </div>
+            
+            <aura:if isTrue="{!not(empty(v.filterItemsList))}">
+                <div class="reponsive_table">
+                    <table>
+                        <tr>
+                            <th><label>Item Code</label></th>
+                            <th><label>Item Description </label></th>
+                            <th><label>UOM </label></th>
+                            <th><label>Available Qty </label></th>
+                            <th><label>Issued Qty </label></th>  
+                        </tr>
+                        <aura:iteration items="{!v.filterItemsList}" var="item">
+                            
+                            
+                            <tr>
+                                <td> {!item.ETT_Tools_Material_Allocation__r.ETT_Tools_Master__r.ETT_Unique_Code__c}</td>
+                                <td>  {!item.ETT_Tools_Material_Allocation__r.ETT_Tools_Master__r.ETT_Item_Description__c}</td>
+                                <td> {!item.ETT_Tools_Material_Allocation__r.ETT_Tools_Master__r.UOM__c}</td>
+                                <td>  {!item.ETT_Tools_Material_Allocation__r.ETT_Tools_Master__r.ETT_Main_Stock_Units__c}</td>
+                                <td>  <lightning:input  label="" variant="label-hidden" value="{!item.ETT_Usage_Value__c}" /> </td>
+                                
+                                
+                            </tr>
+                            
+                        </aura:iteration>
+                    </table>
+                </div>
+                <aura:set attribute="else">
+                    <div id="no-records"  class="slds-align_absolute-cent nointimationMsg"><strong> No Items found in the selected process.</strong></div>
+                </aura:set>
+            </aura:if>
+        </lightning:card>
+        
+        <aura:if isTrue="{!v.showModel}">
+            
+            <!--###### MODAL BOX Start######--> 
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModel }"
+                                              alternativeText="close"
+                                              variant="brand"
+                                              class="slds-modal__close"/>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Material/Tool Addition</h2>
+                    </header>
+                    
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        
+                        <lightning:recordEditForm recordId="" objectApiName="ETT_Job_Card_Close_Lines__c">
+                            <lightning:messages />                       
+                            <lightning:inputField fieldName="Item_Name__c" value="{!v.toolMasterId}" onchange="{!c.toolmasterChange}"/>
+                            <lightning:inputField fieldName="Job_Type__c" value="{!v.selectedJobProcss}" default="--None--"/>
+                            <lightning:inputField fieldName="Issued_Quantity__c" value="{!v.issuedQty}"/>
+                            
+                        </lightning:recordEditForm>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button class="slds-m-top_small" variant="brand"  name="save" label="Save"  onclick="{!c.saveJCCloseLine}"/>
+                    </footer>
+                    
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+        <lightning:card title="New Items" >
+            <aura:if isTrue="{!not(empty(v.newJobCardCloseLines))}">
+                <div class="reponsive_table">
+                    <table>
+                        <tr>
+                            <th><label>Item Code</label></th>
+                            <th><label>Item Description </label></th>
+                            <th><label>Process Name </label></th>
+                            <th><label>UOM </label></th>
+                            <th><label>Available Qty </label></th>
+                            <th><label>Issued Qty </label></th> 
+                            <th><label>&nbsp;</label></th> 
+                        </tr>
+                        <aura:iteration items="{!v.newJobCardCloseLines}" var="item" indexVar="index">
+                            <tr>
+                                <td>{!item.ETT_Unique_Code__c} </td>
+                                <td>{!item.ETT_Item_Description__c} </td>
+                                <td>{!item.Job_Type__c} </td>
+                                <td>{!item.UOM__c}</td>
+                                <td>{!item.Available_Quantity__c}</td>
+                                <td>{!item.Issued_Quantity__c}</td>
+                                <td>
+                                    <a href="javascript:void(0)" data-index="{!index}" onclick="{!c.removeLine}">
+                                        <lightning:icon size="x-small" iconName="action:delete" alternativeText="Delete" title="Delete" />
+                                    </a>
+                                </td>
+                            </tr>
+                            
+                        </aura:iteration>
+                    </table>
+                </div>
+                <aura:set attribute="else">
+                    <div id="no-records"  class="slds-align_absolute-cent nointimationMsg"><strong> No Items added</strong></div>
+                </aura:set>
+            </aura:if>
+        </lightning:card>
+        <div class="submitdiv">   
+            <lightning:button variant="brand" label="Submit" title="submit" onclick="{!c.handleSubmit}" />
+        </div>
+    </div> 
+</aura:component>

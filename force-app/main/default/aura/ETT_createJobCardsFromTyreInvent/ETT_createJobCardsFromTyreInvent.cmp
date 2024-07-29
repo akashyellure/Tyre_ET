@@ -1,0 +1,180 @@
+<aura:component controller="ETT_createJobCardsFromTyreInvent" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="searchVal" type="string" />
+    <aura:attribute name="tyreDetails" type="Object"/>
+    <aura:attribute name="filterData" type="Object"/>
+    <aura:attribute name="selectedTyres" type="List" />
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    <aura:attribute name="customerId" type="string"/>
+    <aura:attribute name="customerName" type="string"/>
+    <aura:attribute name="tyreSizeVal" type="string"/>
+    <aura:attribute name="brandVal" type="string"/>
+    <aura:attribute name="patternVal" type="string"/>
+    <aura:attribute name="partyType" type="string"/>
+    <aura:attribute name="countryVal" type="string"/>
+    
+    <lightning:card class="outer-div">
+        <aura:if isTrue="{!v.showSpinner}">
+            <lightning:spinner aura:id="Spinner" variant="brand" class="spinner2" />
+        </aura:if>
+        <aura:set attribute="title">
+            <lightning:icon iconName="utility:edit_form" size="small"/>
+            Create New Job Cards
+        </aura:set>
+        <!-- <aura:set attribute="actions">
+            <lightning:button label="Create Job Cards" variant="brand" onclick="{!c.createJobCardsHandler}"/>
+            <lightning:button label="Add" variant="brand" onclick="{!c.AddSelectedLines}"/>
+        </aura:set>-->
+        <aura:set attribute="footer">
+            
+        </aura:set>
+        <div class="slds-p-horizontal_small">
+            
+            <div class="slds-m-vertical_large">
+                <aura:if isTrue="{!not(empty(v.selectedTyres))}">
+                    
+                    <aura:iteration items="{!v.selectedTyres}" var="item" indexVar="key">
+                        
+                        <lightning:pill label="{!item.Serial_Number__c}" name="{!item}" onremove="{!c.onRemovePill}">
+                            <aura:set attribute="media">
+                                <lightning:avatar src="{!$Resource.Tyre_Img}" fallbackIconName="standard:user" variant="circle"  alternativeText="User avatar"/>
+                            </aura:set>
+                        </lightning:pill>
+                    </aura:iteration>
+                    <aura:set attribute="else">
+                        <div class="errortext"> No selected tyre, Please click on add.</div>
+                    </aura:set>
+                </aura:if>
+                
+                <div class="slds-grid slds-wrap" style="margin-top: 32px;">
+                    <div class="slds-col slds-size_1-of-6"> 
+                        <lightning:input
+                                         name="inline-search-input"
+                                         label=""
+                                         type="search"
+                                         variant="label-hidden"
+                                         placeholder="Search Tyre Size"
+                                         value="{!v.tyreSizeVal}"
+                                         oncommit="" onchange=""
+                                         />
+                    </div>
+                    <div class="slds-col slds-size_1-of-6"> 
+                        <lightning:input
+                                         name="inline-search-input"
+                                         label=""
+                                         type="search"
+                                         variant="label-hidden"
+                                         placeholder="Search Brand"
+                                         value="{!v.brandVal}"
+                                         oncommit="" onchange=""
+                                         />
+                    </div>
+                    <div class="slds-col slds-size_1-of-6"> 
+                        <lightning:input
+                                         name="inline-search-input"
+                                         label=""
+                                         type="search"
+                                         variant="label-hidden"
+                                         placeholder="Search Pattern"
+                                         value="{!v.patternVal}"
+                                         oncommit="" onchange=""
+                                         />
+                    </div>
+                    <div class="slds-col slds-size_1-of-6"> 
+                        <lightning:input
+                                         name="inline-search-input"
+                                         label=""
+                                         type="search"
+                                         variant="label-hidden"
+                                         placeholder="Search Country"
+                                         value="{!v.countryVal}"
+                                         oncommit="" onchange=""
+                                         />
+                    </div>
+                    <div class="slds-col slds-size_1-of-6"> 
+                        <lightning:input
+                                         name="inline-search-input"
+                                         label=""
+                                         type="search"
+                                         variant="label-hidden"
+                                         placeholder="Search Tyre Serial No."
+                                         value="{!v.searchVal}"
+                                         oncommit="" onchange=""
+                                         />
+                    </div>
+                    <div class="slds-col slds-size_1-of-6" style="margin-top:-20px"> 
+                        <lightning:select name="Party Type" label="Party Type" value="{!v.partyType}" variant="label-hidden">
+                            <option value="">--Party Type--</option>
+                            <!--option value="Customer">Customer</option-->
+                            <option value="Supplier">Supplier</option>
+                            <option value="Internal Project">Internal</option>
+                            <!--option value="Internal Private Project">Internal Private</option-->
+                        </lightning:select>
+                    </div>
+                </div>
+                <div class="slds-grid slds-wrap slds-align_absolute-center" style="margin-top:10px">
+                     <lightning:button label="Search" variant="brand" onclick="{!c.filterHandler}"/>
+                </div>
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_1-of-4" >
+                        
+                        <c:ETT_Acc_CustomLkup custmPlaceholder="Search Customer..." Label="Customer Name" disable="" selectRecordId="{!v.customerId}" selectRecordName="{!v.customerName}" />
+                    </div>
+                    <div class="slds-col slds-size_2-of-4" style="margin-top: 32px;">
+                       
+                        <lightning:button label="Add" variant="brand" onclick="{!c.AddSelectedLines}"/>
+                        <lightning:button label="Create Job Cards" variant="brand" onclick="{!c.createJobCardsHandler}"/>
+                        
+                    </div>
+                </div>
+            </div>
+            <aura:if isTrue="{!not(empty(v.filterData))}">
+                <table class="slds-border--left slds-border--right slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+                    <thead>
+                        <tr class="slds-text-title_caps">
+                            <th> <label class="slds-checkbox">
+                                <ui:inputCheckbox value="" change="{!c.selectAllDetials}" aura:id="selectAllId"/>
+                                <span class="slds-checkbox--faux" />
+                                <span class="slds-form-element__label"></span>
+                                </label> </th>
+                            <th>Serial Number</th>
+                            <th>Tyre Size</th>
+                            <th>BRAND</th>
+                            <th>PATTERN</th>
+                            <th>COUNTRY</th>
+                            <th>PARTY TYPE</th>
+                            <th>CC Ref. No</th>
+                            <th>Account Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.filterData}" var="item" indexVar="key">
+                            <tr id="{!key}">
+                                <td> 
+                                    <label class="slds-checkbox">
+                                        <ui:inputCheckbox value="{!item.isChecked}" change="" aura:id="selectAll"/>
+                                        <span class="slds-checkbox--faux" />
+                                        <span class="slds-form-element__label"></span>
+                                    </label>
+                                </td>
+                                <td>{!item.Serial_Number__c}</td>
+                                <td>{!item.ETT_Tyre_Size_Master__r.Name}</td>
+                                <td>{!item.ETT_Brand__r.Name}</td>
+                                <td>{!item.ETT_Pattern__r.Name}</td>
+                                <td>{!item.ETT_Country__r.Name}</td>
+                                <td>{!item.Party_Type__c}</td>
+                                <td>{!item.ETT_Collection_Card__r.Name}</td>
+                                <td>{!item.ETT_Account__r.Name}</td>
+                                
+                            </tr>
+                        </aura:iteration>  
+                    </tbody>
+                </table>
+                <aura:set attribute="else">
+                    <div class="errortext"> No results found with your search key. </div>
+                </aura:set>
+            </aura:if>
+        </div>
+    </lightning:card>
+</aura:component>
