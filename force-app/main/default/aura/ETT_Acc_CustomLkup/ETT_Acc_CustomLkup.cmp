@@ -11,6 +11,7 @@
     <aura:attribute name="custmPlaceholder" type="String"/>
     <aura:attribute name="disable" type="Boolean" default="false"/>
     
+    
     <div>
         <div class="slds-form-element">
             
