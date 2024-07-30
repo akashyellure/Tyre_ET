@@ -182,14 +182,14 @@ public static list<TyreInventoryWrapper> getTyreDetails(String serialVal, String
     System.debug('accObj ' + accObj);
 
     Map<String, TyreInventoryPriceSettings__c> internalTyreInventoryPSMap = new Map<String, TyreInventoryPriceSettings__c>();
-    Map<String, TyreInventoryPriceSettings__c> internalPrivateTyreInventoryPSMap = new Map<String, TyreInventoryPriceSettings__c>();
+   // Map<String, TyreInventoryPriceSettings__c> internalPrivateTyreInventoryPSMap = new Map<String, TyreInventoryPriceSettings__c>();
     Map<String, TyreInventoryPriceSettings__c> customerTyreInventoryPSMap = new Map<String, TyreInventoryPriceSettings__c>();
 
     for (TyreInventoryPriceSettings__c tyreInventory : [SELECT Name, Party_Type__c, Party_code__c, Selling_Price__c FROM TyreInventoryPriceSettings__c]) {
         if (tyreInventory.Party_Type__c == 'Internal') {
             internalTyreInventoryPSMap.put(tyreInventory.Name, tyreInventory);
         } else if (tyreInventory.Party_Type__c == 'Internal Private') {
-            internalPrivateTyreInventoryPSMap.put(tyreInventory.Name, tyreInventory);
+           // internalPrivateTyreInventoryPSMap.put(tyreInventory.Name, tyreInventory);
         } else if (tyreInventory.Party_Type__c == 'Customer' && customerVal != null && customerVal != '') {
             customerTyreInventoryPSMap.put(tyreInventory.Party_code__c + '-' + tyreInventory.Name, tyreInventory);
         }
@@ -219,8 +219,8 @@ public static list<TyreInventoryWrapper> getTyreDetails(String serialVal, String
                 wrapTyreInventoryList.add(new TyreInventoryWrapper(tyre, sellingPrice));
             }
         } else if (tyre.Party_Type__c == 'Internal Private' && tyre.SubInventory__c == subInventoryIdval && tyre.Party_Type__c!='Internal') {
-            if (internalPrivateTyreInventoryPSMap.containsKey(tyre.ETT_Tyre_Size_Master__r.Name)) {
-                Decimal sellingPrice = internalPrivateTyreInventoryPSMap.get(tyre.ETT_Tyre_Size_Master__r.Name).Selling_Price__c;
+            if (internalTyreInventoryPSMap.containsKey(tyre.ETT_Tyre_Size_Master__r.Name)) {
+                Decimal sellingPrice = internalTyreInventoryPSMap.get(tyre.ETT_Tyre_Size_Master__r.Name).Selling_Price__c;
                  System.debug('Selling Price (Internal Private): ' + sellingPrice);
                 wrapTyreInventoryList.add(new TyreInventoryWrapper(tyre, sellingPrice));
             }
