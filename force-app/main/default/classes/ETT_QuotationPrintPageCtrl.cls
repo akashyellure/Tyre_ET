@@ -16,6 +16,7 @@ public class ETT_QuotationPrintPageCtrl {
         recordId = controller.getRecord().Id;  
         AccId = apexpages.currentpage().getparameters().get('AccId');
 		aglist =New List<AggregateResult>(); 
+        
 		aglist =[SELECT Tyre_Size_New__c Si,ETT_Job_Type__c jb,ETT_Status__c st,MAX(ETT_Unit_Price__c) up,Count (id) ct,SUM(ETT_Total_Price__c) tp FROM ETT_Quotation_Line_Item__c WHERE ETT_Quotation__c =:recordId Group by Tyre_Size_New__c,ETT_Job_Type__c,ETT_Status__c]; 
         accountInfo = [select Id,Name,BillingStreet,ETT_Payment_Term__c,Phone,CreatedBy.FirstName,CreatedBy.Name,CreatedBy.Email,CreatedBy.MobilePhone,Fax,(select id,lastname,Email from contacts) from Account where Id =:AccId]; 
         quotation = [SELECT Id,Name,Claim_Amount__c,(SELECT Id,ETT_Tyre_Size_Name__c,ETT_Account__c,ETT_Job_Type__c,ETT_Unit_Price__c,ETT_Status__c,ETT_Quantity__c,ETT_Total__c,ETT_Total_Price__c FROM Quotation_Line_Items__r order by ETT_Status__c) FROM ETT_Quotation__c WHERE Id = :recordId];
