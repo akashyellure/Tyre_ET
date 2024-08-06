@@ -17,7 +17,7 @@ public static void createJobCard(String recordId, String actionVal) {
     Set<Id> tyreInventoryIds = new Set<Id>();
 
     try {
-        ETT_Collection_Card__c cc = [SELECT ETT_Inspection_Done__c FROM ETT_Collection_Card__c WHERE Id = :recordId LIMIT 1];
+        ETT_Collection_Card__c cc = [SELECT ETT_Inspection_Done__c  FROM ETT_Collection_Card__c WHERE Id = :recordId LIMIT 1];
 
         if (!cc.ETT_Inspection_Done__c) {
             throw new AuraHandledException('Please do all inspections first.');
@@ -26,7 +26,7 @@ public static void createJobCard(String recordId, String actionVal) {
         if (actionVal == 'Job Card Created') {
             List<ETT_Inspection_Card__c> lstInspectionCards = [
                 SELECT Id, ETT_Account__c, ETT_Account__r.Name, RecordType.Name, Tyre_Inventory__c, ETT_Collection_Card__r.ETT_Priority__c, 
-                       ETT_Collection_Card__c, ETT_Status__c, (SELECT Id FROM Job_Cards__r) 
+                       ETT_Collection_Card__c, ETT_Status__c, (SELECT Id FROM Job_Cards__r),(SELECT Id, Job_Type__c,SubInventory__c FROM Tyre_Inventory__r)
                 FROM ETT_Inspection_Card__c 
                 WHERE ETT_Status__c = 'Accept' 
                   AND ETT_Collection_Card__c = :recordId
@@ -42,7 +42,10 @@ public static void createJobCard(String recordId, String actionVal) {
                         ETT_No_of_Buffing_revisions__c = 1,
                         ETT_Priority__c = objIC.ETT_Collection_Card__r.ETT_Priority__c,
                         Collection_Card__c = recordId,
-                        Customer__c = objIC.ETT_Account__c
+                        Customer__c = objIC.ETT_Account__c,
+                        ETT_Job_type_card__c=objIC.Tyre_Inventory__r.Job_Type__c,
+                        SubInventory__c=objIC.Tyre_Inventory__r.SubInventory__c
+
                     );
 
                     tyreInventoryIds.add(objIC.Tyre_Inventory__c);
