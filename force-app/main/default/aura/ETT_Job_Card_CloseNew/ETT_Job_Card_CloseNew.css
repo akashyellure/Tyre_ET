@@ -23,14 +23,36 @@
 }
 .THIS .inactive{
     background-color: lightgray;
-    padding: 5px;
-    border-radius: 2px;
-
+    padding: .5rem;
+    width: 40px;
+    cursor:pointer;
+}
+.THIS .Buffing .active {
+    background-color: #00c099;
+    padding: .5rem;
+    width: calc(100% - 0px);
+    display: inline-flex;  
+    color: #fff;
+    cursor:pointer;
+}
+.THIS .Buffing .inactive {
+    background-color: lightgray;
+    padding: .5rem;
+    width: calc(100% - 0px);
+    display: inline-flex;
+    cursor:pointer;
+}
+.THIS div.Buffing {
+    width: calc(100% - 40px);
+    display: inline-flex;
+    cursor:pointer;
 }
 .THIS .active{
     background-color: #00C099;
-    padding: 5px;
-    border-radius: 6px;
+    padding: .5rem;
+    width: 40px;
+    color: #fff;
+    cursor:pointer;
 }
 .THIS .slds-modal__close svg{
     color: #000;
@@ -100,12 +122,12 @@
     padding: 0.5rem 0;
 }
 .THIS label.slds-form-element__label {
-    font-weight: bold;
+    display: inline-block!important;
+    min-width: fit-content!important;
+    padding-bottom: .25rem!important;
+    font-weight: 400!important;
 }
 
-.THIS .slds-form-element__control, .THIS lightning-lookup-desktop{
-    margin-right: 1rem;
-}
 .THIS caption, .THIS th, .THIS td{
     vertical-align: top;
 }
@@ -146,20 +168,7 @@
 .THIS lightning-tab-bar ul li.slds-is-active:after, .THIS lightning-tab-bar ul li:hover:after{
     height: 0 !important;
 }
-.THIS .rightTable{
-    width: 69%;
-    display: inline-block;
-    border: 1px solid #ccc;
-    padding: 1rem;
-}
-.THIS .leftTable{
-    width: 29%;
-    display: inline-block;
-    vertical-align: top;
-    border: 1px solid #ccc;
-    padding: 1rem;
-    margin-right: 2%;
-}
+
 .THIS .rightTable td .slds-form-element__label, .THIS .leftTable td .slds-form-element__label{
     display: none !important;
 }
@@ -188,6 +197,229 @@
     margin-left: 0;
 }
 .THIS.slds-spinner_container {  
-  z-index: 10000;
-  position: fixed;   
+    z-index: 10000;
+    position: fixed;   
+}
+
+
+
+
+
+
+.THIS .jobcard_main {
+    position: relative;
+    display: block;
+    background: #fff;
+    padding: 1rem;
+}
+.THIS h2 {
+    font-size: 20px;
+    font-weight: 600;
+    padding-bottom: 1rem;
+}
+.THIS .topsection {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+    border: 1px solid #ccc;
+    padding: 1rem;
+}
+.THIS .topsection lightning-input-field.slds-form-element.slds-form-element_horizontal,
+.THIS .topsection lightning-input.slds-form-element{
+    width: 24.15%;
+    flex-basis: auto;
+    padding: 0;
+    margin: 0 !important;
+}
+.THIS .topsection .slds-form-element__control {
+    margin: 0 !important;
+}
+.THIS .topsection .slds-form-element__control {
+    margin: 0 !important;
+    clear: both;
+    padding: 0;
+}
+.THIS h4 {
+    font-size: 16px;
+    font-weight: 500;
+    display: block;
+    width: 100%;
+    padding-bottom: .5rem;
+    padding-top: .5rem;
+}
+.THIS .tyreinfo lightning-input-field.slds-form-element.slds-form-element_horizontal lightning-input.slds-form-element_horizontal.slds-form-element {
+    width: 100%;
+}
+.THIS .Consumptiondiv{
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 1rem;
+}
+.THIS .leftTable {
+    position: relative;
+    width: 20%;
+}
+.THIS .rightTable {
+    position: relative;
+    width: 80%;
+}
+.THIS .headingtop, .THIS .valuestop {
+    position: relative;
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid #555;
+}
+.THIS .headingtop{
+    border: 1px solid #ccc;
+}
+.THIS .headingtop label:first-child {
+    width: 40px;
+    padding: .5rem;
+    background: #f2f2f2;
+    font-weight:500;
+}
+.THIS .headingtop label:last-child {
+    width: calc( 100% - 40px);
+    padding: .5rem;
+    background: #f2f2f2;
+    font-weight:500;
+}
+.THIS .valuestop label:first-child{
+    width: 40px;
+    padding: .5rem;
+}
+.THIS .valuestop label:last-child {
+    width: calc( 100% - 40px);
+    padding: .5rem;
+}
+.THIS .valuestop:hover .inactive {
+    background: #00c099;
+    color: #fff;
+}
+.THIS .tableview{
+    min-height:100px;
+    max-height:500px;
+    overflow: auto;
+}
+.THIS .tableview table tr th {
+    background: #f3f3f3;
+    padding: .5rem;
+    border: 1px solid #ccc;
+}
+.THIS .tableview table tr td {
+    padding: .25rem .5rem!important;
+    background: #fff;
+    border: 1px solid #ccc;
+}
+.THIS .slds-form-element_horizontal:not(.slds-is-editing), 
+.THIS .slds-form_horizontal .slds-form-element:not(.slds-is-editing), 
+.THIS .slds-form_stacked .slds-form-element_horizontal:not(.slds-is-editing) {
+    margin: 0;
+    padding: 0;
+}
+.THIS .tableview table tr td .slds-form-element__control {
+    padding: 0px !important;
+}
+.THIS .flexdiv{
+    width: 100%; display: flex; gap: 1rem;
+    justify-content: flex-start;
+}
+.THIS .flexdiv .first_div, .THIS .flexdiv .second_div, .THIS .flexdiv .third_div{
+    width:33.33%;
+    border: 1px solid #ccc;
+    padding: 1rem;
+}
+.THIS .fourth, .THIS .fifth, .THIS .six{
+    border: 1px solid #ccc;
+    padding: 1rem;
+}
+.THIS .seven{
+    padding:1rem;
+    width:100%;
+    border:1px solid #ccc;
+    margin:1rem 0;
+}
+.THIS .paddingleft{
+    padding-left:.25rem;
+}
+.THIS .paddingright{
+    padding-right:.25rem;
+}
+.THIS .timedetails .slds-form-element__row {
+    gap: .1rem;
+}
+.THIS .timedetails .slds-form-element__row lightning-datepicker.slds-form-element,
+.THIS .timedetails .slds-form-element__row lightning-timepicker.slds-form-element {
+    width: 50%;
+}
+.THIS .fourth {
+    width: 60%;
+}
+.THIS .fifth, .THIS .six {
+    width: 20%;
+}
+.THIS .margintop_bottom{
+    margin:1rem 0;
+}
+@media only screen and (max-width:1200px) {
+    .THIS .topsection lightning-input-field.slds-form-element.slds-form-element_horizontal, 
+    .THIS .topsection lightning-input.slds-form-element {
+        width: 32.25%;
+    }
+}
+@media only screen and (max-width:992px) {
+    .THIS .topsection lightning-input-field.slds-form-element.slds-form-element_horizontal, 
+    .THIS .topsection lightning-input.slds-form-element {
+        width: 49%;
+    }
+    .THIS .Consumptiondiv, .THIS .flexdiv {
+        flex-wrap: wrap;
+    }
+    .THIS .leftTable {
+        width: 100%;
+        min-height: 50px;
+        max-height: 200px;
+        overflow: auto;
+    }
+    .THIS .rightTable, .THIS .flexdiv .first_div, .THIS .flexdiv .second_div, 
+    .THIS .flexdiv .third_div, .THIS .fourth, .THIS .fifth, .THIS .six {
+        width: 100%;
+    }
+    .THIS .tableview table tr th {
+        min-width: 100px;
+    }
+    .THIS .tableview table tr th:first-child {
+        min-width: 220px;
+    }
+}
+@media only screen and (max-width:767px) {
+    .THIS .topsection lightning-input-field.slds-form-element.slds-form-element_horizontal, 
+    .THIS .topsection lightning-input.slds-form-element,
+    .THIS lightning-input-field.slds-size_1-of-3.slds-form-element.slds-form-element_stacked {
+        width: 100%;
+    }
+    .THIS lightning-input-field.slds-form-element.slds-form-element_stacked {
+        padding: 0;
+        margin: 0;
+    }
+    .THIS .fourth .checkboxSection lightning-input.slds-form-element,
+    .THIS .fifth .checkboxSection lightning-input.slds-form-element,
+    .THIS .six .checkboxSection lightning-input.slds-form-element,
+    .THIS .seven .checkboxSection lightning-input.slds-form-element{
+        width: 48%;
+    }
+}
+@media only screen and (max-width:767px) {
+    .THIS .fourth .checkboxSection lightning-input.slds-form-element,
+    .THIS .fifth .checkboxSection lightning-input.slds-form-element,
+    .THIS .six .checkboxSection lightning-input.slds-form-element,
+    .THIS .seven .checkboxSection lightning-input.slds-form-element{
+        width: 100%;
+    }
 }
