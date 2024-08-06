@@ -177,10 +177,10 @@
                             <!--<td>{!item.ETT_Inspection_Card__r.ETT_Status__c}</td>-->
                             <td>
                                 <!-- Conditional rendering for Job_Type__c and Tyre_Type__c -->
-                                <apex:outputText rendered="{!item.Tyre_Inventory__r.Job_Type__c == 'Retread' && item.Tyre_Inventory__r.Job_Type__c != 'Send Back'}">
+                                <apex:outputText rendered="{!item.Tyre_Inventory__r.Job_Type__c == 'Retread' && item.Tyre_Inventory__r.Tyre_Type__c =='Refurbished'}">
                                     {!item.Tyre_Inventory__r.Job_Type__c}
                                 </apex:outputText>
-                                <apex:outputText rendered="{!item.Tyre_Inventory__r.Tyre_Type__c == 'Send Back' &&  item.Tyre_Inventory__r.Job_Type__c != 'Retread'}">
+                                <apex:outputText rendered="{!item.Tyre_Inventory__r.Tyre_Type__c == 'Send Back' &&  item.Tyre_Inventory__r.Job_Type__c == 'Retread'}">
                                     {!item.Job_type__c}
                                 </apex:outputText>
                             </td>
