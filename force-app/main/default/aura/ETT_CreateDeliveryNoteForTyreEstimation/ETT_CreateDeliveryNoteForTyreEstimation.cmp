@@ -150,7 +150,7 @@
                     <aura:if isTrue="{!not(empty(v.filterData))}">
                         <div class="slds-grid slds-wrap">
                             <div class="slds-col slds-size_2-of-4">
-                                <lightning:button label="Create Delivery Notes 12" variant="brand" onclick="{!c.createDeliveryNote}"/>
+                                <lightning:button label="Create Delivery Notes" variant="brand" onclick="{!c.createDeliveryNote}"/>
                             </div>
                         </div> 
                     </aura:if>

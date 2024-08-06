@@ -338,5 +338,14 @@
         
         $A.enqueueAction(action);  
         
+    },
+    showErrorMessage: function(component, message) {
+        component.set("v.isLoading", false);
+        var toastEvent = $A.get("e.force:showToast");
+        toastEvent.setParams({
+            "type": "error",
+            "message": message
+        });
+        toastEvent.fire();
     }
 })

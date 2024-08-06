@@ -103,6 +103,8 @@
                 component.set("v.initialCrownCut",response.getReturnValue().crownCut);
                 
                 var jobCardInfo = component.get("v.jobCardInfo");
+               
+                console.log(JSON.stringify(jobCardInfo));
                 component.set("v.initialRemark", "");
                 component.set("v.initialLife", jobCardInfo.ETT_Inspection_Card__r.Tyre_Life__c);
                 component.set("v.initialCut", "");
@@ -391,9 +393,9 @@
         
         component.set("v.newJobCardCloseEmployees",removeList);
     },
-    handleSubmit : function(component, event, helper) {
+   /* handleSubmit : function(component, event, helper) {
         debugger;
-       component.set("v.isLoading", true);
+        component.set("v.isLoading", true);
         var closeDate = component.get("v.closeDate");
         var jobinfo = component.get("v.jobCardInfo");
         var prodstatus = component.get("v.ProdtnStatus");
@@ -401,19 +403,28 @@
         var jobCardId = component.get("v.jobCardId");
         var jsonValues = Object.values(rejection);
         var newJobCardCloseLines = component.get("v.newJobCardCloseLines");
+        var threadPatternField = component.find("threadPatternField").get("v.value");
+        console.log(JSON.stringify(newJobCardCloseLines));
+        console.log('newJobCardCloseLines:', newJobCardCloseLines);
         var hasError = false;
         var errorMessage = "";
         
         var allfalse = jsonValues.some(function(value) {
             return value === true;
         });
+
+         
         
         // Basic validations
         if (!jobCardId) {
             
             errorMessage = "Please select a job card";
             hasError = true;
-        } else if (jobinfo.Job_Card_Status__c === 'Closed') {
+        } 
+        else if (threadPatternField === 'undefined') {
+            errorMessage = "Thread Pattern is required.";
+            hasError = true;
+        }else if (jobinfo.Job_Card_Status__c === 'Closed') {
           
             errorMessage = "Job card status should not be closed";
             hasError = true;
@@ -426,7 +437,6 @@
             errorMessage = "Close Date is required";
             hasError = true;
         } else if (!prodstatus || prodstatus === 'undefined') {
-            
             errorMessage = "Production Status is required";
             hasError = true;
         } else if (!allfalse && jobinfo.Customer_Type__c === 'Supplier' && (prodstatus === 'Send Back' || prodstatus === 'Scrapped')) {
@@ -447,22 +457,30 @@
             errorMessage = "Rejection Analysis Should not be blank, Please Select any one Field";
             hasError = true;
              
-        }	
-
-        
-        // Validation for newJobCardCloseLines
-        if (!hasError) {
-            for (let i = 0; i < newJobCardCloseLines.length; i++) {
-                let line = newJobCardCloseLines[i];
-                // Assuming each line has fields 'field1', 'field2', etc.
-                if (line.Issued_Quantity__c > line.Factory_Stock__c) {
-                    errorMessage = "Issue quantity should not be more than factory stock";
-                    hasError = true;
-                    break;
-                }
-              
-            }
         }
+        else if (prodstatus === 'Produced' || prodstatus === 'In Progress') {
+            const hasMaterial = newJobCardCloseLines.some(line => line.Item_Name__c);
+            if (!hasMaterial) {
+                errorMessage = "At least one material is required when Production Status is 'Produced'.";
+                hasError = true;
+            }
+    
+            const issuedQuantityValid = newJobCardCloseLines.some(line => line.Issued_Quantity__c > 0);
+            if (!issuedQuantityValid) {
+                errorMessage = "Matrial quantity should not be negative or Empty.";
+                hasError = true;
+            }
+    
+            newJobCardCloseLines.forEach(line => {
+                if (line.Issued_Quantity__c > line.Factory_Stock__c) {
+                    errorMessage = "Issue quantity should not be more than factory stock.";
+                    hasError = true;
+                }
+            });
+        }
+
+    // Additional validation for threadPatternField
+    
         
         if (hasError) {
               component.set("v.isLoading", false);
@@ -479,6 +497,111 @@
           
         }
     },
+    */
+    
+        handleSubmit: function(component, event, helper) {
+            debugger;
+            component.set("v.isLoading", true);
+            var closeDate = component.get("v.closeDate");
+            var jobinfo = component.get("v.jobCardInfo");
+            var prodstatus = component.get("v.ProdtnStatus");
+            var rejection = component.get("v.jccRejection");
+            var jobCardId = component.get("v.jobCardId");
+            var allValid = component.find('curing').reduce(function (validSoFar, inputCmp) {
+                inputCmp.reportValidity();
+                return validSoFar && inputCmp.checkValidity();
+            }, true);
+            if (!allValid) {
+                helper.showErrorMessage(component, "Please select a job card");
+                return;
+            } 
+            
+            
+            
+            
+            var jsonValues = Object.values(rejection);
+            var newJobCardCloseLines = component.get("v.newJobCardCloseLines");
+            var threadPatternField = component.find("threadPatternField").get("v.value");
+            
+            console.log(JSON.stringify(newJobCardCloseLines));
+            console.log('newJobCardCloseLines:', newJobCardCloseLines);
+            var allfalse = jsonValues.some(function(value) {
+                return value === true;
+            });
+    
+            // Basic validations
+            if (!jobCardId) {
+                helper.showErrorMessage(component, "Please select a job card");
+                return;
+            } 
+          
+            if (jobinfo.Job_Card_Status__c === 'Closed') {
+                helper.showErrorMessage(component, "Job card status should not be closed");
+                return;
+            }
+            
+            if (jobinfo.Customer_Type__c === 'Internal' && prodstatus === 'Send Back') {
+                helper.showErrorMessage(component, "Status should not be Send Back for Internal party type");
+                return;
+            }
+            if (!closeDate) {
+                helper.showErrorMessage(component, "Close Date is required");
+                return;
+            }
+            if (!prodstatus || prodstatus === undefined) {
+                helper.showErrorMessage(component, "Production Status is required");
+                return;
+            }
+            if (threadPatternField === undefined && prodstatus === 'Produced') {
+                helper.showErrorMessage(component, "Thread Pattern is required.");
+                return;
+            }
+           
+           
+            
+            if (!allfalse && jobinfo.Customer_Type__c === 'Supplier' && (prodstatus === 'Send Back' || prodstatus === 'Scrapped')) {
+                helper.showErrorMessage(component, "Rejection Analysis Should not be blank, Please Select any one Field");
+                return;
+            }
+            if (!allfalse && jobinfo.Customer_Type__c === 'Internal' && (prodstatus === 'Send Back' || prodstatus === 'Scrapped')) {
+                helper.showErrorMessage(component, "Rejection Analysis Should not be blank, Please Select any one Field");
+                return;
+            }
+            if (!allfalse && jobinfo.Customer_Type__c === 'Internal Private' && (prodstatus === 'Send Back' || prodstatus === 'Scrapped')) {
+                helper.showErrorMessage(component, "Rejection Analysis Should not be blank, Please Select any one Field");
+                return;
+            }
+            if (!allfalse && jobinfo.Customer_Type__c === 'Customer' && (prodstatus === 'Send Back' || prodstatus === 'Scrapped')) {
+                helper.showErrorMessage(component, "Rejection Analysis Should not be blank, Please Select any one Field");
+                return;
+            }
+            if (prodstatus === 'Produced' || prodstatus === 'In Progress') {
+                const hasMaterial = newJobCardCloseLines.some(line => line.Item_Name__c);
+                if (!hasMaterial) {
+                    helper.showErrorMessage(component, "At least one material is required when Production Status is 'Produced'.");
+                    return;
+                }
+    
+                const issuedQuantityValid = newJobCardCloseLines.some(line => line.Issued_Quantity__c > 0);
+                if (!issuedQuantityValid) {
+                    helper.showErrorMessage(component, "Material quantity should not be negative or Empty.");
+                    return;
+                }
+    
+                for (let line of newJobCardCloseLines) {
+                    if (line.Issued_Quantity__c > line.Factory_Stock__c) {
+                        helper.showErrorMessage(component, "Issue quantity should not be more than factory stock.");
+                        return;
+                    }
+                }
+            }
+    
+            // If no errors, submit the form
+            component.find('JobCardCloseForm').submit();
+        },
+    
+    
+    
     HanldeJobCloseSuccess : function(component, event, helper) {
         /*let selectedJobProcss = component.get("v.selectedJobProcss");
        let jcclines = component.get("v.newJobCardCloseLines"); //Get newly added items
