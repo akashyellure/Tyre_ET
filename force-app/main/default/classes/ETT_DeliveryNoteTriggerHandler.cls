@@ -200,7 +200,7 @@ public class ETT_DeliveryNoteTriggerHandler {
             SELECT Id, Name, CreatedDate, ETT_Reference__c, ETT_Date__c, ETT_Account__c, 
             ETT_Account__r.AccountNumber, ETT_Account__r.Party_Type__c, 
             (SELECT Id, Status__c, Name, ETT_Tyre_size_Integration__c, 
-             ETT_Tyre_Size__c, ETT_Quantity__c, ETT_Price__c, 
+             ETT_Tyre_Size__c, ETT_Quantity__c, ETT_Price__c,Invoice_Description__c ,
              ETT_Job_Type__c, ETT_Status__c 
              FROM Delivery_Line_Items__r  WHERE Job_type__c != 'Send Back') 
             FROM ETT_Delivery_Note__c 
@@ -234,7 +234,8 @@ public class ETT_DeliveryNoteTriggerHandler {
                 
                 for (ETT_Delivery_Line_Item__c objDLI : objDN.Delivery_Line_Items__r) {
                     String tyreSize = objDLI.ETT_Tyre_size_Integration__c;
-                    String statusOfArInvoice = 'SALES'; 
+                   //String statusOfArInvoice = 'SALES'; 
+                   String statusOfArInvoice = objDLI.Invoice_Description__c == 'Own' ? 'SALES' : 'ACCEPTED';
                     Decimal price = objDLI.ETT_Price__c != null ? objDLI.ETT_Price__c : 0;
                     System.debug('Selected Item Line' +objDLI);
                     if (!tyreSizeSummaryMap.containsKey(tyreSize)) {
