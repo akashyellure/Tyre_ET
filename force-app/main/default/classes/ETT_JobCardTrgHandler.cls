@@ -135,6 +135,7 @@ public class ETT_JobCardTrgHandler {
         
     }
     
+    
     @future(Callout=True)
     public static void createMiscInOracle(String jcId,DateTime createdDate,String Name,String itemCode,String SerialNum ){
         system.debug('Name: '+Name);
@@ -199,6 +200,62 @@ public class ETT_JobCardTrgHandler {
         
         
     }
+    public static void handleJobCardInsertion(List<ETT_Job_Card__c> triggerNew) {
+        System.debug('Inside handleJobCardInsertion method');
+        List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
+    
+        // Construct the HTML email body with embedded CSS
+        String emailBody = '<html><head><style>' +
+                           'body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; padding: 20px; }' +
+                           '.container { background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }' +
+                           'table { width: 100%; border-collapse: collapse; margin-top: 20px; }' +
+                           'th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }' +
+                           'th { background-color: #f2f2f2; font-weight: bold; }' +
+                           '</style></head><body>' +
+                           '<div class="container">' +
+                           '<p>The following job cards have been created:</p>' +
+                           '<table>' +
+                           '<tr><th>Job card</th><th>Created Date</th></tr>';
+    
+        // Assuming the jobCard details are similar to invoice items
+        for (ETT_Job_Card__c jobCard : triggerNew) {
+            // Append job card details to the HTML table
+            emailBody += '<tr>' +
+                         '<td>' + jobCard.Name + '</td>' +
+                         '<td>' + jobCard.CreatedDate.format() + '</td>' + 
+                         '</tr>' ;
+                        
+        }
+    
+        emailBody += '</table>' +
+                     '</div>' +
+                     '</body></html>';
+    
+        try {
+            OrgWideEmailAddress owea = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE DisplayName = 'No Reply' LIMIT 1];
+    
+            // Prepare the email
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setToAddresses(new List<String>{'anishmp@et.ae'}); // Set recipient address
+            mail.setSubject('New Job Cards Created');
+            mail.setHtmlBody(emailBody);
+            mail.setReplyTo(owea.Address); // Set Reply-To address
+            mail.setOrgWideEmailAddressId(owea.Id); // Set Org-Wide Email Address
+    
+            // Add email to the list
+            emails.add(mail);
+    
+            // Send all emails at once
+            if (!emails.isEmpty()) {
+                Messaging.sendEmail(emails);
+            }
+        } catch (Exception e) {
+            System.debug('An error occurred: ' + e.getMessage());
+        }
+    }
+    
+
+   
     
     public static void utilityMethodA(){
         integer i=0;
