@@ -19,17 +19,17 @@ public class ETT_GoodsIssueNoteTriggerHandler {
         
         system.debug('lstEligibleIds'+lstEligibleIds);
         
-        for(ETT_Goods_Issue_Note__c jc : [select id,name,Status__c,createdDate,Job_Card__r.Tyre_Inventory__r.Serial_Number__c,Job_Card__r.Tyre_Inventory__r.Item_Code__c from ETT_Goods_Issue_Note__c where Id=:lstEligibleIds]){
+        for(ETT_Goods_Issue_Note__c jc : [select id,name,Transaction_Date__c, Status__c,createdDate,Job_Card__r.Tyre_Inventory__r.Serial_Number__c,Job_Card__r.Tyre_Inventory__r.Item_Code__c from ETT_Goods_Issue_Note__c where Id=:lstEligibleIds]){
             if(jc.Status__c =='Approved'){
                 if(!ETT_GoodsIssueNoteTriggerHandler.alreadyProcessed.contains(jc.Id))
-                    createMiscInOracle(jc.Id,jc.createdDate,jc.Name,jc.Job_Card__r.Tyre_Inventory__r.Item_Code__c,jc.Job_Card__r.Tyre_Inventory__r.Serial_Number__c);
+                    createMiscInOracle(jc.Id,jc.Transaction_Date__c ,jc.createdDate,jc.Name,jc.Job_Card__r.Tyre_Inventory__r.Item_Code__c,jc.Job_Card__r.Tyre_Inventory__r.Serial_Number__c);
             }
         }
         
     }
     
     @future(Callout=True)
-    public static void createMiscInOracle(String jcId,DateTime createdDate,String Name,String itemCode,String SerialNum ){
+    public static void createMiscInOracle(String jcId,DateTime transactionDate,DateTime createdDate,String Name,String itemCode,String SerialNum ){
         
         alreadyProcessed.add(jcId);
         ETT_MiscIssue_Service.SyncCreateMiscellaneousIssuesServiceBPEL_pt req = new ETT_MiscIssue_Service.SyncCreateMiscellaneousIssuesServiceBPEL_pt();
@@ -47,7 +47,7 @@ public class ETT_GoodsIssueNoteTriggerHandler {
         }else{
         	dataH.TransactionType = 'RAW_MAT_ISSUE';
         }
-        dataH.TransactionDate = date.valueOf(createdDate); //date.valueOf('2022-06-08T00:00:00');//
+        dataH.TransactionDate = date.valueOf(transactionDate); //date.valueOf('2022-06-08T00:00:00');//
         dataH.DocumentNumber = Name;
         
         
@@ -86,11 +86,14 @@ public class ETT_GoodsIssueNoteTriggerHandler {
         }
         if(response != null){
             if(response.PV_OUT_STATUS == 'Y'){
+
                 jcUpdate.Misc_Issue_Status__c ='Success';
                 jcUpdate.Misc_Issue_Err_Msg__c='';
+               
             }else{
                 jcUpdate.Misc_Issue_Status__c ='Failed';
                 jcUpdate.Misc_Issue_Err_Msg__c = response.PV_OUT_ERRORMESSAGE;
+                
             }
         }
         jcUpdate.Request_Body__c=JSON.serialize(msg);
@@ -101,17 +104,21 @@ public class ETT_GoodsIssueNoteTriggerHandler {
     
     Public static void updatequantityintoolmaster(List<ETT_Goods_Issue_Note__c> lstnew,Map<Id,ETT_Goods_Issue_Note__c> trgNewMap){
         try {
+           
             map<Id,decimal> issuelineitemmap = New  map<Id,decimal>();
             set<Id> GoodIssueId = New set<Id>();
             for(ETT_Goods_Issue_Note__c GIN :lstnew){
-                if(GIN.Status__c=='Approved' && (GIN.Status__c!=trgNewMap.get(GIN.Id).Status__c)){
+                if(GIN.Status__c=='Approved'){
                     GoodIssueId.add(GIN.Id);
+                    System.debug('Good Note Issue ID'+GoodIssueId);
+                  
                 }
             }
             if(!GoodIssueId.isEmpty()){
                 List<ETT_Goods_Issue_Lines__c> ginlineitemlist = New List<ETT_Goods_Issue_Lines__c>();
                 for(ETT_Goods_Issue_Lines__c ginlineitem : [SELECT ID,Tool_Material_Name__c,Issued_Quantity__c FROM ETT_Goods_Issue_Lines__c WHERE Goods_Issue_Note__c In:GoodIssueId]){
                     if(ginlineitem.Issued_Quantity__c!=null && ginlineitem.Tool_Material_Name__c!=null){
+                      
                         issuelineitemmap.put(ginlineitem.Tool_Material_Name__c,ginlineitem.Issued_Quantity__c);
                     }
                 }
@@ -119,7 +126,7 @@ public class ETT_GoodsIssueNoteTriggerHandler {
             if(!issuelineitemmap.isEmpty()){
                 list<ETT_Tools_Master__c> tmlistupdated = New list<ETT_Tools_Master__c>();
                 for(ETT_Tools_Master__c tm : [SELECT id,ETT_Main_Stock_Units__c,ETT_Allocated_Units__c FROM ETT_Tools_Master__c WHERE Id IN:issuelineitemmap.keyset()]){
-                    
+                   
                     tm.ETT_Main_Stock_Units__c = tm.ETT_Main_Stock_Units__c - (issuelineitemmap.get(tm.id));
                     tm.ETT_Allocated_Units__c = tm.ETT_Allocated_Units__c + issuelineitemmap.get(tm.id);
                     tmlistupdated.add(tm);

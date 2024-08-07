@@ -13,7 +13,10 @@ public class ETT_CreateDeliveryNoteController {
         }
         if(tyreEstimationId != null && tyreEstimationId != ''){
             query += 'AND Tyre_Estimation__c =: tyreEstimationId ';
-        }/*else{
+        }
+        system.debug('query After'+ query);
+        
+        /*else{
 query += ') ';
 } */
         if(serialVal != null && serialVal != ''){
@@ -39,6 +42,7 @@ query += ') ';
         System.debug('query '+query);
         return Database.query(query+' LIMIT 49000');
     }
+    //Create Delivery Note Method
     @auraEnabled
     public static List<ETT_Delivery_Line_Item__c> createEstimations(List<Tyre_Estimation_Line_Item__c> selectedTyres, String customerId, String subInventoryId,String tyreEstimationId) {
             
@@ -54,9 +58,10 @@ query += ') ';
                 deliveryNoteObj.SubInventory__c = subInventoryId;   
             }
             if (String.isNotBlank(tyreEstimationId)) {
-                deliveryNoteObj.Tyre_Estimation__c = tyreEstimationId;   
+                deliveryNoteObj.Tyre_Estimation__c = tyreEstimationId; 
+                deliveryNoteObj.ETT_Casing__c = 'Own';  
             }
-            deliveryNoteObj.ETT_Casing__c = 'Own';
+            
             deliveryNoteObj.DN_Status__c = 'New';
             deliveryNoteObj.ETT_Date__c = System.now();
             deliveryNoteObj.ETT_Job_Type__c = 'Accepted';
@@ -104,6 +109,7 @@ query += ') ';
                     objDeliveryLineItem.ETT_Collection_Card__c = objTELI.Collection_Card_No__c;
                     objDeliveryLineItem.ETT_Job_Type__c=objTELI.Tyre_Inventory__r.Tyre_Type__c;
                     objDeliveryLineItem.ETT_Price__c = objTELI.Unit_Price__c; // Set the price field
+
                     
                     // Set the ETT_Tyre_Size__c and ETT_Tyre_Size_Integration__c fields
                     if (objTELI.Tyre_Inventory__r.ETT_Tyre_Size_Master__r != null) {

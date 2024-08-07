@@ -338,5 +338,31 @@
         
         $A.enqueueAction(action);  
         
+    },
+    showErrorMessage: function(component, message) {
+        component.set("v.isLoading", false);
+        var toastEvent = $A.get("e.force:showToast");
+        toastEvent.setParams({
+            "type": "error",
+            "message": message
+        });
+        toastEvent.fire();
+    },
+
+    validateFields: function(component, event, helper) {
+        debugger;
+        var allValid = true;
+        var roundno = component.find('roundno');
+
+        var roundnoVal = component.find('roundno').get('v.value');   
+        if($A.util.isUndefinedOrNull(roundnoVal) || $A.util.isUndefined(roundnoVal) || $A.util.isEmpty(roundnoVal)){
+                        roundno.set("v.errors",[{message:'Name is required'}]);
+                allValid = false;
+                    }else{
+                    
+                    roundno.set("v.errors",null);
+                }  
+
+        return allValid;
     }
 })

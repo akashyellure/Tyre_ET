@@ -18,6 +18,7 @@ public class ETT_createJobCardsFromTyreInvent {
         Savepoint sp = Database.setSavepoint();
         
         List<ETT_Job_Card__c> listOfJobCards = new List<ETT_Job_Card__c>();
+        List<ETT_Collection_Card__c> collectionCardsToUpdate = new List<ETT_Collection_Card__c>();
         try{
             
             List<ETT_Inspection_Card__c> lstInspectionCards = [SELECT Id,Recordtype.name,Tyre_Inventory__c, ETT_Collection_Card__c, ETT_Status__c, (select Id from Job_Cards__r)
@@ -41,7 +42,17 @@ public class ETT_createJobCardsFromTyreInvent {
                     objJobCard.ETT_No_of_Buffing_revisions__c=1; 
                     objJobCard.ETT_Priority__c='Medium';
                     objJobCard.Customer__c = customerId;
+                    objJobCard.Collection_Card__c=objIC.ETT_Collection_Card__c;
                     listOfJobCards.add(objJobCard);
+                    if (objIC.ETT_Collection_Card__c != null) {
+                        ETT_Collection_Card__c collectionCard = new ETT_Collection_Card__c(
+                        Id = objIC.ETT_Collection_Card__c,
+                        ETT_Collection_Status__c='Job Card Created'
+                    );
+                    collectionCardsToUpdate.add(collectionCard);
+                    }
+
+
                 }else{
                      throw new AuraHandledException('Job Card is created already.');
                 }
@@ -55,57 +66,11 @@ public class ETT_createJobCardsFromTyreInvent {
             }
             if(listOfJobCards.size()>0){
                 update selectedTyres;
-                
-                /** Misc and Misc Line Creation **/
-                /*map<string,list<string>> itemCodeVsSerialNos = new map<string,list<string>>();
-                map<string,Id> itemCodeVsMiscLineId = new map<string,Id>();
-                list<ETT_Misc_Line__c> miscLineList = new list<ETT_Misc_Line__c>();
-                set<string> serialNoSet = new  set<string>();
-                
-                list<ETT_Job_Card__c> jcList =  [select id,Tyre_Inventory__c,Tyre_Inventory__r.Serial_Number__c,Tyre_Inventory__r.Item_Code__c from ETT_Job_Card__c where Id=:listOfJobCards];
-                for(ETT_Job_Card__c jc : jcList){
-                    serialNoSet.add(jc.Tyre_Inventory__r.Serial_Number__c);
-                    if(!itemCodeVsSerialNos.containsKey(jc.Tyre_Inventory__r.Item_Code__c)) {
-                        itemCodeVsSerialNos.put(jc.Tyre_Inventory__r.Item_Code__c, new List<string>());
-                    }
-                    itemCodeVsSerialNos.get(jc.Tyre_Inventory__r.Item_Code__c).add(jc.Tyre_Inventory__r.Serial_Number__c);
-                    
-                }
-                
-                ETT_Miscellaneous__c misc = new ETT_Miscellaneous__c();
-                misc.Misc_Type__c = 'Issue';
-                misc.Transaction_Type__c ='JOB_CARD_OPN_USED_TYRE';
-                insert misc;
-                integer i=1;
-                for(string str : itemCodeVsSerialNos.keyset()){
-                    ETT_Misc_Line__c miscLine = new ETT_Misc_Line__c();
-                    miscLine.Line_Number__c = i;
-                    miscLine.Item_Code__c = str;
-                    miscLine.Misc_Header__c = misc.Id;
-                    miscLine.Quantity__c = itemCodeVsSerialNos.get(str).size();
-                    miscLine.Org_ID__c='426';
-                    miscLine.Sub_Inventory__c ='AUH-TF-MS';
-                    miscLine.Locator__c = 'AUH-TF-MS.Used Tyres.0';
-                    miscLine.Serial_Control_Flag__c='Y';
-                    miscLineList.add(miscLine);
-                    i++;
-                }
-                insert miscLineList;
-                for(ETT_Misc_Line__c line : miscLineList){
-                    itemCodeVsMiscLineId.put(line.Item_Code__c,line.Id);
-                }
-                list<ETT_Tyre_Inventory__c> updatedTyreInvList = new list<ETT_Tyre_Inventory__c>();
-                
-                for(ETT_Tyre_Inventory__c tyre : [select id,Item_Code__c,Serial_Number__c from ETT_Tyre_Inventory__c where Serial_Number__c=:serialNoSet]){
-                    
-                    if(itemCodeVsMiscLineId.containskey(tyre.Item_Code__c)){
-                        tyre.Misc_Line__c = itemCodeVsMiscLineId.get(tyre.Item_Code__c);
-                        updatedTyreInvList.add(tyre);
-                    }
-                }
-                update updatedTyreInvList;*/
-                
             }
+
+        if (collectionCardsToUpdate.size() > 0) {
+            update collectionCardsToUpdate;
+        }
            return listOfJobCards;
             
         }catch(Exception e){
@@ -118,4 +83,7 @@ public class ETT_createJobCardsFromTyreInvent {
             throw new AuraHandledException(e.getMessage()+'--'+e.getCause()+'--'+e.getStackTraceString()); 
         }    
     }
+
+
+    
 }
