@@ -501,30 +501,21 @@
     
         handleSubmit: function(component, event, helper) {
             debugger;
+            
             component.set("v.isLoading", true);
             var closeDate = component.get("v.closeDate");
             var jobinfo = component.get("v.jobCardInfo");
             var prodstatus = component.get("v.ProdtnStatus");
             var rejection = component.get("v.jccRejection");
             var jobCardId = component.get("v.jobCardId");
-            var allValid = component.find('curing').reduce(function (validSoFar, inputCmp) {
-                inputCmp.reportValidity();
-                return validSoFar && inputCmp.checkValidity();
-            }, true);
-            if (!allValid) {
-                helper.showErrorMessage(component, "Please select a job card");
-                return;
-            } 
-            
-            
-            
-            
+            //var isValid = helper.validateFields(component, event, helper);
+          
             var jsonValues = Object.values(rejection);
             var newJobCardCloseLines = component.get("v.newJobCardCloseLines");
             var threadPatternField = component.find("threadPatternField").get("v.value");
             
-            console.log(JSON.stringify(newJobCardCloseLines));
-            console.log('newJobCardCloseLines:', newJobCardCloseLines);
+           // console.log(JSON.stringify(newJobCardCloseLines));
+          
             var allfalse = jsonValues.some(function(value) {
                 return value === true;
             });
@@ -534,6 +525,7 @@
                 helper.showErrorMessage(component, "Please select a job card");
                 return;
             } 
+
           
             if (jobinfo.Job_Card_Status__c === 'Closed') {
                 helper.showErrorMessage(component, "Job card status should not be closed");
@@ -554,6 +546,10 @@
             }
             if (threadPatternField === undefined && prodstatus === 'Produced') {
                 helper.showErrorMessage(component, "Thread Pattern is required.");
+                return;
+            }
+            if(inputFieldValve===undefined){
+                helper.showErrorMessage(component, "Valve is required.");
                 return;
             }
            

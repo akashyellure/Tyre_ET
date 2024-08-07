@@ -261,7 +261,7 @@
                                 </div>
                                 <div class="third_div">
                                     <div>
-                                        <table>
+                                        <!--<table>
                                             <tr><td colspan="2"><h4>Building</h4></td>
                                             </tr>
                                             <tr>
@@ -290,6 +290,52 @@
                                             <tr><td  colspan="2"><h4>Final Inspection</h4></td></tr>
                                             <tr>
                                                 <td colspan="2"><lightning:textarea label="Remarks" value="{!v.finalRemark}"/></td>
+                                            </tr>
+                                        </table>-->
+                                        <table>
+                                            <tr><td colspan="2"><h4>Building</h4></td></tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <lightning:textarea aura:id="buildingRemark" label="Remarks" value="{!v.buildingRemark}" required="true"/>
+                                                </td>
+                                            </tr>
+                                            <tr><td colspan="2"><h4>Curing</h4></td></tr>
+                                            <tr>
+                                                <td class="paddingright">
+                                                    <lightning:input aura:id="roundno" type="number" label="Round No" value="{!v.curingRound}" required="true"/>
+                                                </td>
+                                                <td class="paddingleft">
+                                                    <lightning:input aura:id="valve" label="Valve No" value="{!v.curingValue}" required="true"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" class="timedetails">
+                                                    <lightning:input aura:id="curingStartTime" type="datetime" label="Start Time" value="{!v.curingstartTime}" required="true" onchange="{!c.calculateTotalHours}"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" class="timedetails">
+                                                    <lightning:input aura:id="curingEndTime" type="datetime" label="End Time" value="{!v.curingendTime}" required="true" onchange="{!c.calculateTotalHours}"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="paddingright">
+                                                    <lightning:input aura:id="curingTotalHours" type="time" label="Total Hour" value="{!v.curingtotalHours}" required="true"/>
+                                                </td>
+                                                <td class="paddingleft">
+                                                    <lightning:input aura:id="chamber" type="number" label="Chamber No" value="{!v.curingChamber}" required="true"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <lightning:input aura:id="curingTemp" label="Curing Temperature" value="{!v.jobCardInfo.ETT_Curing_Temperature__c}" required="true"/>
+                                                </td>
+                                            </tr>
+                                            <tr><td colspan="2"><h4>Final Inspection</h4></td></tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <lightning:textarea aura:id="finalRemark" label="Remarks" value="{!v.finalRemark}" required="true"/>
+                                                </td>
                                             </tr>
                                         </table>
                                     </div>

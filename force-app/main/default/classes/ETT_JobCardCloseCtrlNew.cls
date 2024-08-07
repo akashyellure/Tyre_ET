@@ -9,7 +9,7 @@ public class ETT_JobCardCloseCtrlNew {
     @AuraEnabled
     public static Map<string,object>  getJobCardRealtedDetails(string jobCardId){
         
-        List<ETT_Job_Card__c> lstJob= [Select ETT_Curing_Round_Number__c,Tyre_Inventory__r.ETT_Brand__r.Name,ETT_Curing_Start_Time__c,ETT_Tread_Width__c,ETT_Tread_Length__c,Created_Date__c,ETT_Inspection_Card__r.Tyre_Life__c,Customer__r.Name,Customer_Type__c,ETT_Inspection_Card__r.Country__c,Id,Name,ETT_Overall_Status__c,ETT_Stages__c,ETT_Tyre_Master__c,ETT_Job_Type__c
+        List<ETT_Job_Card__c> lstJob= [Select ETT_Job_type_card__c,SubInventory__c,Sub_Inventory__c,ETT_Curing_Round_Number__c,Tyre_Inventory__r.ETT_Brand__r.Name,ETT_Curing_Start_Time__c,ETT_Tread_Width__c,ETT_Tread_Length__c,Created_Date__c,ETT_Inspection_Card__r.Tyre_Life__c,Customer__r.Name,Customer_Type__c,ETT_Inspection_Card__r.Country__c,Id,Name,ETT_Overall_Status__c,ETT_Stages__c,ETT_Tyre_Master__c,ETT_Job_Type__c
                                        ,ETT_Inspection_Card__c,ETT_Inspection_Card__r.ETT_Collection_Card__c,Collection_Card__r.ETT_Accounts__r.Name,Collection_Card__r.ETT_Accounts__r.Party_Type__c,ETT_Inspection_Card__r.ETT_Account__r.Name,ETT_Inspection_Card__r.ETT_Account__r.Party_Type__c,ETT_Inspection_Card__r.ETT_Collection_Card__r.ETT_Collection_Date__c,
                                        Job_Card_Status__c,Open_Date__c,
                                        Close_Date__c,ETT_Inspection_Card__r.ETT_Brand__r.Name,ETT_Inspection_Card__r.Brand__c, ETT_Inspection_Card__r.Tyre_Size__c,
@@ -21,7 +21,7 @@ public class ETT_JobCardCloseCtrlNew {
                                        Tyre_Inventory__r.ETT_Tyre_Master__r.ETT_Ply_Rate__c,Tyre_Inventory__r.ETT_Tyre_Master__r.ETT_Speed_Index__c,Tyre_Inventory__r.ETT_Tyre_Master__r.ETT_Load_Index__c,Tyre_Inventory__r.ETT_Tyre_Master__r.ETT_Original_Pattern__r.Name,Tyre_Inventory__r.ETT_Tyre_Master__r.ETT_Tyre_Size__r.Name
                                        
                                        from ETT_Job_Card__c where id=:jobCardId];
-       // system.debug('lstJob'+lstJob);
+        system.debug('lstJob'+lstJob);
         Decimal crownCut;
         String sidewallcut;
         Map<string,object> mapreturn =new Map<string,object>();
