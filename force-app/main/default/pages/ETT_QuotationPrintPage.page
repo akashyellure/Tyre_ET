@@ -1,26 +1,55 @@
 <apex:page standardController="ETT_Quotation__c" extensions="ETT_QuotationPrintPageCtrl" renderAs="pdf" applyBodyTag="false">
     <head>
         <style type="text/css" media="print"> 
-            
-            
-            @page {
-            padding-top: 100px;
-            
-            @top-center {
-             content: element(header);
+            body{
+            padding:0px;
+            margin:0px;
+            font-size:12px;
+            font-family: sans-serif;
             }
+            @page{ 
+            size: A4;
+            padding:0px;  
+            margin:30mm 10mm 30mm; 
             @bottom-left {
-             content: element(footer);
+            content: element(footer);
+            }
+            @top-center {
+            content: element(header);
+            }
+            /*@bottom-right {
+            content: "Page " counter(page) " of " counter(pages);
+            font-family: 'Noto Sans', sans-serif;
+            font-size: 12px; 
+            width: 100px;
+            }*/
+            } 
+            @page:first {
+            @top-center {
+            content: element(header);
             }
             }
-            div.header {
+            div.registerdiv {
+            display: block;
+            margin:0px;
+            padding: 0px;
+            /*position: running(header);*/
+            }
+            div.divFooter {
+            display: block;
+            padding: 5px;
+            position: running(footer);
+            }
+            div.divHeader {
+            margin:1px 0px;
+            display: block;
+            text-align:center;
             padding: 1px;
             position: running(header);
             }
-            div.footer {
-            display: block;
-            padding: 1px;
-            position: running(footer);
+            .page-break {
+            display:block;
+            page-break-after:always;
             }
             .pagenumber:before {
             content: counter(page);
@@ -28,264 +57,223 @@
             .pagecount:before {
             content: counter(pages);
             }
-            
-            body { 
-            font-family: 'Arial Unicode MS'; 
-            font: 12px; 
-            }
-            
-            .companyName { 
-            font-size: 14px; 
-            font-weight:bold !important;
-            color: black; 
-            }
-            
-            p {
-            text-align:left;
-            }
-            
-            @page {
-            size:A4 portrait;
-            /*border: 2px solid black;    */
-            }
-            table, th{
-            border: 1px solid black;
-            border-collapse: collapse;
-            text-align: left;
-            padding:6px;
+            table{
+            border-collapse:collapse;
             } 
-            td{
-            border: 1px solid black;
+            .innertable, .innerpricetable {
             border-collapse: collapse;
-            text-align: left;
-            padding:6px;
-            } 
-            #pdftable td{
-            border: 0px solid black!important;
-            border-right:1px solid black!important;
+            width:100%
+            }
+            .innertable tr td, .innertable tr th{
+            padding:5px;
+            border:.5px solid #000;
+            font-size:12px;
+            vertical-align: top;
+            }
+            .innertable tr th{
+            color:#000;
+            vertical-align: middle;
+            }
+            .innerpricetable tr td, .innerpricetable tr th{
+            padding:5px;
+            border-bottom:.5px solid #000;
+            font-size:12px;
+            vertical-align: top;
+            }
+            .banktablediv{                       
+            border:1px solid #000;
+            }
+            .banktable{
             border-collapse: collapse;
-            text-align: left;
-            padding:6px;
-            }  
-            tr th{
-            font-weight:bold !important;
+            width:100% 
+            }
+            .banktable tr td, .banktable tr th{
+            padding:8px;
+            font-size:12px;
+            vertical-align: top;
             }
         </style>
     </head>
-    
-        <center>
-            <div class="header">
+    <body>
+        <div class="divHeader">
+            <table style="width: 100%;">                
+                <tr>
+                    <td width="33.33%" style="border:none;text-align:left">
+                        <apex:image url="{!$Resource.ETT_Logo}" width="180" height="120"/>
+                    </td>
+                    <td width="33.33%" style="border:none;text-align:center;">
+                        <h1 style="text-decoration: underline;">QUOTATION</h1>
+                    </td>
+                    <td width="33.33%" style="border:none;">
+                        <div style="text-align:right;font-size:10px;">
+                            Toll Free: 800 6006<br/>
+                            P.O. Box : 5757, Dubai, UAE<br/>
+                            Tel: 04-233 0680,Fax: 04-2872475<br/>
+                            retreadenquiries@et.ae<br/>
+                            www.et.gov.ae<br/>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="divFooter">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="border:none;text-align: center;">
+                        <apex:image url="{!$Resource.emirates}" height="40" />
+                    </td>
+                    <td style="border: .5px solid #DDD;">
+                        <p style="font-size:20px;margin:0px;text-align: center;font-weight:500;">
+                            A ESMA CERTIFIED PRODUCT
+                        </p>
+                    </td>
+                    <td style="border:none;text-align: center;">
+                        <apex:image url="{!$Resource.ecas}" height="40" width="40"/>
+                    </td>                
+                </tr>
+            </table>
+            <p style="border:1px solid #000;text-align: center;padding:5px;">
+                PO Box: 5757, Al Warsan, Dubai, UAE, Tel: 04-2330680, Fax: 04-2872475, Email: Retreadenquiries@et.ae, Call Center:
+                8006006
+            </p>            
+        </div>
+        <!-- Customer Info table --->
+        <table class="innertable">
+            <tr>
+                <td colspan="2" ><strong>Customer :</strong> {!accountInfo.Name}</td>
+                <td><strong>Quotation No :</strong> {!ETT_Quotation__c.Name}</td>                   
+            </tr>
+            <tr>
+                <td colspan="2" ><strong>Address :</strong> {!accountInfo.BillingStreet}</td>
+                <td><strong>Date :</strong> <apex:outputText value="{0,date,dd'/'MM'/'yyyy}">
+                    <apex:param value="{!ETT_Quotation__c.CreatedDate}" />
+                    </apex:outputText> </td>                   
+            </tr>
+            <tr>
                 
-                <table style="width: 100%;">
-                    
-                    <tr>
-                        <td style="border:none;">
-                            <apex:image url="{!$Resource.ETT_Logo}" width="180" height="120"/>
-                        </td>
-                        <td style="border:none;text-align:center;">
-                            <h1 style="">QUOTATION</h1>
-                        </td>
-                        <td style="border:none;">
-                            <div style="text-align:right;font-size:10px;">
-                                Toll Free: 800 6006<br/>
-                                P.O. Box : 5757, Dubai, UAE<br/>
-                                Tel: 04-233 0680,Fax: 04-2872475<br/>
-                                retreadenquiries@et.ae<br/>
-                                www.et.gov.ae<br/>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-             
-            </div>
-               
-                <!-- Customer Info table --->
-                <table style="width: 100%;">
-                    <tr>
-                        <th class="companyName">Customer:</th>
-                        <td colspan="3">{!accountInfo.Name}</td>
-                        <th class="companyName">Quotation No:</th>
-                        <td>{!ETT_Quotation__c.Name}</td>                   
-                    </tr>
-                    <tr>
-                        <th class="companyName">Address:</th>
-                        <td colspan="3">{!accountInfo.BillingStreet}</td>
-                        <th class="companyName">Date:</th>
-                        <td><apex:outputText value="{0,date,dd'/'MM'/'yyyy}">
-                            <apex:param value="{!ETT_Quotation__c.CreatedDate}" />
-                            </apex:outputText> </td>                   
-                    </tr>
-                    <tr>
-                        <th class="companyName">Telephone:</th>
-                        <td>{!accountInfo.Phone}</td>
-                        <th class="companyName">Fax:</th>
-                        <td>{!accountInfo.Fax}                           
-                        </td>
-                        <th class="companyName">Sales Rep:</th>
-                        <td>{!accountInfo.CreatedBy.Name}</td>                   
-                    </tr>
-                    <tr>
-                        <th class="companyName">Kind Atten:</th>
-                        <td>{!ETT_Quotation__c.Kind_Atten__c}</td>
-                        <th class="companyName">CC:</th>
-                        <td></td>
-                        <th class="companyName">Email:</th>
-                        <td>{!accountInfo.CreatedBy.Email}</td>                    
-                    </tr>
-                    <tr>
-                        <th class="companyName">Collection Card:</th>
-                        <td colspan="3">
-                            <!--apex:repeat value="{!quotLines}" var="item">
+                <td><strong>Telephone :</strong> {!accountInfo.Phone}</td>
+                <td><strong>Fax :</strong> {!accountInfo.Fax}</td>
+                <td><strong>Sales Rep :</strong> {!accountInfo.ETT_Sales_Person__c}</td>                   
+            </tr>
+            <tr>
+                <td><strong>Kind Atten :</strong> {!ETT_Quotation__c.Kind_Atten__c}</td>
+                <td><strong>CC :</strong> </td>
+                <td><strong>Email :</strong> {!accountInfo.ETT_SALES_EMAIL__c}</td>                    
+            </tr>
+            <tr>
+                <td  colspan="2">
+                    <!--apex:repeat value="{!quotLines}" var="item">
 {!item.Collection_Card__r.Name}
 </apex:repeat-->
-                            {!collCards}
-                        </td>
-                        <th class="companyName">Collection Date:</th>
-                        <td>
-                            {!collCardsDates}
-                        </td>                   
-                    </tr>      
-                    
-                </table>
-         
-            <div class="content">
-                <div>
-                    <p>
-                        Dear Sir,<br/>
-                        Please find below our best prices with relevant details as follows. 
-                    </p>
-                </div>
-                
-                
-                
-                <!-- Detail table -->
-                
-                <table  style="width: 100%;" class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
-                    <thead>
-                        <tr class="slds-line-height_reset">
-                            <th class="" scope="col">
-                                <div class="slds-truncate" title="SNo">SNo</div>
-                            </th>
-                            <th class="" scope="col">
-                                <div class="slds-truncate" title="Tyre Size">Tyre Size</div>
-                            </th>
-                            <th class="" scope="col">
-                                <div class="slds-truncate" title="Job Type">Job Type</div>
-                            </th>
-                            <th class="" scope="col">
-                                <div class="slds-truncate" title="Status">Status</div>
-                            </th>
-                            <th class="" scope="col">
-                                <div class="slds-truncate" title="Qty">Qty</div>
-                            </th>
-                            <th class="" scope="col">
-                                <div class="slds-truncate" title="Unit Price">Unit Price</div>
-                            </th>
-                            <th class="" scope="col">
-                                <div class="slds-truncate" title="Total">Total</div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <apex:variable var="rowNum" value="{!0}"/>
-                        <apex:repeat value="{!processedAglist}" var="item">
-                            
-                            <tr>
-                                <td>
-                                    <apex:variable var="rowNum" value="{!rowNum + 1}"/>
-                                    {!rowNum}
-                                </td>
-                                <td>{!item['Si']}</td>
-                                <td>{!item['jb']}</td>
-                                <td>{!item['st']}</td>
-                                <td>{!item['ct']}</td>
-                                <td>{!item['up']}</td>
-                                <td>{!item['tp']}</td>
-                            </tr>
-                                </apex:repeat>
-                        
-                        
-                        <tr>
-                            <td colspan='5' style="border:none;">
-                                Material Used : Engineered in Malaysia with German technology
-                            </td>
-                            <th style="text-align: right;">Total Price:</th>
-                            <td>{!total}</td>
-                        </tr>
-                        <tr>
-                             <td colspan='5' style="border:none;">
-                                Payment Terms : <b>{!accountInfo.ETT_Payment_Term__c}</b>
-                            </td>
-                            <th style="text-align: right;">Claim Price(-):</th>
-                            <td>{!ETT_Quotation__c.Claim_Amount__c}</td>
-                        </tr>
-                        <tr>
-                             <td colspan='5' style="border:none;"></td>
-                            <th style="text-align: right;">VAT (@5%) :</th>
-                            <td>{!vat}</td>
-                        </tr>
-                        <tr>
-                            <td colspan='5' style="border:none;"></td>
-                            <th style="text-align: right;">Total Amount :</th>
-                            <td>{!totalAmount}</td>
-                        </tr>                
-                    </tbody>
-                </table>
-                
-                <p>
-                    Warranty : All of our retreads are warranted for untill the pull point (5mm) for any manufacturing defects in
-                    material and workmanship under normal working conditions. A pro rata settlement would be given for such cases
-                    upon the inspection by our trained experts at our plant.
-                </p><br/><br/>
-                
-                <p>
-                    Please do not hesitate to contact us should you have any additional requirements.
-                </p>
-                <p>
-                    Thanking you and assuring you of our best services at all times.
-                </p>            
-                
-                <p>Best Regards,</p>            
-                <p style="page-break-after: always;">
-                    Name :{!accountInfo.CreatedBy.Name}<br/>
-                    Mob No :{!accountInfo.CreatedBy.MobilePhone}<br/>
-                    CC : Factory Manager
-                </p>
-                
-               <!--div style="height:300px">
-                   &nbsp;
-                </div-->  
-                
-                <p ><b>*Please send your LPO/ confirmation to Fax No: 042872475 or retreadenquiries@et.ae</b></p>
-                <p>*Please note that this is a computer generated document and hence needs no signature </p>
-                <br/>
-                <table style="width: 100%;">
-                    <tr>
-                        <td style="border:none;text-align: center;">
-                            <apex:image url="{!$Resource.emirates}" width="40" height="Auto"/>
-                        </td>
-                        <td style="border: 1px solid #DDD;">
-                            <p style="font-size:28px;margin:0px;text-align: center;font-weight:bold;">
-                                A ESMA CERTIFIED PRODUCT
-                            </p>
-                        </td>
-                        <td style="border:none;text-align: center;">
-                            <apex:image url="{!$Resource.ecas}" width="30" height="30"/>
-                        </td>                
-                    </tr>
-                </table><br/>
-            </div>
+                    <strong>Collection Card :</strong> {!collCards}
+                </td>
+                <td>
+                    <strong>Collection Date :</strong> {!collCardsDates}
+                </td>                   
+            </tr>    
             
-            
-            <div class="footer">
-                <p style="border:1px solid black;text-align: center">
-                    PO Box: 5757, Al Warsan, Dubai, UAE, Tel: 04-2330680, Fax: 04-2872475, Email: Retreadenquiries@et.ae, Call Center:
-                    8006006
-                </p>
-            </div> 
-            
-        </center>
+        </table>
         
-   
+        <div class="content">
+            <p>Dear Sir,</p>
+            <p>Please find below our best prices with relevant details as follows. </p>
+            <!-- Detail table -->
+            <table class="innerpricetable" style="width: 100%;">
+                <thead>
+                    <tr >
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="SNo">SNo</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Tyre Size">Tyre Size</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Job Type">Job Type</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Status">Status</div>
+                        </th>
+                        <th align="right" class="" scope="col">
+                            <div class="slds-truncate" title="Qty">Qty</div>
+                        </th>
+                        <th align="right" class="" scope="col">
+                            <div class="slds-truncate" title="Unit Price">Unit Price</div>
+                        </th>
+                        <th align="right" class="" scope="col">
+                            <div class="slds-truncate" title="Total">Total</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <apex:variable var="rowNum" value="{!0}"/>
+                    <apex:repeat value="{!processedAglist}" var="item">
+                        
+                        <tr>
+                            <td>
+                                <apex:variable var="rowNum" value="{!rowNum + 1}"/>
+                                {!rowNum}
+                            </td>
+                            <td>{!item['Si']}</td>
+                            <td>{!item['jb']}</td>
+                            <td>{!item['st']}</td>
+                            <td align="right">{!item['ct']}</td>
+                            <td align="right">{!item['up']}</td>
+                            <td align="right">{!item['tp']}</td>
+                        </tr>
+                    </apex:repeat>
+                    <tr>
+                        <td colspan='5' rowspan="4" style="border:none;">
+                            <div>Material Used : Engineered in Malaysia with German technology</div>
+                            <div>Payment Terms : <b>{!accountInfo.ETT_Payment_Term__c}</b></div>
+                        </td>
+                        <th style="border-left:.5px solid #000">Total Price</th>
+                        <td align="right" style="border-right:.5px solid #000"><strong>{!total}</strong></td>
+                    </tr>
+                    <tr>
+                        <th style="border-left:.5px solid #000">Claim Price(-)</th>
+                        <td align="right" style="border-right:.5px solid #000"><strong>{!ETT_Quotation__c.Claim_Amount__c}</strong></td>
+                    </tr>
+                    <tr>
+                        <th style="border-left:.5px solid #000">VAT (@5%)</th>
+                        <td align="right" style="border-right:.5px solid #000"><strong>{!vat}</strong></td>
+                    </tr>
+                    <tr>
+                        <th style="border-left:.5px solid #000">Total Amount</th>
+                        <td align="right" style="border-right:.5px solid #000"><strong>{!totalAmount}</strong></td>
+                    </tr>                
+                </tbody>
+            </table>
+            <p style="text-align: justify;">
+                Warranty : All of our retreads are warranted for untill the pull point (5mm) for any manufacturing defects in
+                material and workmanship under normal working conditions. A pro rata settlement would be given for such cases
+                upon the inspection by our trained experts at our plant.
+            </p>
+            <p>Please do not hesitate to contact us should you have any additional requirements.</p>
+            <p>Thanking you and assuring you of our best services at all times.</p>            
+            
+            <p>Best Regards,</p>            
+            <p>Name : <strong>{!accountInfo.ETT_Sales_Person__c}</strong></p>
+            <p>Mob No : <strong>{!accountInfo.Sales_Phone__c}</strong></p>
+            <p >CC : <strong></strong></p>
+            <p>*Please send your LPO/ confirmation to Fax No: 042872475 or retreadenquiries@et.ae</p>
+            <p>*Please note that this is a computer generated document and hence needs no signature </p>
+            <br/>
+            <!--table style="width: 100%;">
+<tr>
+<td style="border:none;text-align: center;">
+<apex:image url="{!$Resource.emirates}" height="40" />
+</td>
+<td style="border: .5px solid #DDD;">
+<p style="font-size:20px;margin:0px;text-align: center;font-weight:500;">
+A ESMA CERTIFIED PRODUCT
+</p>
+</td>
+<td style="border:none;text-align: center;">
+<apex:image url="{!$Resource.ecas}" height="40" width="40"/>
+</td>                
+</tr>
+</table><br/-->
+        </div>
+    </body>
     
 </apex:page>

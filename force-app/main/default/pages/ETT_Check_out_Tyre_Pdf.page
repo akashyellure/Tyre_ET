@@ -1,0 +1,234 @@
+<apex:page standardController="ETT_Collection_Card__c" extensions="ETT_Check_Out_Tyre_Detials" renderAs="pdf" applyBodyTag="false">
+    
+        <head>
+            <link rel="preconnect" href="https://fonts.googleapis.com"/>
+            <link rel="preconnect" href="https://fonts.gstatic.com"/>
+            <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet"/>
+            <style type="text/css" media="print">  
+            @page { 
+                margin:5mm;
+                margin-bottom:20mm;
+                size:A4; 
+                padding-top:100px;
+                padding-bottom:20px;
+                @top-center {
+                    content: element(header);
+                }
+                @bottom-left {
+                    content: element(footer);
+                } 
+                @bottom-right {
+                    content: "Page " counter(page) " of " counter(pages); 
+                	font-family: "Open Sans", sans-serif;
+                    font-size: 12px; 
+                }
+            }  
+            *{box-sizing: border-box;} 
+            body {  
+                font-size: 12px; 
+                font-family: "Open Sans", sans-serif;
+            } 
+            p { 
+            	margin:0px;
+            	line-height:normal;	
+            }
+            div.header {
+                padding: 1px;
+                position: running(header);
+                text-align:center;
+            }
+            div.footer { 
+                padding: 1px;
+                position: running(footer); 
+            } 
+            div.footer p{
+                line-height:24px;
+                font-size:12px;
+                margin:0px;
+            	color:#000;  
+                text-align:left;
+            }  
+             table{
+            	width:100%;
+            	border:0px;
+                 background-color: #fff;
+            }
+            table{ 
+                border-collapse: collapse;
+                text-align: left; 
+                page-break-inside:auto
+            }  
+   			tr{ 
+                page-break-inside:avoid; 
+                page-break-after:auto 
+             }
+            td, th{ 
+                border-collapse: collapse; 
+                padding:10px 5px; 
+            }  
+            strong{
+            	font-weight:bold;
+            } 
+           
+            .tableborder th{
+                background-color: #f2f2f2; 
+            } 
+            .tableborder td, .tableborder th{ 
+            	border:0.5px solid #000;
+            }
+            .infotable td,  .infotable th{
+                border:0.5px solid #000;
+            }
+            .title{
+            	background-color: #f2f2f2;
+                padding:10px;
+                 font-size: 16px;
+                margin:10px 0;
+            }
+        </style>
+        </head>
+        <body>
+          
+                    <div class="header">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td style="border:none;">
+                                    <apex:image url="{!$Resource.ETT_Logo}" width="180" height="120"/>
+                                </td>
+                                <td style="border:none;text-align:center;">
+                                    <h1 style="font-size:20px;">Tyre Collection Details</h1>
+                                </td>
+                                <td style="border:none;">
+                                    <div style="text-align:right;font-size:10px;">
+                                        Toll Free: 800 6006<br/>
+                                        P.O. Box : 5757, Dubai, UAE<br/>
+                                        Tel: 04-233 0680, Fax: 04-2872475<br/>
+                                        retreadenquiries@et.ae<br/>
+                                        www.et.gov.ae<br/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- Customer Info table -->
+                     </div>
+                    
+                   
+                    <div class="footer">
+                       <table style="width:100%;">
+                           <tr>
+                               <td>
+                                   <p>*Please note that this is a computer-generated document and hence needs no signature.</p>
+                                </td>
+                           </tr>
+                        </table>
+                        
+                    </div> 
+                
+            
+                        <table class="infotable" style="width: 100%;" cellspacing="0" cellpadding="0">
+                            <apex:outputText rendered="{!collectionCard.ETT_Store_Name__r.Party_Type1__c== 'Internal'}">
+                                <tr>
+                                    <td><strong>Internal :</strong> {!collectionCard.ETT_Store_Name__r.Name}</td> 
+                                    <td><strong>Store Code :</strong> {!collectionCard.ETT_SubInventory_Code__c}</td> 
+                                </tr>
+                                <tr>
+                                    <td><strong>Operating Unit :</strong> {!collectionCard.ETT_Store_Name__r.ETT_Operating_Unit_Name__c}</td> 
+                                    <td><strong>Move Order No:</strong> {!collectionCard.MO_EBS_Ref_No__c}</td> 
+                                </tr>
+                                
+                                <tr> 
+                                    <td><strong>Collection Card No :</strong> {!collectionCard.Name}</td> 
+                                    <td><strong>Collection Date : </strong>
+                                        <apex:outputText value="{0,date,dd'/'MM'/'yyyy}">
+                                            <apex:param value="{!Today()}" />
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                            </apex:outputText>
+                            <apex:outputText rendered="{!collectionCard.ETT_Store_Name__r.Party_Type1__c!= 'Internal'}">
+                                <tr>
+                                    <td><strong>Customer :</strong> {!accountInfo.Name}</td>
+                                    <td><strong>Location :</strong> {!collectionCard.Collection_Appointment__r.Location__c}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Collection Card No :</strong> {!collectionCard.Name}</td> 
+                                    <td><strong>Collection Date : </strong>
+                                        <apex:outputText value="{0,date,dd'/'MM'/'yyyy}">
+                                            <apex:param value="{!Today()}" />
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                            </apex:outputText>
+                        </table>
+                  
+                    
+                       <!-- Summarized Table -->
+                   
+                        <p class="title">Summary</p>
+                        <table class="tableborder" cellspacing="0" cellpadding="0" style="width:100%; margin-top: 20px;">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px; text-align:center;">SrNo</th>
+                                    <th style="text-align:center;">Tyre Size</th>
+                                    <th style="text-align:center;">Repair</th>
+                                    <th style="text-align:center;">Retread</th>
+                                    <th style="text-align:center;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <apex:variable var="rowNum" value="{!0}"/>
+                                <apex:repeat value="{!tyreInventoryGrouped}" var="groupedData">
+                                    <tr>
+                                        <td style="text-align:center;">
+                                            <apex:variable var="rowNum" value="{!rowNum + 1}"/>
+                                            {!rowNum}
+                                        </td>
+                                        <td style="text-align:center;">{!groupedData['tyreSize']}</td>
+                                        <td style="text-align:center;">{!groupedData['Repair']}</td>
+                                        <td style="text-align:center;">{!groupedData['Retread']}</td>
+                                        <td style="text-align:center;">{!groupedData['Total']}</td>
+                                    </tr>
+                                </apex:repeat>
+                                <tr>
+                                    <td colspan="4" style="text-align:right;"><strong>Total :</strong></td>
+                                    <td style="text-align:center;"><strong>{!totalTyreCount}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    
+                        <br/>
+                     <p class="title"> Tyre Details</p>
+                        <table class="tableborder" cellspacing="0" cellpadding="0" style="width:100%; margin-top: 20px;">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px; text-align:center;">SrNo</th>
+                                    <th style="width:40px; text-align:center;">Tyre Size</th>
+                                    <th style="width:40px; text-align:center;">Brand</th>
+                                    <th style="width:40px; text-align:center;">Pattern</th>
+                                    <th style="width:40px; text-align:center;">Country</th>
+                                    <th style="width:40px; text-align:center;">Serial Numbers</th>
+                                    <th style="width:40px; text-align:center;">Job Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <apex:variable var="rowNum" value="{!0}"/>
+                                <apex:repeat value="{!tyreInventoryDetails}" var="tyre">
+                                    <tr> 
+                                        <td style="text-align:center;">
+                                            <apex:variable var="rowNum" value="{!rowNum + 1}"/>
+                                            {!rowNum}
+                                        </td>
+                                        <td style="text-align:center;">{!tyre.ETT_Tyre_Size_Master__r.Name}</td>
+                                        <td style="text-align:center;">{!tyre.ETT_Brand__r.Name}</td>
+                                        <td style="text-align:center;" >{!tyre.ETT_Pattern__r.Name}</td>
+                                        <td style="text-align:center;">{!tyre.ETT_Country__r.Name}</td>
+                                        <td style="text-align:center;">{!tyre.Serial_Number__c}</td>
+                                        <td style="text-align:center;">{!tyre.Job_Type__c}</td>
+                                    </tr>
+                                </apex:repeat>
+                            </tbody>
+                        </table>
+                        
+        </body>       
+   
+</apex:page>
