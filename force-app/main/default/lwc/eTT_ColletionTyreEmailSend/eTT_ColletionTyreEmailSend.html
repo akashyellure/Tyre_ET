@@ -1,0 +1,19 @@
+<template>
+    <lightning-card title="Send Email" class="custom-card">
+        <div class="form-container">
+            <div class="input-container">
+                <div class="slds-form-element_controller">
+                    <lightning-input class="custom-input" label="Recipient Email" value={recipientEmail} onchange={handleRecipientEmailChange} required></lightning-input>
+                </div>
+            </div>
+            <div class="input-container">
+                <div class="slds-form-element_controller">
+                    <lightning-input class="custom-input" label="CC Emails (comma-separated)" value={ccEmails} onchange={handleCcEmailsChange} required></lightning-input>
+                </div>
+            </div>
+        </div>
+        <div class="button-container">
+            <lightning-button class="custom-button" label="Send Email" onclick={handleSendEmail}></lightning-button>
+        </div>
+    </lightning-card>
+</template>
