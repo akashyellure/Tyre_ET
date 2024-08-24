@@ -46,12 +46,12 @@
     <aura:attribute name="skivingRemark" type="string"/>
     <aura:attribute name="repairRemark" type="string"/>
     <aura:attribute name="buildingRemark" type="string"/>
-    <aura:attribute name="curingDate" type="string"/>
-    <aura:attribute name="curingRound" type="string"/>
-    <aura:attribute name="curingChamber" type="string"/>
-    <aura:attribute name="curingValue" type="string"/>
-    <aura:attribute name="curingstartTime" type="DateTime"/>
-    <aura:attribute name="curingendTime" type="DateTime" />
+    <aura:attribute name="curingDate" type="string" default="" />
+    <aura:attribute name="curingRound" type="string" default="" />
+    <aura:attribute name="curingChamber" type="string" default=""/>
+    <aura:attribute name="curingValue" type="string" default=""/>
+    <aura:attribute name="curingstartTime" type="DateTime" default=""/>
+    <aura:attribute name="curingendTime" type="DateTime"  default=""/>
     <aura:attribute name="curingtotalHours" type="Decimal"/>
     <aura:attribute name="buffingRemark" type="string"/>
     <aura:attribute name="buffingWidth" type="string"/>
@@ -82,9 +82,12 @@
                     <lightning:input label="Open Date" value="{!v.jobCardInfo.Created_Date__c}" disabled="false" />
                     <lightning:input label="Collection Date" type="date" value="{!v.jobCardInfo.ETT_Inspection_Card__r.ETT_Collection_Card__r.ETT_Collection_Date__c}" disabled="true"/>
                     <lightning:input name="select1" label="Party Type" value="{!v.jobCardInfo.Customer_Type__c}" disabled="true"/>
-                    <lightning:input label="Sub Inventory" value="{!v.jobCardInfo.Sub_Inventory__c}" disabled="true"/>   
+                   
                     <lightning:input label="Party Name" value="{!v.jobCardInfo.Customer__r.Name}" disabled="true" />
-                    <lightning:input label="Job Type" value="{!v.jobCardInfo.ETT_Job_type_card__c}" disabled="true"/> 
+                     <lightning:input label="Party Code" value="{!v.jobCardInfo.Party_Code__c}" disabled="true" />
+                      <lightning:input label="Sub Inventory" value="{!v.jobCardInfo.Sub_Inventory__c}" disabled="true"/>
+                      <lightning:input label="Store Code" value="{!v.jobCardInfo.Store_Code__c}" disabled="true"/>  
+                    <lightning:input label="Job Type" value="{!v.jobCardInfo.ETT_job_type_card__c}" disabled="true"/> 
                     <lightning:input required="true" label="Close Date" type="date" value="{!v.closeDate}"/>
                    
                    
@@ -168,7 +171,7 @@
                                     </div>
                                     
                                     <br/>
-                                    <h4>Time Consumed</h4>
+                                    <h4>Time Consumed</h4>{!v.selectedJobProcss}
                                     <div class="tableview" >
                                         <aura:if isTrue="{!not(empty(v.newJobCardCloseEmployees))}">                                            
                                             <lightning:recordEditForm recordId="" objectApiName="ETT_JCC_Employee__c">
@@ -320,7 +323,7 @@
                                             </tr>
                                             <tr>
                                                 <td class="paddingright">
-                                                    <lightning:input aura:id="curingTotalHours" type="time" label="Total Hour" value="{!v.curingtotalHours}" required="true"/>
+                                                    <lightning:input aura:id="curingTotalHours" type="time" disabled="true" label="Total Hour" value="{!v.curingtotalHours}" />
                                                 </td>
                                                 <td class="paddingleft">
                                                     <lightning:input aura:id="chamber" type="number" label="Chamber No" value="{!v.curingChamber}" required="true"/>
@@ -328,7 +331,7 @@
                                             </tr>
                                             <tr>
                                                 <td colspan="2">
-                                                    <lightning:input aura:id="curingTemp" label="Curing Temperature" value="{!v.jobCardInfo.ETT_Curing_Temperature__c}" required="true"/>
+                                                    <lightning:input aura:id="curingTemp" label="Curing Temperature" value="{!v.jobCardInfo.ETT_Curing_Temperature__c}" />
                                                 </td>
                                             </tr>
                                             <tr><td colspan="2"><h4>Final Inspection</h4></td></tr>
@@ -444,7 +447,7 @@
                                               alternativeText="close"
                                               variant="brand"
                                               class="slds-modal__close"/>
-                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Time Consumed</h2>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Time Consumed 12</h2>
                     </header>
                     <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
                         

@@ -105,7 +105,7 @@ public class ETT_JobCardCloseTrgHelper {
     @future(callout=true)
     public static void createMRInOracle(String jccId){
         
-        List<ETT_Job_Card_Close__c> jccList = new List<ETT_Job_Card_Close__c>([SELECT id, Name, Tyre_Type__c, Job_Card__r.Tyre_Inventory__r.Item_Code__c, Job_Card__r.Tyre_Inventory__r.Serial_Number__c, (SELECT id, Name, Material_Total_Cost__c,Cost__c, Job_Card_Close__c, Job_Card_Close__r.Tyre_Type__c, Job_Card_Close__r.Job_Card__c, Job_Card_Close__r.Job_Card__r.Tyre_Inventory__c, Job_Card_Close__r.Job_Card__r.Tyre_Inventory__r.Item_Code__c FROM Job_Card_Close_Lines__r) 
+        List<ETT_Job_Card_Close__c> jccList = new List<ETT_Job_Card_Close__c>([SELECT id, Name,Collection_Date__c,Transaction_Date__c,Job_Card__r.Name,Tyre_Type__c, Job_Card__r.Tyre_Inventory__r.Item_Code__c, Job_Card__r.Tyre_Inventory__r.Serial_Number__c, (SELECT id, Name, Material_Total_Cost__c,Cost__c, Job_Card_Close__c, Job_Card_Close__r.Tyre_Type__c, Job_Card_Close__r.Job_Card__c, Job_Card_Close__r.Job_Card__r.Tyre_Inventory__c, Job_Card_Close__r.Job_Card__r.Tyre_Inventory__r.Item_Code__c FROM Job_Card_Close_Lines__r) 
                                                                                FROM ETT_Job_Card_Close__c WHERE Id=: jccId]);
         System.debug('JccList'+jccList);
         if(!jccList.isEmpty()){
@@ -125,7 +125,7 @@ public class ETT_JobCardCloseTrgHelper {
                     System.debug('Refurbished');
                     dataH.TransactionType = 'JOB_CARD_COMPLTN_REF_TYRE'; 
                 }
-                dataH.TransactionDate = System.today();
+                dataH.TransactionDate =objJCC.Transaction_Date__c == null ? System.now().date() : objJCC.Transaction_Date__c.date();
                 dataH.DocumentNumber = objJCC.Job_Card__r.Name;
                 Decimal totalCostLines=0;
                 for(ETT_Job_Card_Close_Lines__c objJCCL : objJCC.Job_Card_Close_Lines__r){
@@ -216,6 +216,6 @@ public class ETT_JobCardCloseTrgHelper {
         update updatedToolsMaster;
         
     }
-    
+  
     
 }
