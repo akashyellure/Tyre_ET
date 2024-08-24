@@ -2,9 +2,9 @@
     doInit : function(component, event, helper) {
         //$A.get('e.force:refreshView').fire();
         //$A.get("e.force:closeQuickAction").fire();
-        var pageRef = component.get("v.pageReference");
-        console.log(JSON.stringify(pageRef));
-        var state = pageRef.state; // state holds any query params
+       var pageRef = component.get("v.pageReference");
+    console.log(JSON.stringify(pageRef));
+       var state = pageRef.state; // state holds any query params
         console.log('state = '+JSON.stringify(state));
         if(state != null ){
             var baseContext = state.inContextOfRef;

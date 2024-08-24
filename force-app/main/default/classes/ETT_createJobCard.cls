@@ -43,7 +43,7 @@ public static void createJobCard(String recordId, String actionVal) {
                         ETT_Priority__c = objIC.ETT_Collection_Card__r.ETT_Priority__c,
                         Collection_Card__c = recordId,
                         Customer__c = objIC.ETT_Account__c,
-                        ETT_Job_type_card__c=objIC.Tyre_Inventory__r.Job_Type__c,
+                       
                         SubInventory__c=objIC.Tyre_Inventory__r.SubInventory__c
 
                     );

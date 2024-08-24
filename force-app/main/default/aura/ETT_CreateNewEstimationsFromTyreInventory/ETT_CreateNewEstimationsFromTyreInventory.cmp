@@ -72,10 +72,14 @@
                     </div>
                     <div class="slds-col slds-size_1-of-6 slds-m-bottom_medium">
                         <lightning:select name="Tyre Type" label="Tyre Type" value="{!v.TyreType}">
-                            <option value="">--Tyre Type--</option>
+                            <!--<option value="">Tyre Type</option>-->
                             <option value="Refurbished">Refurbished</option>
                             <option value="New">New</option>
                             <option value="Scrapped">Scrapped</option>
+                        <aura:if isTrue="{!v.EstimstionsType == 'Internal Private'}">
+                             <option value="Send Back">Send Back</option>
+                        </aura:if>
+                            
                         </lightning:select>
                     </div>
                     <div class="slds-col slds-size_1-of-6 slds-m-bottom_medium">

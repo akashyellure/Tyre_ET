@@ -7,7 +7,7 @@ public class ETT_DeliveryNoteTriggerHandler {
         //Map<Id,list<ETT_Delivery_Line_Item__c>> dnIdVsDnLines = new Map<Id,list<ETT_Delivery_Line_Item__c>>();
         alreadyProcessed.add(dnId);
         system.debug('alreadyProcessed : '+alreadyProcessed);
-        for(ETT_Delivery_Note__c dn : [SELECT Id,Name,SubInventory_Code__c,SubInventory__r.ETT_Operating_Unit_Id__c, (SELECT Id,Name,Status__c,Brand__c,ETT_Brand_Master__c,ETT_Collection_Card__c,ETT_Confirmed_By__c,ETT_Delivery_Date_Time__c,ETT_Delivery_Note__c,ETT_Inspection_Card__c,ETT_Is_Checked__c,ETT_Job_Type__c,ETT_Pattern_Master__c,ETT_Prepared_By__c,ETT_Price__c,ETT_Quantity__c,ETT_Received_Date__c,ETT_Receiver_Designation__c,ETT_Receiver_Name__c,ETT_Tyre_Size__c,ETT_Vehicle_Number__c,Job_type__c,ETT_Delivery_Note__r.SubInventory_Code__c,Tyre_Inventory__r.Item_Code__c FROM Delivery_Line_Items__r) FROM ETT_Delivery_Note__c WHERE Id =: dnId]){
+        for(ETT_Delivery_Note__c dn : [SELECT Id,Name,SubInventory_Code__c,SubInventory__r.ETT_Operating_Unit_Id__c, (SELECT Id,Name,Status__c,Brand__c,ETT_Brand_Master__c,ETT_Collection_Card__c,ETT_Confirmed_By__c,ETT_Delivery_Date_Time__c,ETT_Delivery_Note__c,ETT_Inspection_Card__c,ETT_Is_Checked__c,ETT_Pattern_Master__c,ETT_Prepared_By__c,ETT_Price__c,ETT_Quantity__c,ETT_Received_Date__c,ETT_Receiver_Designation__c,ETT_Receiver_Name__c,ETT_Tyre_Size__c,ETT_Vehicle_Number__c,Job_type__c,ETT_Delivery_Note__r.SubInventory_Code__c,Tyre_Inventory__r.Item_Code__c FROM Delivery_Line_Items__r) FROM ETT_Delivery_Note__c WHERE Id =: dnId]){
             dnIdVsDn.put(dn.Id,dn);
             //dnIdVsDnLines.put(dn.Id,dn.Delivery_Line_Items__r);
         }
@@ -16,7 +16,7 @@ public class ETT_DeliveryNoteTriggerHandler {
         Map<String,list<ETT_InterOrgTransfer_DeliveryNote.Serialnumber_lines_element>> icVsSerLines = new Map<String,list<ETT_InterOrgTransfer_DeliveryNote.Serialnumber_lines_element>>();
         //Set<String> tsmNames = New Set<String>();
         //Map<String,TyreInventoryPriceSettings__c> tsmVsTips = new Map<String,TyreInventoryPriceSettings__c>();
-        for(ETT_Delivery_Line_Item__c dli : [SELECT Id,Name,Brand__c,ETT_Brand_Master__c,ETT_Collection_Card__c,ETT_Confirmed_By__c,ETT_Delivery_Date_Time__c,ETT_Delivery_Note__c,ETT_Inspection_Card__c,ETT_Is_Checked__c,ETT_Job_Type__c,ETT_Pattern_Master__c,ETT_Prepared_By__c,ETT_Price__c,ETT_Quantity__c,ETT_Received_Date__c,ETT_Receiver_Designation__c,ETT_Receiver_Name__c,ETT_Tyre_Size__c,ETT_Vehicle_Number__c,Job_type__c,ETT_Delivery_Note__r.SubInventory_Code__c,Tyre_Inventory__r.Item_Code__c,ETT_Tyre_Size__r.Name,Tyre_Inventory__r.Serial_Number__c FROM ETT_Delivery_Line_Item__c WHERE ETT_Delivery_Note__c =: dnId]){
+        for(ETT_Delivery_Line_Item__c dli : [SELECT Id,Name,Brand__c,ETT_Brand_Master__c,ETT_Collection_Card__c,ETT_Confirmed_By__c,ETT_Delivery_Date_Time__c,ETT_Delivery_Note__c,ETT_Inspection_Card__c,ETT_Is_Checked__c,ETT_Pattern_Master__c,ETT_Prepared_By__c,ETT_Price__c,ETT_Quantity__c,ETT_Received_Date__c,ETT_Receiver_Designation__c,ETT_Receiver_Name__c,ETT_Tyre_Size__c,ETT_Vehicle_Number__c,Job_type__c,ETT_Delivery_Note__r.SubInventory_Code__c,Tyre_Inventory__r.Item_Code__c,ETT_Tyre_Size__r.Name,Tyre_Inventory__r.Serial_Number__c FROM ETT_Delivery_Line_Item__c WHERE ETT_Delivery_Note__c =: dnId]){
             //tsmNames.add(dli.ETT_Tyre_Size__r.Name);
             ETT_InterOrgTransfer_DeliveryNote.Serialnumber_lines_element serLine = New ETT_InterOrgTransfer_DeliveryNote.Serialnumber_lines_element();
             serLine.Serialnumber = dli.Tyre_Inventory__r.Serial_Number__c;
@@ -201,8 +201,8 @@ public class ETT_DeliveryNoteTriggerHandler {
             ETT_Account__r.AccountNumber, ETT_Account__r.Party_Type__c, 
             (SELECT Id, Status__c, Name, ETT_Tyre_size_Integration__c, 
              ETT_Tyre_Size__c, ETT_Quantity__c, ETT_Price__c,Invoice_Description__c ,
-             ETT_Job_Type__c, ETT_Status__c 
-             FROM Delivery_Line_Items__r  WHERE Job_type__c != 'Send Back') 
+             ETT_Job_Type_Inventory__c,Tyre_Type__c,ETT_Status__c 
+             FROM Delivery_Line_Items__r  WHERE Tyre_Type__c != 'Send Back') 
             FROM ETT_Delivery_Note__c 
             WHERE Id = :dnId AND ETT_Account__r.Party_Type__c = 'Customer'
         ];
@@ -216,7 +216,7 @@ public class ETT_DeliveryNoteTriggerHandler {
             ETT_ARInvoiceService.SyncARInvoiceToEBSServiceBPELProcess_pt req = new ETT_ARInvoiceService.SyncARInvoiceToEBSServiceBPELProcess_pt();
             ETT_ARInvoiceOutput.OutputParameters_element response;
             ETT_ARInvoiceOutput.InputParameters_element inputElement = new ETT_ARInvoiceOutput.InputParameters_element();
-            
+           /* 
             for (ETT_Delivery_Note__c objDN : dnList) {
                 ETT_ARInvoiceSchema.INV_HEADER_element dataH = new ETT_ARInvoiceSchema.INV_HEADER_element();
                 List<ETT_ARInvoiceSchema.INV_LINES_element> datalineList = new List<ETT_ARInvoiceSchema.INV_LINES_element>();
@@ -230,19 +230,24 @@ public class ETT_DeliveryNoteTriggerHandler {
                 dataH.Comments = objDN.ETT_Reference__c;
                 
                 // Group and summarize the delivery line items by tyre sizes
-                Map<String, ETT_ARInvoiceSchema.INV_LINES_element> tyreSizeSummaryMap = new Map<String, ETT_ARInvoiceSchema.INV_LINES_element>();
-                
+                Map<String, ETT_ARInvoiceSchema.INV_LINES_element> tyreSummaryMap  = new Map<String, ETT_ARInvoiceSchema.INV_LINES_element>();
+              
                 for (ETT_Delivery_Line_Item__c objDLI : objDN.Delivery_Line_Items__r) {
                     String tyreSize = objDLI.ETT_Tyre_size_Integration__c;
-                   //String statusOfArInvoice = 'SALES'; 
-                   String statusOfArInvoice = objDLI.Invoice_Description__c == 'Own' ? 'SALES' : 'ACCEPTED';
+                    String jobType = objDLI.ETT_Job_Type_Inventory__c;
+                    String tyreType = objDLI.Tyre_Type__c;
+                    String summaryKey = tyreType + '-' + tyreSize + '-' + jobType;
+                    
+                    // Determine the status of the AR Invoice based on Invoice_Description__c
+                    String statusOfArInvoice = objDLI.Invoice_Description__c == 'Own' ? 'Sales' : '';
                     Decimal price = objDLI.ETT_Price__c != null ? objDLI.ETT_Price__c : 0;
-                    System.debug('Selected Item Line' +objDLI);
-                    if (!tyreSizeSummaryMap.containsKey(tyreSize)) {
+                    System.debug('Selected Item Line' + objDLI);
+                
+                    if (!tyreSummaryMap.containsKey(summaryKey)) {
                         ETT_ARInvoiceSchema.INV_LINES_element line = new ETT_ARInvoiceSchema.INV_LINES_element();
-                        line.line_number = tyreSizeSummaryMap.size() + 1;
+                        line.line_number = tyreSummaryMap.size() + 1;
                         line.line_type = 'RET_SVC';
-                        line.Description = tyreSize + '-' + objDLI.ETT_Job_Type__c + '-' + statusOfArInvoice;
+                        line.Description = tyreSize + '-' + statusOfArInvoice +'-' + jobType;
                         line.Quantity = 0;
                         line.Rate = price;
                         line.Amount = 0;
@@ -253,27 +258,116 @@ public class ETT_DeliveryNoteTriggerHandler {
                         line.Location = '311004';
                         line.Department = '94001';
                         line.Project = '000000';
-                        
-                        tyreSizeSummaryMap.put(tyreSize, line);
+                
+                        tyreSummaryMap.put(summaryKey, line);
                     }
-                    
-                    ETT_ARInvoiceSchema.INV_LINES_element summaryLine = tyreSizeSummaryMap.get(tyreSize);
+                system.debug('Data list delivery note'+tyreSummaryMap);
+                    // Update the summary line with quantities and amounts
+                    ETT_ARInvoiceSchema.INV_LINES_element summaryLine = tyreSummaryMap.get(summaryKey);
                     summaryLine.Quantity += objDLI.ETT_Quantity__c != null ? objDLI.ETT_Quantity__c : 1;
                     summaryLine.Amount += price * (objDLI.ETT_Quantity__c != null ? objDLI.ETT_Quantity__c : 1);
                     summaryLine.Tax_Amount += (5.0 / 100) * price * (objDLI.ETT_Quantity__c != null ? objDLI.ETT_Quantity__c : 1);
                 }
-                
-                datalineList.addAll(tyreSizeSummaryMap.values());
+                system.debug('System Value '+tyreSummaryMap.values());
+                // Add all the summarized lines to the dataline list
+                datalineList.addAll(tyreSummaryMap.values());
                 System.debug('datalineList ' + datalineList);
-                
-                
                 ETT_ARInvoiceSchema.LINES_GROUP_element groupElement = new ETT_ARInvoiceSchema.LINES_GROUP_element();
                 groupElement.INV_LINES = datalineList;
                 
                 msg.INV_HEADER = dataH;
                 msg.LINES_GROUP = groupElement;
             }
+            */
+            for (ETT_Delivery_Note__c objDN : dnList) {
+                ETT_ARInvoiceSchema.INV_HEADER_element dataH = new ETT_ARInvoiceSchema.INV_HEADER_element();
+                List<ETT_ARInvoiceSchema.INV_LINES_element> datalineList = new List<ETT_ARInvoiceSchema.INV_LINES_element>();
+                
+                dataH.BatchSource = 'Tyre';
+                dataH.TransactionNumber = objDN.Name;
+                dataH.TransactionDate = objDN.ETT_Date__c == null ? System.now().date() : objDN.ETT_Date__c.date();
+                dataH.TransactionCurrency = 'AED';
+                dataH.CustTrxType = 'TYRE';
+                dataH.BillToCustomerNumber = objDN.ETT_Account__r.AccountNumber;
+                dataH.Comments = objDN.ETT_Reference__c;
+                
+                // Group the line items first
+                Map<String, ETT_ARInvoiceSchema.INV_LINES_element> repairLines = new Map<String, ETT_ARInvoiceSchema.INV_LINES_element>();
+                Map<String, ETT_ARInvoiceSchema.INV_LINES_element> retreadLines = new Map<String, ETT_ARInvoiceSchema.INV_LINES_element>();
+                
+                for (ETT_Delivery_Line_Item__c objDLI : objDN.Delivery_Line_Items__r) {
+                    String tyreSize = objDLI.ETT_Tyre_size_Integration__c;
+                    String jobType = objDLI.ETT_Job_Type_Inventory__c;
+                    String tyreType = objDLI.Tyre_Type__c;
+                    String summaryKey = tyreSize + '--' + jobType;
             
+                    // Determine the status of the AR Invoice based on Invoice_Description__c
+                    String statusOfArInvoice = objDLI.Invoice_Description__c == 'Own' ? 'Sales' : '';
+                    Decimal price = objDLI.ETT_Price__c != null ? objDLI.ETT_Price__c : 0;
+                    
+                    // Separate Repair and Retread lines
+                    if (jobType == 'Repair') {
+                        if (!repairLines.containsKey(summaryKey)) {
+                            ETT_ARInvoiceSchema.INV_LINES_element line = new ETT_ARInvoiceSchema.INV_LINES_element();
+                            line.line_number = repairLines.size() + 1;
+                            line.line_type = 'RET_SVC';
+                            line.Description = summaryKey;
+                            line.Quantity = 0;
+                            line.Rate = price;
+                            line.Amount = 0;
+                            line.Tax_Code = 'VAT AR RECOVER STD@5%';
+                            line.Tax_Rate = 5;
+                            line.Tax_Amount = 0;
+                            line.Activity_Center = '213002';
+                            line.Location = '311004';
+                            line.Department = '94001';
+                            line.Project = '000000';
+                            
+                            repairLines.put(summaryKey, line);
+                        }
+            
+                        ETT_ARInvoiceSchema.INV_LINES_element summaryLine = repairLines.get(summaryKey);
+                        summaryLine.Quantity += objDLI.ETT_Quantity__c != null ? objDLI.ETT_Quantity__c : 1;
+                        summaryLine.Amount += price * (objDLI.ETT_Quantity__c != null ? objDLI.ETT_Quantity__c : 1);
+                        summaryLine.Tax_Amount += (5.0 / 100) * price * (objDLI.ETT_Quantity__c != null ? objDLI.ETT_Quantity__c : 1);
+                    } else if (jobType == 'Retred') {
+                        if (!retreadLines.containsKey(summaryKey)) {
+                            ETT_ARInvoiceSchema.INV_LINES_element line = new ETT_ARInvoiceSchema.INV_LINES_element();
+                            line.line_number = retreadLines.size() + 1;
+                            line.line_type = 'RET_SVC';
+                            line.Description = summaryKey;
+                            line.Quantity = 0;
+                            line.Rate = price;
+                            line.Amount = 0;
+                            line.Tax_Code = 'VAT AR RECOVER STD@5%';
+                            line.Tax_Rate = 5;
+                            line.Tax_Amount = 0;
+                            line.Activity_Center = '213002';
+                            line.Location = '311004';
+                            line.Department = '94001';
+                            line.Project = '000000';
+                            
+                            retreadLines.put(summaryKey, line);
+                        }
+            
+                        ETT_ARInvoiceSchema.INV_LINES_element summaryLine = retreadLines.get(summaryKey);
+                        summaryLine.Quantity += objDLI.ETT_Quantity__c != null ? objDLI.ETT_Quantity__c : 1;
+                        summaryLine.Amount += price * (objDLI.ETT_Quantity__c != null ? objDLI.ETT_Quantity__c : 1);
+                        summaryLine.Tax_Amount += (5.0 / 100) * price * (objDLI.ETT_Quantity__c != null ? objDLI.ETT_Quantity__c : 1);
+                    }
+                }
+            
+                // Combine Repair lines followed by Retread lines
+                datalineList.addAll(repairLines.values());
+                datalineList.addAll(retreadLines.values());
+                System.debug('datalineList ' + datalineList);
+            
+                ETT_ARInvoiceSchema.LINES_GROUP_element groupElement = new ETT_ARInvoiceSchema.LINES_GROUP_element();
+                groupElement.INV_LINES = datalineList;
+                
+                msg.INV_HEADER = dataH;
+                msg.LINES_GROUP = groupElement;
+            }
             try {
                 response = req.process(msg);
             } catch (Exception ex) {

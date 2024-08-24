@@ -135,7 +135,7 @@
                                 <option value="">--Tyre Type--</option>
                                 <option value="Refurbished">Refurbished</option>
                                 <option value="New">New</option>
-                                 <option value="Scrapped">Scrapped</option>
+                                <option value="Scrapped">Scrapped</option>
                             </lightning:select>
                         </div> 
                     </div>

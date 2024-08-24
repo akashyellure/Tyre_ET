@@ -53,18 +53,6 @@ public class ETT_DeliveryNote_AccCtrl {
                     inspectionBuffingMap.put(objJCLI.Job_Card__r.ETT_Inspection_Card__c, objJCLI.ThreadPattern__r.Name);
                 }
             }
-            
- System.debug('ThredPattern222222222'+ inspectionBuffingMap);            
-            /*
-
-for(ETT_Job_Card_Line_Item__c objJCLI : [SELECT id, ETT_Job_Card__r.ETT_Inspection_Card__c, Desired_Tread_Pattern__c FROM ETT_Job_Card_Line_Item__c where ETT_Job_Card__r.ETT_Inspection_Card__c IN: inspectionCardList AND RecordType.Name='Buffing' AND Sequence__c=7 order by ETT_Revision_Number__c DESC]){
-if(!inspectionBuffingMap.containsKey(objJCLI.ETT_Job_Card__r.ETT_Inspection_Card__c)){
-inspectionBuffingMap.put(objJCLI.ETT_Job_Card__r.ETT_Inspection_Card__c,objJCLI.Desired_Tread_Pattern__c);   
-}
-}
-*/
-            
-            
             List<InspectionCardWrapper> wrapInspectionCardList = new List<InspectionCardWrapper>();
             
             for(ETT_Inspection_Card__c objIC: inspectionCardList){
@@ -115,19 +103,28 @@ inspectionBuffingMap.put(objJCLI.ETT_Job_Card__r.ETT_Inspection_Card__c,objJCLI.
         
     }
     
+    //Create Delivery Note From Account Level
     @auraEnabled
     public static string createDeliveryNote(ETT_Delivery_Note__c dn,list<ETT_Delivery_Line_Item__c> dnlines){
         system.debug('dn==== :'+dn);
         Savepoint sp = Database.setSavepoint();
         
         try{
+            dn.ETT_Casing__c='Customer';
+            dn.DN_Status__c = 'New';
+            dn.ETT_Date__c = System.now();
+            dn.ETT_Job_Type__c = 'Accepted';
             
             insert dn;
-            
+           
             for(ETT_Delivery_Line_Item__c dnl : dnlines){
                 dnl.ETT_Delivery_Note__c = dn.Id;
             }
             insert dnlines;
+
+        
+            
+           
             
         }catch(Exception e) {
             system.debug('---ca'+e.getCause());

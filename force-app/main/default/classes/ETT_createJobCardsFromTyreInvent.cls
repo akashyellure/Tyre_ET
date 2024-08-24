@@ -21,13 +21,12 @@ public class ETT_createJobCardsFromTyreInvent {
         List<ETT_Collection_Card__c> collectionCardsToUpdate = new List<ETT_Collection_Card__c>();
         try{
             
-            List<ETT_Inspection_Card__c> lstInspectionCards = [SELECT Id,Recordtype.name,Tyre_Inventory__c, ETT_Collection_Card__c, ETT_Status__c, (select Id from Job_Cards__r)
+            List<ETT_Inspection_Card__c> lstInspectionCards = [SELECT Id,Recordtype.name,Tyre_Inventory__c, ETT_Collection_Card__c, ETT_Status__c, (select Id from Job_Cards__r),(SELECT Id, Job_Type__c,SubInventory__c FROM Tyre_Inventory__r)
                                                                FROM ETT_Inspection_Card__c 
                                                                where ETT_Status__c = 'Accept' AND Tyre_Inventory__c=:selectedTyres];
              system.debug('---'+lstInspectionCards);
             for(ETT_Inspection_Card__c objIC:lstInspectionCards){
                 if(objIC.Job_Cards__r.size()==0){
-                    system.debug('entered');
                     ETT_Job_Card__c objJobCard = new ETT_Job_Card__c();
                     objJobCard.ETT_Inspection_Card__c = objIC.Id;
                     //include conditional values to stage order based on tyre record type (repair or retreading), For repair few stages are not applicable
@@ -43,6 +42,7 @@ public class ETT_createJobCardsFromTyreInvent {
                     objJobCard.ETT_Priority__c='Medium';
                     objJobCard.Customer__c = customerId;
                     objJobCard.Collection_Card__c=objIC.ETT_Collection_Card__c;
+                   // objJobCard.ETT_Job_type_card__c=objIC.Tyre_Inventory__r.Job_Type__c;
                     listOfJobCards.add(objJobCard);
                     if (objIC.ETT_Collection_Card__c != null) {
                         ETT_Collection_Card__c collectionCard = new ETT_Collection_Card__c(
