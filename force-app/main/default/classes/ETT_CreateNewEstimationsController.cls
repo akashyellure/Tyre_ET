@@ -115,13 +115,8 @@ public class ETT_CreateNewEstimationsController {
     */
     @auraEnabled 
 public static list<TyreInventoryWrapper> getTyreDetails(String serialVal, String tyreSizeVal, String brandVal, String patternVal, String tyreType, String countryVal, String customerVal, string threadPattern, string subInventoryIdval) {
-    System.debug('countryVal ' + countryVal);
-    System.debug('TyreType ' + tyreType);
-    System.debug('customerVal ' + customerVal);
-    System.debug('SubInventoryID ' + subInventoryIdval);
-
   
-     String query = 'SELECT Id, Party_Type__c, SubInventory__c, Tyre_Type__c, Unit_Price__c, Name, ETT_Tyre_Size_Master__r.Name, Serial_Number__c, ETT_Brand__r.Name, ETT_Pattern__r.Name, ETT_Country__r.Name, ETT_Collection_Card__r.Name, ETT_Account__r.Name ' +
+     String query = 'SELECT Id, Party_Type__c, Job_Type__c,SubInventory__c, Tyre_Type__c, Unit_Price__c, Name, ETT_Tyre_Size_Master__r.Name, Serial_Number__c, ETT_Brand__r.Name, ETT_Pattern__r.Name, ETT_Country__r.Name, ETT_Collection_Card__r.Name, ETT_Account__r.Name ' +
                    'FROM ETT_Tyre_Inventory__c ' +
                    'WHERE Id NOT IN (SELECT Tyre_Inventory__c FROM Tyre_Estimation_Line_Item__c) ' +
                    'AND ((Party_Type__c = \'Supplier\' OR Party_Type__c = \'Internal\') OR (Party_Type__c = \'Internal Private\' OR Party_Type__c = \'Null\'))';
@@ -185,7 +180,7 @@ public static list<TyreInventoryWrapper> getTyreDetails(String serialVal, String
    // Map<String, TyreInventoryPriceSettings__c> internalPrivateTyreInventoryPSMap = new Map<String, TyreInventoryPriceSettings__c>();
     Map<String, TyreInventoryPriceSettings__c> customerTyreInventoryPSMap = new Map<String, TyreInventoryPriceSettings__c>();
 
-    for (TyreInventoryPriceSettings__c tyreInventory : [SELECT Name, Party_Type__c, Party_code__c, Selling_Price__c FROM TyreInventoryPriceSettings__c]) {
+    for (TyreInventoryPriceSettings__c tyreInventory : [SELECT Name, Party_Type__c, Party_code__c,Send_Back_Price__c,Retread_Price__c,Repair_Price__c, Selling_Price__c FROM TyreInventoryPriceSettings__c]) {
         if (tyreInventory.Party_Type__c == 'Internal') {
             internalTyreInventoryPSMap.put(tyreInventory.Name, tyreInventory);
         } else if (tyreInventory.Party_Type__c == 'Internal Private') {
@@ -195,10 +190,12 @@ public static list<TyreInventoryWrapper> getTyreDetails(String serialVal, String
         }
     }
      System.debug('query '+query);
+     System.debug('query@@@@ '+internalTyreInventoryPSMap);
     // Constructing final query with conditions
     List<ETT_Tyre_Inventory__c> tyreList;
     if (subInventoryIdval != null && subInventoryIdval != '') {
-        tyreList = Database.query(query + ' AND (Party_Type__c != \'Internal Private\' OR SubInventory__c = :subInventoryIdval) LIMIT 49000');
+        tyreList = Database.query(query + ' LIMIT 49000');
+      //  tyreList = Database.query(query + ' AND (Party_Type__c != \'Internal Private\' OR SubInventory__c = :subInventoryIdval) LIMIT 49000');
     } else {
         tyreList = Database.query(query + ' LIMIT 49000');
     }
@@ -218,12 +215,20 @@ public static list<TyreInventoryWrapper> getTyreDetails(String serialVal, String
                 System.debug('Selling Price (Internal): ' + sellingPrice);
                 wrapTyreInventoryList.add(new TyreInventoryWrapper(tyre, sellingPrice));
             }
-        } else if (tyre.Party_Type__c == 'Internal Private' && tyre.SubInventory__c == subInventoryIdval && tyre.Party_Type__c!='Internal') {
+        } else if (tyre.Party_Type__c == 'Internal Private' && tyre.SubInventory__c == subInventoryIdval && tyre.Party_Type__c!='Internal' && tyre.Tyre_Type__c!='Send Back') {
             if (internalTyreInventoryPSMap.containsKey(tyre.ETT_Tyre_Size_Master__r.Name)) {
-                Decimal sellingPrice = internalTyreInventoryPSMap.get(tyre.ETT_Tyre_Size_Master__r.Name).Selling_Price__c;
-                 System.debug('Selling Price (Internal Private): ' + sellingPrice);
-                wrapTyreInventoryList.add(new TyreInventoryWrapper(tyre, sellingPrice));
+               // Decimal sellingPrice = internalTyreInventoryPSMap.get(tyre.ETT_Tyre_Size_Master__r.Name).Selling_Price__c;
+                Decimal repairVSretredPrice;
+                if(tyre.Job_Type__c=='Retread'){
+                    repairVSretredPrice = internalTyreInventoryPSMap.get(tyre.ETT_Tyre_Size_Master__r.Name).Retread_Price__c; // Assume you have Retread_Price__c field
+                }else if(tyre.Job_Type__c=='Repair'){
+                    repairVSretredPrice = internalTyreInventoryPSMap.get(tyre.ETT_Tyre_Size_Master__r.Name).Repair_Price__c; 
+
+                }
+                 System.debug('Selling Price (Internal Private): ' + repairVSretredPrice);
+                wrapTyreInventoryList.add(new TyreInventoryWrapper(tyre, repairVSretredPrice));
             }
+
         } else if (customerVal != null && customerVal != '' && (tyre.Party_Type__c == 'Customer' || tyre.Party_Type__c == 'Internal' || tyre.Party_Type__c=='Supplier')) {
             if (customerTyreInventoryPSMap.containsKey(mapKey)) {
                 Decimal sellingPrice = customerTyreInventoryPSMap.get(mapKey).Selling_Price__c;
@@ -231,8 +236,12 @@ public static list<TyreInventoryWrapper> getTyreDetails(String serialVal, String
                 wrapTyreInventoryList.add(new TyreInventoryWrapper(tyre, sellingPrice));
             }
         }
-        else{
-             System.debug('Condition not met for tyre : ' + tyre);
+        else if(tyre.Party_Type__c == 'Internal Private' && internalTyreInventoryPSMap.containsKey(tyre.ETT_Tyre_Size_Master__r.Name) && tyre.Tyre_Type__c=='Send Back'){
+            Decimal sendBackPrice = internalTyreInventoryPSMap.get(tyre.ETT_Tyre_Size_Master__r.Name).Send_Back_Price__c;
+            wrapTyreInventoryList.add(new TyreInventoryWrapper(tyre, sendBackPrice));
+            System.debug('send back Price ( Internal Private): ' + sendBackPrice);
+        }else{
+            System.debug('No to Matched');
         }
     }
     System.debug('Wrap Tyre Inventory List: ' + wrapTyreInventoryList);

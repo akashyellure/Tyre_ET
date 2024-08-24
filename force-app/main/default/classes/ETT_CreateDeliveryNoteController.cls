@@ -4,7 +4,7 @@ public class ETT_CreateDeliveryNoteController {
     public static list<Tyre_Estimation_Line_Item__c> getTyreDetails(String serialVal, String tyreSizeVal, String brandVal, String patternVal, String tyreType, String countryVal,String customerId, String subInventoryId, String tyreEstimationId){
         System.debug('countryVal '+countryVal);
         System.debug('TyreType '+TyreType);
-        String query='Select Id,Unit_Price__c,Tyre_Estimation__r.Name,Tyre_Inventory__c,Tyre_Inventory__r.ETT_Tyre_Size_Master__r.Name,Tyre_Inventory__r.ETT_Pattern__r.Name,Tyre_Inventory__r.ETT_Brand__r.Name,Tyre_Inventory__r.ETT_Country__r.Name,Tyre_Inventory__r.Tyre_Type__c,Tyre_Inventory__r.Serial_Number__c,Collection_Card_No__r.Name from Tyre_Estimation_Line_Item__c where Tyre_Inventory__c NOT IN (SELECT Tyre_Inventory__c FROM ETT_Delivery_Line_Item__c) AND ((Tyre_Inventory__r.Party_Type__c=\'Supplier\' OR Tyre_Inventory__r.Party_Type__c=\'Internal\') OR (Tyre_Inventory__r.Party_Type__c=\'Internal Private\' OR Tyre_Inventory__r.Party_Type__c=\'Null\'))';
+        String query='Select Id,Unit_Price__c,Tyre_Estimation__r.SubInventory__c,Tyre_Estimation__r.Name,Tyre_Inventory__c,Tyre_Inventory__r.ETT_Tyre_Size_Master__r.Name,Tyre_Inventory__r.ETT_Pattern__r.Name,Tyre_Inventory__r.ETT_Brand__r.Name,Tyre_Inventory__r.ETT_Country__r.Name,Tyre_Inventory__r.Tyre_Type__c,Tyre_Inventory__r.Serial_Number__c,Collection_Card_No__r.Name from Tyre_Estimation_Line_Item__c where Tyre_Inventory__c NOT IN (SELECT Tyre_Inventory__c FROM ETT_Delivery_Line_Item__c) AND ((Tyre_Inventory__r.Party_Type__c=\'Supplier\' OR Tyre_Inventory__r.Party_Type__c=\'Internal\') OR (Tyre_Inventory__r.Party_Type__c=\'Internal Private\' OR Tyre_Inventory__r.Party_Type__c=\'Null\'))';
         //return [SELECT Id,Tyre_Type__c,Unit_Price__c,Name,ETT_Tyre_Size_Master__r.Name,Serial_Number__c,ETT_Brand__r.Name,ETT_Pattern__r.Name,ETT_Country__r.Name,ETT_Collection_Card__r.Name,ETT_Account__r.Name from ETT_Tyre_Inventory__c where Id IN (SELECT Tyre_Inventory__c FROM Tyre_Estimation_Line_Item__c) AND (Party_Type__c='Supplier' OR Party_Type__c='Internal Project') LIMIT 49000];
         if(customerId != null && customerId != ''){
             query += 'AND Tyre_Estimation__r.Account__c =: customerId ';
@@ -34,7 +34,7 @@ query += ') ';
         if(tyreType != null && tyreType != ''){
             query += 'AND Tyre_Inventory__r.Tyre_Type__c =: tyreType ';
         }else{
-            query += 'AND (Tyre_Inventory__r.Tyre_Type__c = \'Refurbished\' OR Tyre_Inventory__r.Tyre_Type__c  = \'New\' OR Tyre_Inventory__r.Tyre_Type__c  = \'Scrapped\') ';
+            query += 'AND (Tyre_Inventory__r.Tyre_Type__c = \'Refurbished\' OR Tyre_Inventory__r.Tyre_Type__c  = \'New\' OR Tyre_Inventory__r.Tyre_Type__c  = \'Scrapped\' OR Tyre_Inventory__r.Tyre_Type__c = \'Send Back\' ) ';
         }
         if(countryVal != null && countryVal != ''){
             query += 'AND Tyre_Inventory__r.ETT_Country__r.Name =: countryVal ';
@@ -107,7 +107,7 @@ query += ') ';
                     objDeliveryLineItem.Tyre_Inventory__c = objTELI.Tyre_Inventory__c;
                     objDeliveryLineItem.ETT_Delivery_Note__c = deliveryNoteObj.Id;
                     objDeliveryLineItem.ETT_Collection_Card__c = objTELI.Collection_Card_No__c;
-                    objDeliveryLineItem.ETT_Job_Type__c=objTELI.Tyre_Inventory__r.Tyre_Type__c;
+                    objDeliveryLineItem.ETT_Job_Type__c=objTELI.Tyre_Inventory__r.Job_Type__c;
                     objDeliveryLineItem.ETT_Price__c = objTELI.Unit_Price__c; // Set the price field
 
                     

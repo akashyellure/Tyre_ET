@@ -460,15 +460,7 @@ public class ETT_TyreInspectionCardController {
             }
             
         }
-        /*try{
-List<ETT_Tyre_Rejection_Line_Item__c> lstDeleteOldTyres = [SELECT Id,Name,ETT_Good_Condition__c,ETT_Inspection_Card__c,(select Id,Name,ETT_Status__c from Tyre_Rejection_Sub_Line_Items__r) 
-FROM ETT_Tyre_Rejection_Line_Item__c where ETT_Inspection_Card__c=:objInsepctionCard.Id];
-if(lstDeleteOldTyres!=null && lstDeleteOldTyres.size()>0){
-delete lstDeleteOldTyres;	                    
-}
-}catch(Exception ex){
-system.debug('****Exception ****'+ex.getMessage());
-}*/
+
         system.debug('*****lstTyreRejectionLineItem***'+lstTyreRejectionLineItem);
         if(lstTyreRejectionLineItem!=null && lstTyreRejectionLineItem.size()>0){
             try{
@@ -620,55 +612,7 @@ system.debug('****Exception ****'+ex.getMessage());
             system.debug('****lstContentVersions****'+lstContentVersions.size());
             system.debug('****lstExistingFileWrapper***'+lstExistingFileWrapper);
             system.debug('****lstExistingFileWrapper***'+lstExistingFileWrapper.size());
-            /*if((objInsepctionCard.ETT_Status__c=='Accept' || objInsepctionCard.ETT_Status__c=='Send Back') &&  partyType=='Supplier'){
-list<ETT_Tyre_Inventory__c> lstTyreInventory = [select Id,RecordTypeId from ETT_Tyre_Inventory__c
-where ETT_Tyre_Inspection_Card__c=:objInsepctionCard.Id];
-list<ETT_Pricing_Information__c> lstPricingInfo = [select Id,ETT_Purchase_Price__c,ETT_Brand__c,ETT_Country_of_Origin__c,
-ETT_Pattern__c,ETT_Price__r.ETT_Party_Name__c,
-ETT_Minimum_Price__c,ETT_Maximum_Price__c,ETT_Tyre_Size__c
-from ETT_Pricing_Information__c where ETT_Price__r.ETT_Party_Name__c=:
-objInsepctionCard.ETT_Account__c and ETT_Brand__c=:objInsepctionCard.ETT_Brand__c
-and ETT_Country_of_Origin__c=:objInsepctionCard.ETT_Country__c and 
-ETT_Pattern__c=:objInsepctionCard.ETT_Pattern__c and ETT_Tyre_Size__c=:objInsepctionCard.ETT_Tyre_Size__c
-];
-if(lstTyreInventory!=null && lstTyreInventory.size()>0){
-lstTyreInventory[0].RecordTypeId = Schema.SObjectType.ETT_Tyre_Inventory__c.getRecordTypeInfosByName().get('ETT_Inspected_Inventory').getRecordTypeId();
-lstTyreInventory[0].ETT_Tyre_Inspection_Card__c = objInsepctionCard.Id;
-try{
-update lstTyreInventory;
-}Catch(Exception ex){
-system.debug('***Exception cause ****'+ex.getMessage());
-}
 
-}
-
-
-
-/* if(lstPricingInfo!=null && lstPricingInfo.size()>0){
-ETT_Estimate_Quotation__c objEstimation = new ETT_Estimate_Quotation__c();
-objEstimation.ETT_Min_Range__c = lstPricingInfo[0].ETT_Minimum_Price__c;
-objEstimation.ETT_Max_Range__c = lstPricingInfo[0].ETT_Maximum_Price__c;
-objEstimation.ETT_Account__c = lstPricingInfo[0].ETT_Price__r.ETT_Party_Name__c;
-objEstimation.ETT_Tyre_Inspection_Card__c = objInsepctionCard.Id;
-objEstimation.ETT_Brand__c = lstPricingInfo[0].ETT_Brand__c;
-objEstimation.ETT_Country_of_Origin__c = lstPricingInfo[0].ETT_Country_of_Origin__c;
-objEstimation.ETT_Pattern__c = lstPricingInfo[0].ETT_Pattern__c;
-objEstimation.ETT_Tyre_Size__c = lstPricingInfo[0].ETT_Tyre_Size__c;
-objEstimation.ETT_Work_Order_Line_Item__c = objInsepctionCard.ETT_Collection_Line_Item__c;
-objEstimation.ETT_Quantity__c = 1;
-if(objInsepctionCard.ETT_Status__c=='Accept')
-objEstimation.ETT_Price__c = lstPricingInfo[0].ETT_Purchase_Price__c;
-else if(objInsepctionCard.ETT_Status__c=='Send Back'){
-objEstimation.ETT_Price__c = 0;
-}
-try
-{
-insert objEstimation;
-}  Catch(Exception ex){
-system.debug('***Exception cause ****'+ex.getMessage()); 
-}
-}*/
-            //}
             
         }  
         
@@ -716,19 +660,7 @@ system.debug('***Exception cause ****'+ex.getMessage());
                 
                 
                 
-                
-                /*Quotation code this added in inpstection card releted qoutation
-                ETT_Quotation__c objQuotation = new ETT_Quotation__c();
-                objQuotation.ETT_Tyre_Inspection_Card__c = objInspectionDetail.Id;
-                try{
-                    insert objQuotation;  
-                }
-                catch(Exception ex){
-                    System.debug('Exception in quotation creation: '+ex.getMessage());
-                }
-
-                Quotation code for service stop
-                */
+     
                 
                 
                 
@@ -873,18 +805,7 @@ system.debug('***Exception cause ****'+ex.getMessage());
                 
                 ETT_Inspection_Card__c objIC = [SELECT Id, RecordTypeId,RecordType.Name FROM ETT_Inspection_Card__c where Id=:objInspectionDetail.Id];
                 if(objIC.RecordType.Name == 'Tyre - Refurbishing Services'){
-                    /*ETT_Job_Card__c objJobCard = new ETT_Job_Card__c();
-objJobCard.ETT_Inspection_Card__c = objInspectionDetail.Id;
-objJobCard.RecordTypeId = Schema.SObjectType.ETT_Job_Card__c.getRecordTypeInfosByName().get('Initial Inspection').getRecordTypeId();
-objJobCard.ETT_Job_Stages__c = 'Initial Inspection';
-objJobCard.ETT_Stages__c = 'Initial Inspection';
-insert objJobCard;
-
-ETT_Tyre_Inventory__c objTyreInventory = new ETT_Tyre_Inventory__c();
-objTyreInventory.RecordTypeId = Schema.SObjectType.ETT_Tyre_Inventory__c.getRecordTypeInfosByName().get('WIP Inventory').getRecordTypeId();
-objTyreInventory.ETT_Job_Card__c = objJobCard.Id;
-objTyreInventory.ETT_Inventory_Status__c = 'WIP';
-insert objTyreInventory;*/
+                    
                     //added by shweta on 8th Sept 2020 STOP       
                 }         
             }

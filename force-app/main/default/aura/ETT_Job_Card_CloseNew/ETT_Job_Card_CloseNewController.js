@@ -47,7 +47,9 @@
         //alert('R'+JSON.stringify(rejection));
         console.log('rejection '+JSON.stringify(rejection));
     },
+    /*
     employeemasterChange :function(component, event, helper) {
+        debugger;
         var action = component.get('c.getEmployeeMasterDetails');
         var employeeId = event.getSource().get("v.value")[0];
         let indexId = event.getSource().get("v.id");
@@ -67,10 +69,10 @@
                 for(var i=0;i<newJobCardCloseEmployees.length;i++){
                     
                     if(component.get('v.selectedJobProcss')==newJobCardCloseEmployees[i].ETT_Job_Type__c){
-                        //alert('newJobCardCloseEmployees'+newJobCardCloseEmployees[i].ETT_Job_Type__c);
-                        //alert('selected'+component.get('v.selectedJobProcss'));
-                        //alert('index'+indexId);
-                        //alert('counter'+counter);
+                       //alert('newJobCardCloseEmployees'+newJobCardCloseEmployees[i].ETT_Job_Type__c);
+                       // alert('selected'+component.get('v.selectedJobProcss'));
+                        alert('index'+indexId);
+                        alert('counter'+counter);
                         if(indexId==counter)
                             newJobCardCloseEmployees[i].ETT_Employee_Name__c= response.getReturnValue().Employee_Name__c;
                         
@@ -87,6 +89,50 @@
         $A.enqueueAction(action);  
         
     },
+    */
+    
+        employeemasterChange: function(component, event, helper) {
+            debugger;
+            var action = component.get('c.getEmployeeMasterDetails');
+            var employeeId = event.getSource().get("v.value")[0];
+            console.log('employee id'+employeeId);
+            var index = event.getSource().get("v.id");
+            console.log('index'+index); // Get index from the data attribute
+    
+            action.setParams({
+                recordId: employeeId
+            });
+    
+            action.setCallback(this, function(response) {
+                var state = response.getState();
+    
+                if (state === "SUCCESS") {
+                    var newJobCardCloseEmployees = component.get('v.newJobCardCloseEmployees');
+                    console.log(JSON.stringify(newJobCardCloseEmployees));
+                    var selectedJobType = component.get('v.selectedJobProcss');
+                    var updatedEmployeeName = response.getReturnValue().Employee_Name__c;
+    
+                    // Map employees to the corresponding job type
+                    for (let i = 0; i < newJobCardCloseEmployees.length; i++) {
+                        if (i == index && newJobCardCloseEmployees[i].ETT_Job_Type__c === selectedJobType) {
+                            newJobCardCloseEmployees[i].ETT_Employee_Name__c = updatedEmployeeName;
+                            break;
+                        }
+                    }
+    
+                    component.set('v.newJobCardCloseEmployees', newJobCardCloseEmployees);
+                    console.table(JSON.stringify(newJobCardCloseEmployees));
+                } else {
+                    console.error('Failed to retrieve employee details: ' + response.getError());
+                }
+            });
+    
+            $A.enqueueAction(action);
+        },
+
+    
+
+
     getJobCardDetails :function(component, event, helper) {
         
         var action = component.get('c.getJobCardRealtedDetails');
@@ -393,140 +439,40 @@
         
         component.set("v.newJobCardCloseEmployees",removeList);
     },
-   /* handleSubmit : function(component, event, helper) {
-        debugger;
-        component.set("v.isLoading", true);
-        var closeDate = component.get("v.closeDate");
-        var jobinfo = component.get("v.jobCardInfo");
-        var prodstatus = component.get("v.ProdtnStatus");
-        var rejection = component.get("v.jccRejection");
-        var jobCardId = component.get("v.jobCardId");
-        var jsonValues = Object.values(rejection);
-        var newJobCardCloseLines = component.get("v.newJobCardCloseLines");
-        var threadPatternField = component.find("threadPatternField").get("v.value");
-        console.log(JSON.stringify(newJobCardCloseLines));
-        console.log('newJobCardCloseLines:', newJobCardCloseLines);
-        var hasError = false;
-        var errorMessage = "";
-        
-        var allfalse = jsonValues.some(function(value) {
-            return value === true;
-        });
-
-         
-        
-        // Basic validations
-        if (!jobCardId) {
-            
-            errorMessage = "Please select a job card";
-            hasError = true;
-        } 
-        else if (threadPatternField === 'undefined') {
-            errorMessage = "Thread Pattern is required.";
-            hasError = true;
-        }else if (jobinfo.Job_Card_Status__c === 'Closed') {
-          
-            errorMessage = "Job card status should not be closed";
-            hasError = true;
-        } else if (jobinfo.Customer_Type__c === 'Internal' && prodstatus === 'Send Back') {
-           
-            errorMessage = "Status should not be Send Back for Internal party type";
-            hasError = true;
-        } else if (!closeDate) {
-             
-            errorMessage = "Close Date is required";
-            hasError = true;
-        } else if (!prodstatus || prodstatus === 'undefined') {
-            errorMessage = "Production Status is required";
-            hasError = true;
-        } else if (!allfalse && jobinfo.Customer_Type__c === 'Supplier' && (prodstatus === 'Send Back' || prodstatus === 'Scrapped')) {
-            errorMessage = "Rejection Analysis Should not be blank, Please Select any one Field";
-            hasError = true;
-             
-        }else if (!allfalse && jobinfo.Customer_Type__c === 'Internal' && (prodstatus === 'Send Back' || prodstatus === 'Scrapped')) {
-            errorMessage = "Rejection Analysis Should not be blank, Please Select any one Field";
-            hasError = true;
-             
-        }
-        else if (!allfalse && jobinfo.Customer_Type__c === 'Internal Private' && (prodstatus === 'Send Back' || prodstatus === 'Scrapped')) {
-            errorMessage = "Rejection Analysis Should not be blank, Please Select any one Field";
-            hasError = true;
-             
-        }
-        else if (!allfalse && jobinfo.Customer_Type__c === 'Customer' && (prodstatus === 'Send Back' || prodstatus === 'Scrapped')) {
-            errorMessage = "Rejection Analysis Should not be blank, Please Select any one Field";
-            hasError = true;
-             
-        }
-        else if (prodstatus === 'Produced' || prodstatus === 'In Progress') {
-            const hasMaterial = newJobCardCloseLines.some(line => line.Item_Name__c);
-            if (!hasMaterial) {
-                errorMessage = "At least one material is required when Production Status is 'Produced'.";
-                hasError = true;
-            }
-    
-            const issuedQuantityValid = newJobCardCloseLines.some(line => line.Issued_Quantity__c > 0);
-            if (!issuedQuantityValid) {
-                errorMessage = "Matrial quantity should not be negative or Empty.";
-                hasError = true;
-            }
-    
-            newJobCardCloseLines.forEach(line => {
-                if (line.Issued_Quantity__c > line.Factory_Stock__c) {
-                    errorMessage = "Issue quantity should not be more than factory stock.";
-                    hasError = true;
-                }
-            });
-        }
-
-    // Additional validation for threadPatternField
-    
-        
-        if (hasError) {
-              component.set("v.isLoading", false);
-            var toastEvent = $A.get("e.force:showToast");
-            toastEvent.setParams({
-                "type": "error",
-                "message": errorMessage
-            });
-            toastEvent.fire();
-            
-        } else {
-            component.find('JobCardCloseForm').submit();
-         
-          
-        }
-    },
-    */
+   
     
         handleSubmit: function(component, event, helper) {
             debugger;
-            
+            event.preventDefault();
             component.set("v.isLoading", true);
             var closeDate = component.get("v.closeDate");
             var jobinfo = component.get("v.jobCardInfo");
             var prodstatus = component.get("v.ProdtnStatus");
             var rejection = component.get("v.jccRejection");
             var jobCardId = component.get("v.jobCardId");
-            //var isValid = helper.validateFields(component, event, helper);
-          
+            var listofEmployee = component.get("v.newJobCardCloseEmployees");
+            var curingValue = component.get("v.curingValue");
+            var curingRound = component.get("v.curingRound");
+            var curingstartTime = component.get("v.curingstartTime");
+            var curingendTime = component.get("v.curingendTime");
+            var curingChamber = component.get("v.curingChamber");
+            //var curingTemp = component.get("v.jobCardInfo.ETT_Curing_Temperature__c");
             var jsonValues = Object.values(rejection);
             var newJobCardCloseLines = component.get("v.newJobCardCloseLines");
             var threadPatternField = component.find("threadPatternField").get("v.value");
-            
-           // console.log(JSON.stringify(newJobCardCloseLines));
-          
+            //console.log(JSON.stringify(newJobCardCloseLines));
+           // console.log('newJobCardCloseLines:', newJobCardCloseLines);
             var allfalse = jsonValues.some(function(value) {
                 return value === true;
             });
-    
+
+           
             // Basic validations
             if (!jobCardId) {
                 helper.showErrorMessage(component, "Please select a job card");
                 return;
             } 
 
-          
             if (jobinfo.Job_Card_Status__c === 'Closed') {
                 helper.showErrorMessage(component, "Job card status should not be closed");
                 return;
@@ -544,14 +490,11 @@
                 helper.showErrorMessage(component, "Production Status is required");
                 return;
             }
-            if (threadPatternField === undefined && prodstatus === 'Produced') {
+            if (threadPatternField === undefined && prodstatus === 'Produced'  && jobinfo.ETT_job_type_card__c != 'Repair') {
                 helper.showErrorMessage(component, "Thread Pattern is required.");
                 return;
             }
-            if(inputFieldValve===undefined){
-                helper.showErrorMessage(component, "Valve is required.");
-                return;
-            }
+            
            
            
             
@@ -590,7 +533,38 @@
                         return;
                     }
                 }
+
+
             }
+            if($A.util.isEmpty(curingValue) && prodstatus === 'Produced'){
+                helper.showErrorMessage(component, "Valve No is required value ..");
+                return;
+            }
+            if($A.util.isEmpty(curingRound) && prodstatus === 'Produced'){
+                helper.showErrorMessage(component, "Curing Round is required ..");
+                return;
+            }
+            if($A.util.isUndefinedOrNull(curingstartTime) && prodstatus === 'Produced'){
+                helper.showErrorMessage(component, "Curing start time is required");
+                return;
+            }
+            if($A.util.isEmpty(curingChamber) && prodstatus === 'Produced'){
+                helper.showErrorMessage(component, "Curing Chamber is required");
+                return;
+            }
+            if($A.util.isUndefinedOrNull(curingendTime) && prodstatus === 'Produced'){
+                helper.showErrorMessage(component, "Curing End Time is required");
+                return;
+            }
+            if (prodstatus === 'Produced' || prodstatus === 'In Progress') {
+                const hasEmployee = listofEmployee.some(line => line.ETT_Employee_Name__c);
+                if (!hasEmployee) {
+                    helper.showErrorMessage(component, "Please Select Employee For Process.");
+                    return;
+                }
+
+            }
+
     
             // If no errors, submit the form
             component.find('JobCardCloseForm').submit();

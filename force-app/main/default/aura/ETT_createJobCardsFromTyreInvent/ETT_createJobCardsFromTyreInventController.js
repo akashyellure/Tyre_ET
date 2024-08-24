@@ -30,9 +30,9 @@
         console.log('serialNo=='+JSON.stringify(serialNo));
         console.log('tyreSizeVal=='+JSON.stringify(tyreSizeVal));
         console.log('brandVal=='+JSON.stringify(brandVal));
-           console.log('patternVal=='+JSON.stringify(patternVal));
-            console.log('partyType=='+JSON.stringify(partyType));
-            console.log('countryVal=='+JSON.stringify(countryVal));
+        console.log('patternVal=='+JSON.stringify(patternVal));
+        console.log('partyType=='+JSON.stringify(partyType));
+        console.log('countryVal=='+JSON.stringify(countryVal));
         if(serialNo || tyreSizeVal || brandVal ||patternVal || countryVal || partyType){
             let data = component.get("v.tyreDetails");
             console.log('data=='+JSON.stringify(data));

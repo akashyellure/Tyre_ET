@@ -102,6 +102,7 @@ public class ETT_JobCardTrgHandler {
         }
     }
     
+    
     public static void updateQuotationLineItems(Id tyreInventoryId) {
         List<ETT_Quotation_Line_Item__c> quotationLineItemsToUpdate = [
             SELECT Id, ETT_Status__c, ETT_Unit_Price__c, ETT_Tyre_Inventory__r.Id
@@ -201,39 +202,37 @@ public class ETT_JobCardTrgHandler {
         
     }
     public static void handleJobCardInsertion(List<ETT_Job_Card__c> triggerNew) {
-        System.debug('Inside handleJobCardInsertion method');
         List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
-    
         // Construct the HTML email body with embedded CSS
         String emailBody = '<html><head><style>' +
-                           'body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; padding: 20px; }' +
-                           '.container { background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }' +
-                           'table { width: 100%; border-collapse: collapse; margin-top: 20px; }' +
-                           'th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }' +
-                           'th { background-color: #f2f2f2; font-weight: bold; }' +
-                           '</style></head><body>' +
-                           '<div class="container">' +
-                           '<p>The following job cards have been created:</p>' +
-                           '<table>' +
-                           '<tr><th>Job card</th><th>Created Date</th></tr>';
-    
+            'body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; padding: 20px; }' +
+            '.container { background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }' +
+            'table { width: 100%; border-collapse: collapse; margin-top: 20px; }' +
+            'th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }' +
+            'th { background-color: #f2f2f2; font-weight: bold; }' +
+            '</style></head><body>' +
+            '<div class="container">' +
+            '<p>The following job cards have been created:</p>' +
+            '<table>' +
+            '<tr><th>Job card</th><th>Created Date</th></tr>';
+        
         // Assuming the jobCard details are similar to invoice items
         for (ETT_Job_Card__c jobCard : triggerNew) {
             // Append job card details to the HTML table
             emailBody += '<tr>' +
-                         '<td>' + jobCard.Name + '</td>' +
-                         '<td>' + jobCard.CreatedDate.format() + '</td>' + 
-                         '</tr>' ;
-                        
+                '<td>' + jobCard.Name + '</td>' +
+                '<td>' + jobCard.CreatedDate.format() + '</td>' + 
+                '</tr>' ;
+            
         }
-    
+        
         emailBody += '</table>' +
-                     '</div>' +
-                     '</body></html>';
-    
+            '</div>' +
+            '</body></html>';
+        
         try {
             OrgWideEmailAddress owea = [SELECT Id, Address, DisplayName FROM OrgWideEmailAddress WHERE DisplayName = 'No Reply' LIMIT 1];
-    
+            
             // Prepare the email
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
             mail.setToAddresses(new List<String>{'anishmp@et.ae'}); // Set recipient address
@@ -241,10 +240,10 @@ public class ETT_JobCardTrgHandler {
             mail.setHtmlBody(emailBody);
             mail.setReplyTo(owea.Address); // Set Reply-To address
             mail.setOrgWideEmailAddressId(owea.Id); // Set Org-Wide Email Address
-    
+            
             // Add email to the list
             emails.add(mail);
-    
+            
             // Send all emails at once
             if (!emails.isEmpty()) {
                 Messaging.sendEmail(emails);
@@ -253,9 +252,108 @@ public class ETT_JobCardTrgHandler {
             System.debug('An error occurred: ' + e.getMessage());
         }
     }
-    
+  public static void updateJobCardCloseDone(Map<Id, ETT_Job_Card__c> trgNewMap, Map<Id, ETT_Job_Card__c> trgOldMap) {
+    try {
+        Set<Id> collectionCardIds = new Set<Id>();
+        Map<Id, Decimal> totalJobCardClose = new Map<Id, Decimal>();
+        Map<Id, Decimal> totalNotCloseCount = new Map<Id, Decimal>();
+        Map<Id, Decimal> totalAcceptedCount = new Map<Id, Decimal>();
+        Map<Id, Decimal> totalRejectedBackCount = new Map<Id, Decimal>();
+        List<ETT_Collection_Card__c> collectionCardList = new List<ETT_Collection_Card__c>();
 
-   
+        // Collect all Collection Card IDs from the Job Card records where status has changed
+        for (Id jobCardId : trgNewMap.keySet()) {
+            ETT_Job_Card__c newJobCard = trgNewMap.get(jobCardId);
+            ETT_Job_Card__c oldJobCard = trgOldMap.get(jobCardId);
+
+            if (newJobCard.Collection_Card__c != null && 
+                newJobCard.ETT_Overall_Status__c != oldJobCard.ETT_Overall_Status__c) {
+                collectionCardIds.add(newJobCard.Collection_Card__c);
+            }
+        }
+
+        // Proceed only if there are collection cards with status changes
+        if (!collectionCardIds.isEmpty()) {
+            // Query to count total Job Card records grouped by Collection Card
+            for (AggregateResult ar : [
+                SELECT COUNT(Id) CountVal, Collection_Card__c ColCard 
+                FROM ETT_Job_Card__c 
+                WHERE Collection_Card__c IN :collectionCardIds 
+                GROUP BY Collection_Card__c
+            ]) {
+                totalJobCardClose.put((Id) ar.get('ColCard'), (Decimal) ar.get('CountVal'));
+            }
+
+            // Query to count total "Not Started" Job Card records grouped by Collection Card
+            for (AggregateResult ar : [
+                SELECT COUNT(Id) CountVal, Collection_Card__c ColCard 
+                FROM ETT_Job_Card__c 
+                WHERE Collection_Card__c IN :collectionCardIds AND ETT_Overall_Status__c = 'Not Started'
+                GROUP BY Collection_Card__c
+            ]) {
+                totalNotCloseCount.put((Id) ar.get('ColCard'), (Decimal) ar.get('CountVal'));
+            }
+
+            // Query to count total "Accepted" Job Card records grouped by Collection Card
+            for (AggregateResult ar : [
+                SELECT COUNT(Id) CountVal, Collection_Card__c ColCard 
+                FROM ETT_Job_Card__c 
+                WHERE Collection_Card__c IN :collectionCardIds AND ETT_Overall_Status__c = 'Accepted'
+                GROUP BY Collection_Card__c
+            ]) {
+                totalAcceptedCount.put((Id) ar.get('ColCard'), (Decimal) ar.get('CountVal'));
+            }
+
+            // Query to count total "Rejected" Job Card records grouped by Collection Card
+            for (AggregateResult ar : [
+                SELECT COUNT(Id) CountVal, Collection_Card__c ColCard 
+                FROM ETT_Job_Card__c 
+                WHERE Collection_Card__c IN :collectionCardIds AND ETT_Overall_Status__c = 'Rejected'
+                GROUP BY Collection_Card__c
+            ]) {
+                totalRejectedBackCount.put((Id) ar.get('ColCard'), (Decimal) ar.get('CountVal'));
+            }
+
+            // Update the Collection Card records based on the aggregated counts
+            for (ETT_Job_Card__c jobCC : trgNewMap.values()) {
+                ETT_Job_Card__c oldJobCard = trgOldMap.get(jobCC.Id);
+
+                // Proceed only if the status has changed
+                if (jobCC.Collection_Card__c != null && jobCC.ETT_Overall_Status__c != oldJobCard.ETT_Overall_Status__c) {
+                    Decimal totalCount = totalJobCardClose.containsKey(jobCC.Collection_Card__c) ? totalJobCardClose.get(jobCC.Collection_Card__c) : 0;
+                    Decimal acceptCount = totalAcceptedCount.containsKey(jobCC.Collection_Card__c) ? totalAcceptedCount.get(jobCC.Collection_Card__c) : 0;
+                    Decimal rejectedCount = totalRejectedBackCount.containsKey(jobCC.Collection_Card__c) ? totalRejectedBackCount.get(jobCC.Collection_Card__c) : 0;
+                    Decimal notClosedCount = totalNotCloseCount.containsKey(jobCC.Collection_Card__c) ? totalNotCloseCount.get(jobCC.Collection_Card__c) : 0;
+
+                    ETT_Collection_Card__c ccItem = new ETT_Collection_Card__c();
+                    ccItem.Id = jobCC.Collection_Card__c;
+                    ccItem.Job_Card_Close_Rejected__c = String.valueOf(rejectedCount);
+                    ccItem.Job_Card_Close_Approved__c = String.valueOf(acceptCount);
+                    ccItem.Job_Card_Close_In_Progress__c = String.valueOf(notClosedCount);
+
+                    if (notClosedCount == 0 && totalCount == (acceptCount + rejectedCount)) {
+                        ccItem.Job_Card_Close_Done__c = true;
+                    } else {
+                        ccItem.Job_Card_Close_Done__c = false;
+                    }
+
+                    collectionCardList.add(ccItem);
+                }
+            }
+
+            if (!collectionCardList.isEmpty()) {
+                update collectionCardList;
+                system.debug('Updated Successfully');
+            }
+        }
+    } catch (Exception e) {
+        throw new AuraHandledException(e.getMessage());
+    }
+}
+
+    
+    
+    
     
     public static void utilityMethodA(){
         integer i=0;

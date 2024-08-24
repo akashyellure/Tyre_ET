@@ -587,6 +587,7 @@ public without sharing class ETT_TyreCollectionDetailsInCC {
                         tyreLife.add(tin.ETT_Tyre_Life__c);
                     }
                 }
+                cc.No_of_Tyre__c = newTyreInvent.size();
 
                 List<ETT_Tyre_Inventory__c> tyreInventoryList = [
                     SELECT ETT_Brand__c, Serial_Number__c, ETT_Tyre_Life__c 

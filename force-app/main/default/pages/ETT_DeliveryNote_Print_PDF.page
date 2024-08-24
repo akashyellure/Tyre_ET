@@ -81,10 +81,15 @@
                        
                         <td colspan="3">
                             <apex:outputText rendered="{!dnl[0].ETT_Delivery_Note__r.Party_Type__c == 'Internal'}">
-                                {!dnl[0].ETT_Delivery_Note__r.SubInventory__r.Name}
+                                {!dnl[0].ETT_Delivery_Note__r.SubInventory__r.Name}<br/>
+                               
+                                 {!dnl[0].ETT_Delivery_Note__r.SubInventory__r.ETT_SubInventory_Code__c}
+                               
+                               
                             </apex:outputText>
                             <apex:outputText rendered="{!dnl[0].ETT_Delivery_Note__r.Party_Type__c != 'Internal'}">
-                                {!dnl[0].ETT_Delivery_Note__r.ETT_Account__r.Name}
+                                {!dnl[0].ETT_Delivery_Note__r.ETT_Account__r.Name}<br/>
+                                {!dnl[0].ETT_Delivery_Note__r.ETT_Account__r.AccountNumber}
                             </apex:outputText>
                         </td>
                         <th class="companyName">Delivery No:</th>
@@ -158,6 +163,7 @@
                             <div class="slds-truncate" title="Job Type">Job Type</div>
                         </th>
                        
+                       
                     </tr>
                 </thead>
                 <tbody>
@@ -176,13 +182,13 @@
                             <td>{!item.Thred_Pattern__c}</td>
                             <!--<td>{!item.ETT_Inspection_Card__r.ETT_Status__c}</td>-->
                             <td>
-                                <!-- Conditional rendering for Job_Type__c and Tyre_Type__c -->
-                                <apex:outputText rendered="{!item.Tyre_Inventory__r.Job_Type__c == 'Retread' && item.Tyre_Inventory__r.Tyre_Type__c =='Refurbished'}">
-                                    {!item.Tyre_Inventory__r.Job_Type__c}
-                                </apex:outputText>
-                                <apex:outputText rendered="{!item.Tyre_Inventory__r.Tyre_Type__c == 'Send Back' &&  item.Tyre_Inventory__r.Job_Type__c == 'Retread'}">
-                                    {!item.Job_type__c}
-                                </apex:outputText>
+                              <!-- Conditional rendering for Job_Type__c and Tyre_Type__c -->
+<apex:outputText rendered="{! (item.Tyre_Inventory__r.Job_Type__c == 'Retread' || item.Tyre_Inventory__r.Job_Type__c == 'Repair') && item.Tyre_Inventory__r.Tyre_Type__c != 'Send Back' }">
+    {!item.Tyre_Inventory__r.Job_Type__c}
+</apex:outputText>
+<apex:outputText rendered="{! item.Tyre_Inventory__r.Tyre_Type__c == 'Send Back' && (item.Tyre_Inventory__r.Job_Type__c == 'Retread' || item.Tyre_Inventory__r.Job_Type__c == 'Repair') }">
+    {!item.Job_type__c}
+</apex:outputText>
                             </td>
                         </tr>
                     </apex:repeat>

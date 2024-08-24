@@ -1410,7 +1410,7 @@
                     <!-- step 2 and sub step E-->
                     <aura:if isTrue="{!v.SubStepNo eq '10'}">
                         <button disabled="false" class="slds-button slds-button_brand" onclick="{!c.tyreLifeMoreThanOneBulgesDepressions}">Previous</button>
-                        <button disabled="{!v.submitLifemultiple}" class="slds-button slds-button_brand" onclick="{!c.SubmitMoreThanOneTyreLife}">Submit2222</button>
+                        <button disabled="{!v.submitLifemultiple}" class="slds-button slds-button_brand" onclick="{!c.SubmitMoreThanOneTyreLife}">Submit</button>
                     </aura:if>
                 </aura:if>
                 
